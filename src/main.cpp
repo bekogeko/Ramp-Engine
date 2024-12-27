@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <gl2d/gl2d.h>
 #include <openglErrorReporting.h>
 
 #include "imgui.h"
@@ -12,141 +11,124 @@
 
 static void error_callback(int error, const char *description)
 {
-	std::cout << "Error: " <<  description << "\n";
+    std::cout << "Error: " << description << "\n";
 }
-
 
 int main(void)
 {
+    std::cout << "Starting application...\n";
+    glfwSetErrorCallback(error_callback);
 
-	glfwSetErrorCallback(error_callback);
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW\n";
+        return -1;
+    }
+    std::cout << "GLFW initialized successfully\n";
 
-	if (!glfwInit())
-		exit(EXIT_FAILURE);
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-	GLFWwindow *window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
+    // create context with debug output
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-	glfwMakeContextCurrent(window);
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-	
-	enableReportGlErrors();
-	
-	//glfwSwapInterval(1); //vsync
+    GLFWwindow *window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    if (!window)
+    {
+        std::cerr << "Failed to create GLFW window\n";
+        glfwTerminate();
+        return -1;
+    }
+    std::cout << "GLFW window created successfully\n";
+
+    glfwMakeContextCurrent(window);
 
 
-#pragma region imgui
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cerr << "Failed to initialize GLAD\n";
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
+    std::cout << "GLAD initialized successfully\n";
+
+    // logging we eanble the debug output
+
+    std::cout << "Enabling debug output\n";
+    // Warning: something is wrong with this function
+        enableReportGlErrors();
+
+
 #if REMOVE_IMGUI == 0
-	ImGui::CreateContext();
-	//ImGui::StyleColorsDark();				//you can use whatever imgui theme you like!
-	//imguiThemes::yellow();
-	//imguiThemes::gray();
-	//imguiThemes::green();
-	imguiThemes::red();
-	//imguiThemes::embraceTheDarkness();
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-	ImGuiIO &io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-	//io.ConfigViewportsNoAutoMerge = true;
-	//io.ConfigViewportsNoTaskBarIcon = true;
+    ImGui::StyleColorsDark();
+    ImGuiStyle &style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
 
-	io.FontGlobalScale = 2.0f; //make text bigger please!
-
-	ImGuiStyle &style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		//style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 0.f;
-		style.Colors[ImGuiCol_DockingEmptyBg].w = 0.f;
-	}
-
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    std::cout << "ImGui initialized successfully\n";
 #endif
-#pragma endregion
 
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
 
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-	gl2d::init();
-	gl2d::Renderer2D renderer;
-	renderer.create();
+#if REMOVE_IMGUI == 0
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-	while (!glfwWindowShouldClose(window))
-	{
-		int width = 0, height = 0;
-		glfwGetFramebufferSize(window, &width, &height);
-		glViewport(0, 0, width, height);
-		glClear(GL_COLOR_BUFFER_BIT);
+        ImGui::Begin("Test");
+        ImGui::Text("Hello world!");
+        ImGui::Button("Press me!");
+        ImGui::End();
 
-	#pragma region imgui
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-	#pragma endregion
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow *backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
+#endif
 
-		renderer.updateWindowMetrics(width, height);
+        glfwSwapBuffers(window);
+    }
 
-		renderer.renderRectangle({0,0, 100, 100}, Colors_Green);
+#if REMOVE_IMGUI == 0
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+#endif
 
-		renderer.flush();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    std::cout << "Application terminated successfully\n";
 
-
-		ImGui::Begin("Test");
-		ImGui::Text("Hello world!");
-		ImGui::Button("Press me!");
-		ImGui::End();
-
-
-	#pragma region imgui
-		ImGui::Render();
-		int display_w, display_h;
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-		glViewport(0, 0, display_w, display_h);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		// Update and Render additional Platform Windows
-		// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-		//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow *backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
-	#pragma endregion
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	glfwDestroyWindow(window);
-
-	glfwTerminate();
-
-	return 0;
+    return 0;
 }
-

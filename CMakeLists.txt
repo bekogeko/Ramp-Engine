@@ -1,7 +1,8 @@
 #https://github.com/meemknight/GLFWCMakeSetup
 #Version 1.0.0
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
+cmake_policy(SET CMP0115 OLD)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -17,13 +18,14 @@ option(PRODUCTION_BUILD "Make this a production build" OFF)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) #link time optimization
+# no sure  $changed$
+#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) #link time optimization
 
 if(MSVC) 
 add_compile_options(/arch:AVX2) #make sure SIMD optimizations take place
 endif()
 
-project(mygame)
+project(Ray-Game)
 
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -38,10 +40,10 @@ add_subdirectory(thirdparty/glad)				#opengl loader
 add_subdirectory(thirdparty/stb_image)			#loading immaged
 add_subdirectory(thirdparty/stb_truetype)		#loading ttf files
 #add_subdirectory(thirdparty/enet-1.3.17)		#networking
-add_subdirectory(thirdparty/raudio)				#audio
+#add_subdirectory(thirdparty/raudio)				#audio
 add_subdirectory(thirdparty/glm)				#math
 add_subdirectory(thirdparty/imgui-docking)		#ui
-add_subdirectory(thirdparty/gl2d)				#rendering
+#add_subdirectory(thirdparty/gl2d)				#rendering
 
 
 # MY_SOURCES is defined to be a list of all the source files for my game 
@@ -92,7 +94,10 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 #	glad stb_image stb_truetype gl2d raudio imgui enet)
 
 #enet not working yet on linux for some reason
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw 
-	glad stb_image stb_truetype gl2d raudio imgui)
+#target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw
+#	glad stb_image stb_truetype gl2d raudio imgui)
 
+
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw
+		glad stb_image stb_truetype imgui)
 
