@@ -1,4 +1,3 @@
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -7,6 +6,7 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "Engine/LowRenderer.h"
 
 static void error_callback(int error, const char *description)
 {
@@ -57,9 +57,6 @@ int main(void)
     }
     std::cout << "GLAD initialized successfully\n";
 
-    // logging we eanble the debug output
-
-    std::cout << "Enabling debug output\n";
     // Warning: something is wrong with this function
     enableReportGlErrors();
 
@@ -85,14 +82,74 @@ int main(void)
     std::cout << "ImGui initialized successfully\n";
 #endif
 
+
+    // Triangle vertices
+    float vertices[] = {
+            0.0f,  0.5f, // Vertex 1 (X, Y)
+            0.5f, -0.5f, // Vertex 2 (X, Y)
+            -0.5f, -0.5f  // Vertex 3 (X, Y)
+    };
+
+    unsigned int VBO;
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+
+    // Vertex shader
+    const char *vertexShaderSource = "#version 330 core\n"
+                                     "layout (location = 0) in vec2 aPos;\n"
+                                     "void main()\n"
+                                     "{\n"
+                                     "   gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);\n"
+                                     "}\0";
+// Fragment shader
+    const char *fragmentShaderSource = "#version 330 core\n"
+                                       "out vec4 FragColor;\n"
+                                       "void main()\n"
+                                       "{\n"
+                                       "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                       "}\0";
+
+    LowRenderer lowRenderer;
+    Shader shader = lowRenderer.CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
+
+
+    // Vertex array object
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+
+
+
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        shader.Use();
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+
+
+
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
@@ -115,7 +172,6 @@ int main(void)
             glfwMakeContextCurrent(backup_current_context);
         }
 #endif
-
         glfwSwapBuffers(window);
     }
 
