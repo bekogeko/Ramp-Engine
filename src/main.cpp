@@ -1,4 +1,4 @@
-#define GLFW_INCLUDE_NONE
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -7,7 +7,6 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "imguiThemes.h"
 
 static void error_callback(int error, const char *description)
 {
@@ -62,7 +61,7 @@ int main(void)
 
     std::cout << "Enabling debug output\n";
     // Warning: something is wrong with this function
-        enableReportGlErrors();
+    enableReportGlErrors();
 
 
 #if REMOVE_IMGUI == 0
