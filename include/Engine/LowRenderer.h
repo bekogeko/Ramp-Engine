@@ -11,7 +11,7 @@
 class LowRenderer {
 
 public:
-    Shader CreateShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource);
+    static Shader CreateShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource);
 };
 
 

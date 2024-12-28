@@ -7,6 +7,7 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "Engine/LowRenderer.h"
+#include "Engine/Window.h"
 
 static void error_callback(int error, const char *description)
 {
@@ -18,44 +19,7 @@ int main(void)
     std::cout << "Starting application...\n";
     glfwSetErrorCallback(error_callback);
 
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialize GLFW\n";
-        return -1;
-    }
-    std::cout << "GLFW initialized successfully\n";
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
-
-    // create context with debug output
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-
-    GLFWwindow *window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
-    if (!window)
-    {
-        std::cerr << "Failed to create GLFW window\n";
-        glfwTerminate();
-        return -1;
-    }
-    std::cout << "GLFW window created successfully\n";
-
-    glfwMakeContextCurrent(window);
-
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cerr << "Failed to initialize GLAD\n";
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return -1;
-    }
-    std::cout << "GLAD initialized successfully\n";
+    Window window(640, 480, "Simple example");
 
     // Warning: something is wrong with this function
     enableReportGlErrors();
@@ -77,7 +41,7 @@ int main(void)
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window.getRawWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
     std::cout << "ImGui initialized successfully\n";
 #endif
@@ -90,11 +54,6 @@ int main(void)
             -0.5f, -0.5f  // Vertex 3 (X, Y)
     };
 
-    unsigned int VBO;
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
     // Vertex shader
@@ -112,9 +71,13 @@ int main(void)
                                        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
                                        "}\0";
 
-    LowRenderer lowRenderer;
-    Shader shader = lowRenderer.CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
+    Shader shader = LowRenderer::CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 
+    unsigned int VBO;
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Vertex array object
     unsigned int VAO;
@@ -132,9 +95,9 @@ int main(void)
 
 
 
-    while (!glfwWindowShouldClose(window))
+    while (!window.shouldClose())
     {
-        glfwPollEvents();
+        window.pollInputs();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -147,10 +110,6 @@ int main(void)
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
-
-
-
-
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -158,7 +117,10 @@ int main(void)
 
         ImGui::Begin("Test");
         ImGui::Text("Hello world!");
-        ImGui::Button("Press me!");
+        if(ImGui::Button("Press me!", ImVec2(100, 50))){
+            std::cout << "Button pressed\n";
+
+        }
         ImGui::End();
 
         ImGui::Render();
@@ -172,7 +134,7 @@ int main(void)
             glfwMakeContextCurrent(backup_current_context);
         }
 #endif
-        glfwSwapBuffers(window);
+            window.swapBuffers();
     }
 
 #if REMOVE_IMGUI == 0
@@ -181,8 +143,6 @@ int main(void)
     ImGui::DestroyContext();
 #endif
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
     std::cout << "Application terminated successfully\n";
 
     return 0;
