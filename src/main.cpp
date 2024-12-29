@@ -10,6 +10,7 @@
 #include "Engine/LowRenderer.h"
 #include "Engine/Window.h"
 #include "Engine/VertexArray.h"
+#include "Engine/HighRenderer.h"
 
 static void error_callback(int error, const char *description) {
     std::cout << "Error: " << description << "\n";
@@ -61,13 +62,43 @@ int main() {
             1, 2, 3 // second triangle
     };
 
+//    auto *object = new Object(vertices, sizeof(vertices), indices, sizeof(indices));
+    //
+//    auto object = std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+
+//    HighRenderer::RegisterObject(object);
+
+//    Object* obj = HighRenderer::
+
+
+    // setup shader
+    Shader shader = LowRenderer::CreateShaderProgram(std::string("default.vert"), "default.frag");
+
+    // setup vertex array
+    Object vertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
+
+    // bind the shader
+//    shader.Bind();
+    // bind the vertex array
+//    vertexArray.Bind();
+
+
     while (!window.shouldClose()) {
-        window.pollInputs();
+
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+//        shader.Bind();
+//        vertexArray.Bind();
+//        vertexArray.DrawElements();
+
+        shader.Bind();
+        vertexArray.Draw();
+
 //        HighRenderer::Draw();
+
+//        object->Draw();
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
@@ -93,6 +124,7 @@ int main() {
         }
 #endif
         window.swapBuffers();
+        window.pollInputs();
     }
 
 #if REMOVE_IMGUI == 0
@@ -107,7 +139,6 @@ int main() {
 
     // TODO: Clean up
     // Probably need to delete the shader and vertex arrays
-    // this method should be adapted to the new HighRenderer system
     //    shader.Delete();
     //    vertexArray.Delete();
 

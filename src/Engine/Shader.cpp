@@ -65,6 +65,7 @@ void Shader::SetFragmentShader(const char *fragmentShaderSource) {
         // no error in vertex and fragment shader
         if (!isVertexShader && !isFragmentShader) {
             isCompiled = true;
+            isErrored = false;
         }
     }
 }
@@ -94,6 +95,16 @@ void Shader::CompileShader() {
         isLinked = true;
     } else {
         isCompiled = true;
+        isLinked = false;
+
+        // no error in vertex and fragment shader
+        if (!isVertexShader && !isFragmentShader) {
+            isCompiled = true;
+            isErrored = false;
+            isLinked = false;
+        }
+
+
     }
 
     glDeleteShader(vertexShaderID);

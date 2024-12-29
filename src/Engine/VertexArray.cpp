@@ -60,13 +60,18 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
 
     // Copy indices to buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
-    
+
+
+    // Enable vertex attributes
+    glEnableVertexAttribArray(0);
+
+    // warning: there might be a bug here
+
+
     // Set vertex attributes
     // Position attribute (2 floats)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
 
-    // Enable vertex attributes
-    glEnableVertexAttribArray(0);
 
     // Unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);

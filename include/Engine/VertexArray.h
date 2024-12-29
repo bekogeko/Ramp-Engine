@@ -30,10 +30,19 @@ public:
     }
 
     void Bind() const {
+
+        // bind the Vertex Array Object first,
+        // then bind and set vertex buffer(s), and then configure vertex attributes(s).
         glBindVertexArray(m_VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     }
 
     void Unbind() {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
 
@@ -43,7 +52,7 @@ public:
     }
 
     void DrawElements() const {
-        unsigned int count = m_size / sizeof(float);
+        unsigned int count = m_size / sizeof(unsigned int);
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
     }
 
