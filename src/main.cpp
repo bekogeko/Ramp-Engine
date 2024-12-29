@@ -61,25 +61,13 @@ int main() {
             1, 2, 3 // second triangle
     };
 
-    Shader shader = LowRenderer::CreateShaderProgram(std::string("default.vert"),
-                                                     std::string("default.frag"));
-
-    // Vertex Array Object
-    VertexArray vertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
-
     while (!window.shouldClose()) {
         window.pollInputs();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
-        shader.Bind();
-        vertexArray.Bind();
-        vertexArray.DrawElements();
-
-        vertexArray.Unbind();
-        shader.Unbind();
+//        HighRenderer::Draw();
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
@@ -117,8 +105,11 @@ int main() {
     //clean up
     std::cout << "Cleaning up...\n";
 
-    shader.Delete();
-    vertexArray.Delete();
+    // TODO: Clean up
+    // Probably need to delete the shader and vertex arrays
+    // this method should be adapted to the new HighRenderer system
+    //    shader.Delete();
+    //    vertexArray.Delete();
 
     std::cout << "Application terminated successfully\n";
 
