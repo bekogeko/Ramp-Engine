@@ -11,7 +11,12 @@
 class LowRenderer {
 
 public:
+    // from source code
     static Shader CreateShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource);
+
+    // from file path
+    static Shader CreateShaderProgram(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
+
 };
 
 

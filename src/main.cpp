@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <filesystem>
 #include <openglErrorReporting.h>
 
 #include "imgui.h"
@@ -16,6 +17,7 @@ static void error_callback(int error, const char *description) {
 
 int main() {
     std::cout << "Starting application...\n";
+
     glfwSetErrorCallback(error_callback);
 
     Window window(640, 480, "Simple example");
@@ -59,26 +61,8 @@ int main() {
             1, 2, 3 // second triangle
     };
 
-
-
-
-
-    // Vertex shader
-    const char *vertexShaderSource = "#version 330 core\n"
-                                     "layout (location = 0) in vec2 aPos;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "   gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);\n"
-                                     "}\0";
-// Fragment shader
-    const char *fragmentShaderSource = "#version 330 core\n"
-                                       "out vec4 FragColor;\n"
-                                       "void main()\n"
-                                       "{\n"
-                                       "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                                       "}\0";
-
-    Shader shader = LowRenderer::CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
+    Shader shader = LowRenderer::CreateShaderProgram(std::string("default.vert"),
+                                                     std::string("default.frag"));
 
     // Vertex Array Object
     VertexArray VertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
@@ -92,10 +76,7 @@ int main() {
 
         shader.Bind();
         VertexArray.Bind();
-//        VertexArray.Draw();
         VertexArray.DrawElements();
-
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         VertexArray.Unbind();
         shader.Unbind();
