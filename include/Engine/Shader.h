@@ -4,7 +4,13 @@
 
 #ifndef RAY_GAME_SHADER_H
 #define RAY_GAME_SHADER_H
-
+struct ShaderCompilationStatus {
+    bool isCompiled;
+    bool isErrored;
+    bool isLinked;
+    bool isVertexShader;
+    bool isFragmentShader;
+};
 
 class Shader {
 
@@ -23,22 +29,29 @@ private:
 
 public:
     void SetVertexShader(const char *vertexShaderSource);
+
     void SetFragmentShader(const char *fragmentShaderSource);
 
     void CompileShader();
-    int GetCompilationStatus();
-    void Delete() const;
 
+    ShaderCompilationStatus GetCompilationStatus() const;
+
+    void Delete() const;
 
 
     [[nodiscard]] unsigned int GetID() const {
         return programID;
     }
 
-    void Use();
+    void Bind();
+
+    void Unbind();
+
     Shader();
+
     Shader(const char *vertexShaderSource, const char *fragmentShaderSource);
 
+    ~Shader();
 
 };
 

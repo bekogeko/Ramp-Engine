@@ -8,14 +8,13 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "Engine/LowRenderer.h"
 #include "Engine/Window.h"
+#include "Engine/VertexArray.h"
 
-static void error_callback(int error, const char *description)
-{
+static void error_callback(int error, const char *description) {
     std::cout << "Error: " << description << "\n";
 }
 
-int main(void)
-{
+int main() {
     std::cout << "Starting application...\n";
     glfwSetErrorCallback(error_callback);
 
@@ -28,15 +27,15 @@ int main(void)
 #if REMOVE_IMGUI == 0
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO(); (void)io;
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ImGui::StyleColorsDark();
     ImGuiStyle &style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
@@ -47,12 +46,20 @@ int main(void)
 #endif
 
 
-    // Triangle vertices
+    // Rectangle vertices
     float vertices[] = {
-            0.0f,  0.5f, // Vertex 1 (X, Y)
-            0.5f, -0.5f, // Vertex 2 (X, Y)
-            -0.5f, -0.5f  // Vertex 3 (X, Y)
+            0.5f, 0.5f, // top right
+            0.5f, -0.5f, // bottom right
+            -0.5f, -0.5f, // bottom left
+            -0.5f, 0.5f // top left
     };
+
+    unsigned int indices[] = {
+            0, 1, 3, // first triangle
+            1, 2, 3 // second triangle
+    };
+
+
 
 
 
@@ -73,42 +80,25 @@ int main(void)
 
     Shader shader = LowRenderer::CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 
-    unsigned int VBO;
+    // Vertex Array Object
+    VertexArray VertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
 
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Vertex array object
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-
-
-
-
-    while (!window.shouldClose())
-    {
+    while (!window.shouldClose()) {
         window.pollInputs();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        shader.Bind();
+        VertexArray.Bind();
+//        VertexArray.Draw();
+        VertexArray.DrawElements();
 
-        shader.Use();
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+        VertexArray.Unbind();
+        shader.Unbind();
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
@@ -117,7 +107,7 @@ int main(void)
 
         ImGui::Begin("Test");
         ImGui::Text("Hello world!");
-        if(ImGui::Button("Press me!", ImVec2(100, 50))){
+        if (ImGui::Button("Press me!", ImVec2(100, 50))) {
             std::cout << "Button pressed\n";
 
         }
@@ -126,15 +116,14 @@ int main(void)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             GLFWwindow *backup_current_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
 #endif
-            window.swapBuffers();
+        window.swapBuffers();
     }
 
 #if REMOVE_IMGUI == 0

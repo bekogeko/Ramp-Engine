@@ -19,22 +19,20 @@ void Shader::SetVertexShader(const char *vertexShaderSource) {
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
+    if (!success) {
         glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 
         isCompiled = false;
         isErrored = true;
-        isVertexShader= true;
-    }
-    else {
+        isVertexShader = true;
+    } else {
         // success
         // no error in vertex shader
         isVertexShader = false;
 
         // no error in vertex and fragment shader
-        if(!isVertexShader && !isFragmentShader) {
+        if (!isVertexShader && !isFragmentShader) {
             isCompiled = true;
         }
     }
@@ -74,7 +72,7 @@ void Shader::SetFragmentShader(const char *fragmentShaderSource) {
 void Shader::CompileShader() {
 
 
-    if(!isCompiled){
+    if (!isCompiled) {
         return;
     }
 
@@ -102,8 +100,8 @@ void Shader::CompileShader() {
     glDeleteShader(fragmentShaderID);
 }
 
-void Shader::Use() {
-    if(!isCompiled){
+void Shader::Bind() {
+    if (!isCompiled) {
         return;
     }
     // bind
@@ -134,6 +132,27 @@ void Shader::Delete() const {
     glDeleteProgram(programID);
     glDeleteShader(vertexShaderID);
     glDeleteShader(fragmentShaderID);
+}
+
+void Shader::Unbind() {
+    glUseProgram(0);
+}
+
+
+ShaderCompilationStatus Shader::GetCompilationStatus() const {
+
+    ShaderCompilationStatus status{};
+    status.isCompiled = isCompiled;
+    status.isErrored = isErrored;
+    status.isLinked = isLinked;
+    status.isVertexShader = isVertexShader;
+    status.isFragmentShader = isFragmentShader;
+
+    return status;
+}
+
+Shader::~Shader() {
+    Delete();
 }
 
 
