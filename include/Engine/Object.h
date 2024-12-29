@@ -40,15 +40,15 @@ public:
         m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
         m_shader = LowRenderer::CreateShaderProgram((std::string) "default.vert", "default.frag");
 
+        m_shader.CompileShader();
     }
 
 
     void Draw() {
-//        m_shader.Bind();
+        m_shader.Bind();
         m_vertexArray->Bind();
 
         m_vertexArray->DrawElements();
-//        m_vertexArray.Draw();
 
         m_shader.Unbind();
         m_vertexArray->Unbind();

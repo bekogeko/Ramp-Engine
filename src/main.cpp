@@ -7,9 +7,8 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "Engine/LowRenderer.h"
+
 #include "Engine/Window.h"
-#include "Engine/VertexArray.h"
 #include "Engine/HighRenderer.h"
 
 static void error_callback(int error, const char *description) {
@@ -62,26 +61,8 @@ int main() {
             1, 2, 3 // second triangle
     };
 
-//    auto *object = new Object(vertices, sizeof(vertices), indices, sizeof(indices));
-    //
-//    auto object = std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
-
-//    HighRenderer::RegisterObject(object);
-
-//    Object* obj = HighRenderer::
-
-
-    // setup shader
-    Shader shader = LowRenderer::CreateShaderProgram(std::string("default.vert"), "default.frag");
-
-    // setup vertex array
-    Object vertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
-
-    // bind the shader
-//    shader.Bind();
-    // bind the vertex array
-//    vertexArray.Bind();
-
+    // register object transfer to high renderer
+    HighRenderer::RegisterObject(std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices)));
 
     while (!window.shouldClose()) {
 
@@ -89,16 +70,8 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-//        shader.Bind();
-//        vertexArray.Bind();
-//        vertexArray.DrawElements();
+        HighRenderer::Draw();
 
-        shader.Bind();
-        vertexArray.Draw();
-
-//        HighRenderer::Draw();
-
-//        object->Draw();
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
