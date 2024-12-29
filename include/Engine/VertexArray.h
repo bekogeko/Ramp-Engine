@@ -26,8 +26,7 @@ public:
 
 
     ~VertexArray() {
-        glDeleteVertexArrays(1, &m_VAO);
-        glDeleteBuffers(1, &m_VBO);
+        Delete();
     }
 
     void Bind() const {
@@ -46,6 +45,12 @@ public:
     void DrawElements() const {
         unsigned int count = m_size / sizeof(float);
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+    }
+
+    void Delete() {
+        glDeleteVertexArrays(1, &m_VAO);
+        glDeleteBuffers(1, &m_VBO);
+        glDeleteBuffers(1, &m_EBO);
     }
 
 };

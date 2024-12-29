@@ -65,7 +65,7 @@ int main() {
                                                      std::string("default.frag"));
 
     // Vertex Array Object
-    VertexArray VertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
+    VertexArray vertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
 
     while (!window.shouldClose()) {
         window.pollInputs();
@@ -75,10 +75,10 @@ int main() {
 
 
         shader.Bind();
-        VertexArray.Bind();
-        VertexArray.DrawElements();
+        vertexArray.Bind();
+        vertexArray.DrawElements();
 
-        VertexArray.Unbind();
+        vertexArray.Unbind();
         shader.Unbind();
 
 #if REMOVE_IMGUI == 0
@@ -112,6 +112,13 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 #endif
+
+
+    //clean up
+    std::cout << "Cleaning up...\n";
+
+    shader.Delete();
+    vertexArray.Delete();
 
     std::cout << "Application terminated successfully\n";
 
