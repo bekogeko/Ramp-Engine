@@ -24,7 +24,7 @@ private:
 
     bool isCompiled;
     bool isErrored;
-    // if errored is true, then we can check if it is vertex or fragment shader
+    // if errored is true, then we can check if it is a vertex or fragment shader
     bool isFragmentShader;
     bool isVertexShader;
     bool isLinked;
@@ -60,6 +60,12 @@ public:
     Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
 
     ~Shader();
+
+
+    // set uniform for colors (R,G,B)
+    void SetUniform3f(const std::string &name, float x, float y, float z);
+
+    void SetUniform2f(const std::string &name, float x, float y);
 
 };
 

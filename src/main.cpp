@@ -65,8 +65,16 @@ int main() {
 //    HighRenderer::RegisterObject(std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices)));
 
     std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
-    
+    // create obj2 with diffrent color and position
+
+    std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+
+    obj2->position = {0.2, 0.2};
+    obj2->color = {1.0, 0.55, 0.2};
+
     HighRenderer::RegisterObject(obj);
+    HighRenderer::RegisterObject(obj2);
+
     while (!window.shouldClose()) {
 
 
@@ -112,11 +120,7 @@ int main() {
 
     //clean up
     std::cout << "Cleaning up...\n";
-
-    // TODO: Clean up
-    // Probably need to delete the shader and vertex arrays
-    //    shader.Delete();
-    //    vertexArray.Delete();
+    HighRenderer::FreeAll();
 
     std::cout << "Application terminated successfully\n";
 

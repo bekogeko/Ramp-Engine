@@ -27,6 +27,11 @@ public:
         return id++;
     }
 
+
+    // Free
+    static void FreeAll() {
+        m_objects.clear();
+    }
 };
 
 #endif //RAY_GAME_HIGHRENDERER_H

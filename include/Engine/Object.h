@@ -7,6 +7,8 @@
 
 #include "VertexArray.h"
 #include "Shader.h"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 #include <string>
 
 class Object {
@@ -18,6 +20,11 @@ private:
     bool m_isRegistered = false;
     unsigned int m_Id = 0;
 public:
+
+    glm::vec2 position;
+    glm::vec3 color;
+
+
     // 'registered' event called by HighRenderer
     [[nodiscard]] bool isRegistered() const {
         return m_isRegistered;
@@ -39,6 +46,13 @@ public:
     void Draw() {
 
         m_shader->Bind();
+
+        // set uPosition
+        m_shader->SetUniform2f("uPosition", position.x, position.y);
+        // set uColor
+        m_shader->SetUniform3f("uColor", color.r, color.g, color.b);
+
+
         m_vertexArray->Bind();
 
         m_vertexArray->DrawElements();
@@ -46,6 +60,7 @@ public:
         m_shader->Unbind();
         m_vertexArray->Unbind();
     }
+
 
 };
 
