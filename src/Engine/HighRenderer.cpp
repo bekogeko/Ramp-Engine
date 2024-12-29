@@ -4,16 +4,17 @@
 
 #include "Engine/HighRenderer.h"
 
-std::vector<std::unique_ptr<Object>> HighRenderer::m_objects;
+std::map<unsigned int, std::weak_ptr<Object>> HighRenderer::m_objects;
 
 
-void HighRenderer::RegisterObject(std::unique_ptr<Object> object) {
+void HighRenderer::RegisterObject(const std::shared_ptr<Object> &object) {
     object->registerObject();
-    m_objects.push_back(std::move(object));
+    m_objects[object->getId()] = object;
+    std::cout << "Object registered with id: " << object->getId() << std::endl;
 }
 
 void HighRenderer::Draw() {
-    for (auto &object: m_objects) {
-        object->Draw();
+    for (auto [i, object]: m_objects) {
+        object.lock()->Draw();
     }
 }

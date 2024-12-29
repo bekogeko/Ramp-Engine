@@ -62,8 +62,11 @@ int main() {
     };
 
     // register object transfer to high renderer
-    HighRenderer::RegisterObject(std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices)));
+//    HighRenderer::RegisterObject(std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices)));
 
+    std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+    
+    HighRenderer::RegisterObject(obj);
     while (!window.shouldClose()) {
 
 

@@ -7,21 +7,27 @@
 
 #include <glad/glad.h>
 #include <iostream>
+#include <map>
 
 #include "Object.h"
 
 class HighRenderer {
 private:
     // array of game objects
-    static std::vector<std::unique_ptr<Object>> m_objects;
+    static std::map<unsigned int, std::weak_ptr<Object>> m_objects;
 
 
 public:
-    static void RegisterObject(std::unique_ptr<Object> object);
+    static void RegisterObject(const std::shared_ptr<Object> &object);
 
     static void Draw();
 
+    static int GetNextId() {
+        static int id = 1;
+        return id++;
+    }
 
 };
 
 #endif //RAY_GAME_HIGHRENDERER_H
+

@@ -7,16 +7,16 @@
 
 #include "VertexArray.h"
 #include "Shader.h"
-#include "LowRenderer.h"
 #include <string>
 
 class Object {
 private:
     std::unique_ptr<VertexArray> m_vertexArray;
-    Shader m_shader;
+    std::unique_ptr<Shader> m_shader;
 
 private:
     bool m_isRegistered = false;
+    unsigned int m_Id = 0;
 public:
     // 'registered' event called by HighRenderer
     [[nodiscard]] bool isRegistered() const {
@@ -28,29 +28,22 @@ public:
         m_isRegistered = true;
     }
 
-//    Object(float *vertices, unsigned int size) : m_vertexArray(vertices, size) {
-//
-//        m_shader = LowRenderer::CreateShaderProgram((std::string) "default.vert", "shaders/fragment.glsl");
-//
-//    }
-
-    // with EBO
-    explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize) {
-
-        m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
-        m_shader = LowRenderer::CreateShaderProgram((std::string) "default.vert", "default.frag");
-
-        m_shader.CompileShader();
+    // get object id
+    [[nodiscard]] unsigned int getId() const {
+        return m_Id;
     }
 
+    // with EBO
+    explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
 
     void Draw() {
-        m_shader.Bind();
+
+        m_shader->Bind();
         m_vertexArray->Bind();
 
         m_vertexArray->DrawElements();
 
-        m_shader.Unbind();
+        m_shader->Unbind();
         m_vertexArray->Unbind();
     }
 

@@ -4,6 +4,9 @@
 
 #ifndef RAY_GAME_SHADER_H
 #define RAY_GAME_SHADER_H
+
+#include <string>
+
 struct ShaderCompilationStatus {
     bool isCompiled;
     bool isErrored;
@@ -25,6 +28,9 @@ private:
     bool isFragmentShader;
     bool isVertexShader;
     bool isLinked;
+
+    // read shader source code from file
+    static std::string ReadShaderSource(const std::string &shaderPath);
 
 
 public:
@@ -50,6 +56,8 @@ public:
     Shader();
 
     Shader(const char *vertexShaderSource, const char *fragmentShaderSource);
+
+    Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
 
     ~Shader();
 

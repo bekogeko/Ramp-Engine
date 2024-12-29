@@ -5,6 +5,8 @@
 #include "Engine/Shader.h"
 #include "glad/glad.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 
 void Shader::SetVertexShader(const char *vertexShaderSource) {
@@ -139,6 +141,17 @@ Shader::Shader(const char *vertexShaderSource, const char *fragmentShaderSource)
     CompileShader();
 }
 
+Shader::Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath) {
+
+    std::string vertexShaderSource = ReadShaderSource(vertexShaderPath);
+    std::string fragmentShaderSource = ReadShaderSource(fragmentShaderPath);
+
+    SetVertexShader(vertexShaderSource.c_str());
+    SetFragmentShader(fragmentShaderSource.c_str());
+    CompileShader();
+}
+
+
 void Shader::Delete() const {
     glDeleteProgram(programID);
     glDeleteShader(vertexShaderID);
@@ -167,3 +180,32 @@ Shader::~Shader() {
 }
 
 
+std::string Shader::ReadShaderSource(const std::string &shaderPath) {
+
+#if PRODUCTION_BUILD == 1
+
+
+    // solve for relative path
+    std::string shaderFullPath = std::filesystem::current_path().c_str();
+    shaderFullPath += &RESOURCES_PATH[1];
+    shaderFullPath += shaderPath;
+ßß
+#elif PRODUCTION_BUILD == 0
+    std::string shaderFullPath = RESOURCES_PATH + shaderPath;
+#endif
+
+    std::string shaderSource;
+
+    // read shader source code
+    std::ifstream shaderFile;
+
+    shaderFile.open(shaderFullPath.c_str());
+    std::stringstream shaderStream;
+    shaderStream << shaderFile.rdbuf();
+    shaderSource = shaderStream.str();
+
+    // close file
+    shaderFile.close();
+
+    return shaderSource;
+}
