@@ -14,11 +14,15 @@
 class HighRenderer {
 private:
     // array of game objects
-    static std::map<unsigned int, std::weak_ptr<Object>> m_objects;
-
-
+    static std::map<unsigned int, std::shared_ptr<Object>> m_objects;
+    
 public:
-    static void RegisterObject(const std::shared_ptr<Object> &object);
+    static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
+
+    static unsigned int
+    RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
+
+    static std::shared_ptr<Object> getById(unsigned int id);
 
     static void Draw();
 

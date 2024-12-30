@@ -62,11 +62,16 @@ int main() {
     };
 
     // register object transfer to high renderer
-//    HighRenderer::RegisterObject(std::make_unique<Object>(vertices, sizeof(vertices), indices, sizeof(indices)));
+    unsigned int id = HighRenderer::RegisterObject(vertices, sizeof(vertices), indices, sizeof(indices));
+    // get objects by id
+    auto objId = HighRenderer::getById(id);
+    
+    objId->position.x -= 0.5;
+    objId->color.r = 1;
+
 
     std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
-    // create obj2 with diffrent color and position
-
+    // create obj2 with different color and position
     std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
 
     obj2->position = {0.2, 0.2};
