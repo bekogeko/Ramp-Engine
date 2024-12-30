@@ -5,7 +5,6 @@
 #ifndef RAY_GAME_HIGHRENDERER_H
 #define RAY_GAME_HIGHRENDERER_H
 
-#include <glad/glad.h>
 #include <iostream>
 #include <map>
 
@@ -15,7 +14,7 @@ class HighRenderer {
 private:
     // array of game objects
     static std::map<unsigned int, std::shared_ptr<Object>> m_objects;
-    
+
 public:
     static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
 
