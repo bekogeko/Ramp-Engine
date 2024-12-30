@@ -6,6 +6,8 @@
 
 std::map<unsigned int, std::shared_ptr<Object>> HighRenderer::m_objects;
 
+OrthoCamera HighRenderer::m_Camera(4, 3);
+
 
 unsigned int HighRenderer::RegisterObject(const std::shared_ptr<Object> &object) {
     object->registerObject();
@@ -35,4 +37,7 @@ HighRenderer::RegisterObject(float *vertices, unsigned int size, unsigned int *i
     return newObj->getId();
 }
 
+OrthoCamera &HighRenderer::getCamera() {
+    return m_Camera;
+}
 
