@@ -13,7 +13,7 @@ void Player::Draw() {
 void Player::Update(float deltaTime) {
 
     // get obj from Renderer
-    auto obj = HighRenderer::getById(m_ObjectId);
+    auto obj = getObject();
 
     obj->position.x += 0.01f;
 }
