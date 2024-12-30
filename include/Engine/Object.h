@@ -64,7 +64,11 @@ public:
         ///
         /// Render Stage
         ///
-        /// TODO: We should call `Draw()` for each component
+        for (auto &firstComponent: m_components) {
+            // get first component
+            firstComponent->Draw();
+        }
+
         m_shader->Bind();
 
         // set uPosition

@@ -5,9 +5,15 @@
 #include "Player.h"
 #include "Engine/HighRenderer.h"
 #include <iostream>
+#include "imgui.h"
 
 void Player::Draw() {
-//    std::cout << "hi player!" << std::endl;
+
+    ImGui::Begin("Player");
+
+    
+    ImGui::End();
+
 }
 
 void Player::Update(float deltaTime) {

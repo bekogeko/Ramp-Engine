@@ -89,13 +89,15 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        HighRenderer::Draw();
-
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+
+        HighRenderer::Draw();
+
 
         ImGui::Begin("Test");
         ImGui::Text("Hello world!");
