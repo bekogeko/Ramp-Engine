@@ -7,9 +7,9 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "Engine/LowRenderer.h"
+
 #include "Engine/Window.h"
-#include "Engine/VertexArray.h"
+#include "Engine/HighRenderer.h"
 
 static void error_callback(int error, const char *description) {
     std::cout << "Error: " << description << "\n";
@@ -61,25 +61,33 @@ int main() {
             1, 2, 3 // second triangle
     };
 
-    Shader shader = LowRenderer::CreateShaderProgram(std::string("default.vert"),
-                                                     std::string("default.frag"));
+    // register object transfer to high renderer
+    unsigned int id = HighRenderer::RegisterObject(vertices, sizeof(vertices), indices, sizeof(indices));
+    // get objects by id
+    auto objId = HighRenderer::getById(id);
+    
+    objId->position.x -= 0.5;
+    objId->color.r = 1;
 
-    // Vertex Array Object
-    VertexArray vertexArray(vertices, sizeof(vertices), indices, sizeof(indices));
+
+    std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+    // create obj2 with different color and position
+    std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+
+    obj2->position = {0.2, 0.2};
+    obj2->color = {1.0, 0.55, 0.2};
+
+    HighRenderer::RegisterObject(obj);
+    HighRenderer::RegisterObject(obj2);
 
     while (!window.shouldClose()) {
-        window.pollInputs();
+
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        HighRenderer::Draw();
 
-        shader.Bind();
-        vertexArray.Bind();
-        vertexArray.DrawElements();
-
-        vertexArray.Unbind();
-        shader.Unbind();
 
 #if REMOVE_IMGUI == 0
         ImGui_ImplOpenGL3_NewFrame();
@@ -105,6 +113,7 @@ int main() {
         }
 #endif
         window.swapBuffers();
+        window.pollInputs();
     }
 
 #if REMOVE_IMGUI == 0
@@ -116,9 +125,7 @@ int main() {
 
     //clean up
     std::cout << "Cleaning up...\n";
-
-    shader.Delete();
-    vertexArray.Delete();
+    HighRenderer::FreeAll();
 
     std::cout << "Application terminated successfully\n";
 
