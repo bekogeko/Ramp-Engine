@@ -18,8 +18,9 @@ unsigned int HighRenderer::RegisterObject(const std::shared_ptr<Object> &object)
 }
 
 void HighRenderer::Draw() {
+
     for (auto [i, object]: m_objects) {
-        object.get()->Draw();
+        object->Draw(m_Camera.getCameraMatrix());
     }
 }
 
@@ -36,6 +37,7 @@ HighRenderer::RegisterObject(float *vertices, unsigned int size, unsigned int *i
     m_objects[newObj->getId()] = newObj;
     return newObj->getId();
 }
+
 
 OrthoCamera &HighRenderer::getCamera() {
     return m_Camera;

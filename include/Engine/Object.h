@@ -11,6 +11,7 @@
 #include "glm/vec3.hpp"
 #include "Component.h"
 #include "LowRenderer.h"
+#include "Camera.h"
 #include <string>
 #include <iostream>
 
@@ -47,43 +48,7 @@ public:
     // with EBO
     explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
 
-    void Draw() {
-
-        ///
-        /// Update Stage
-        ///
-        // FIXME: delta time is not so delta time
-        float deltaTime = LowRenderer::getDeltaTime();
-
-        for (const auto &component: m_components) {
-            component->Update(deltaTime);
-        }
-
-
-
-        ///
-        /// Render Stage
-        ///
-        for (auto &firstComponent: m_components) {
-            // get first component
-            firstComponent->Draw();
-        }
-
-        m_shader->Bind();
-
-        // set uPosition
-        m_shader->SetUniform2f("uPosition", position.x, position.y);
-        // set uColor
-        m_shader->SetUniform3f("uColor", color.r, color.g, color.b);
-
-
-        m_vertexArray->Bind();
-
-        m_vertexArray->DrawElements();
-
-        m_shader->Unbind();
-        m_vertexArray->Unbind();
-    }
+    void Draw(glm::mat4 camera);
 
     // attachComponent
     //  - Each Component type is only attachable once

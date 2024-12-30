@@ -13,3 +13,44 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
 
     m_Id = HighRenderer::GetNextId();
 }
+
+void Object::Draw(glm::mat4 camera) {
+    ///
+    /// Update Stage
+    ///
+    float deltaTime = LowRenderer::getDeltaTime();
+    for (const auto &component: m_components) {
+        component->Update(deltaTime);
+    }
+
+
+
+    ///
+    /// Render Stage
+    ///
+    for (auto &firstComponent: m_components) {
+        // get first component
+        firstComponent->Draw();
+    }
+
+    m_shader->Bind();
+
+    // set uPosition
+    m_shader->SetUniform2f("uPosition", position.x, position.y);
+
+    // set uColor
+    m_shader->SetUniform3f("uColor", color.r, color.g, color.b);
+
+    // set Camera Matrix
+    m_shader->SetUniformMat4("uProjection", &camera[0][0]);
+
+
+    m_vertexArray->Bind();
+
+    m_vertexArray->DrawElements();
+
+    m_shader->Unbind();
+    m_vertexArray->Unbind();
+
+
+}
