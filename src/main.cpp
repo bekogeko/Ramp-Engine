@@ -97,21 +97,12 @@ int main() {
 
 
         HighRenderer::Draw();
-
-
-        ImGui::Begin("Test");
-        ImGui::Text("Hello world!");
-        if (ImGui::Button("Press me!", ImVec2(100, 50))) {
-            std::cout << "Button pressed\n";
-
-        }
-        ImGui::End();
-
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             GLFWwindow *backup_current_context = glfwGetCurrentContext();
+
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);

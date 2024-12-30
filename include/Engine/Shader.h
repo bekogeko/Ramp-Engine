@@ -49,7 +49,7 @@ public:
         return programID;
     }
 
-    void Bind();
+    void Bind() const;
 
     void Unbind();
 

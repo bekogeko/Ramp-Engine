@@ -113,7 +113,7 @@ void Shader::CompileShader() {
     glDeleteShader(fragmentShaderID);
 }
 
-void Shader::Bind() {
+void Shader::Bind() const {
     if (!isCompiled) {
         return;
     }
