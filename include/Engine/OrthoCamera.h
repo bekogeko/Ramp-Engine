@@ -13,7 +13,14 @@ public:
     OrthoCamera(int width, int height) : m_size(width, height) {}
 
     glm::mat4 getCameraMatrix() override {
-        glm::mat4 projection = glm::ortho(0.0f, m_size.x, 0.0f, m_size.y);
+        int zoom = 1;
+        float left = -1.0f * zoom * m_size.x;
+        float right = 1.0f * zoom * m_size.x;
+        float bottom = -1.0f * zoom * m_size.y;
+        float top = 1.0f * zoom * m_size.y;
+
+        glm::mat4 projection = glm::ortho(left, right, bottom, top);
+
         glm::mat4 view = getViewMatrix();
         return projection * view;
     }
