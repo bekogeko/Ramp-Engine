@@ -26,8 +26,8 @@ private:
     unsigned int m_Id = 0;
 public:
 
-    glm::vec2 position{};
-    glm::vec3 color{};
+    glm::vec2 position{0, 0};
+    glm::vec3 color{0, 0, 0};
 
 
     // 'registered' event called by HighRenderer

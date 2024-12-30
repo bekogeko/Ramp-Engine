@@ -2,14 +2,12 @@
 
 layout (location = 0) in vec2 aPos;
 
-uniform vec2 uPosition;
-
 uniform mat4 uProjection;
+uniform mat4 uModel;
 
 
 
 void main() {
 
-    vec4 transformedPos = vec4(aPos + uPosition, 0.0, 1.0);
-    gl_Position = uProjection * transformedPos;
+    gl_Position = uProjection * uModel * vec4(aPos, 0.0, 1.0);;
 }
