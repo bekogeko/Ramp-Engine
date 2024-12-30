@@ -14,6 +14,6 @@ void Player::Update(float deltaTime) {
 
     // get obj from Renderer
     auto obj = getObject();
+    obj->position.x += 0.1f * deltaTime;
 
-    obj->position.x += 0.01f;
 }

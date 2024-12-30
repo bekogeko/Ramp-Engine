@@ -15,9 +15,7 @@ class Component {
 protected:
     unsigned int m_ObjectId = 0;
 
-    [[nodiscard]] std::shared_ptr<Object> getObject() const; // Declaration of getObject
-
-
+    [[nodiscard]] std::shared_ptr<Object> getObject() const;
 
 private:
     bool isAttached = false;
