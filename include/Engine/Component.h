@@ -11,9 +11,15 @@ class Component {
 protected:
     unsigned int m_ObjectId = 0;
 
+private:
+    bool isAttached = false;
+
 public:
 
     virtual void attach(unsigned int objId) {
+        if (isAttached)
+            return;
+        isAttached = true;
         m_ObjectId = objId;
     }
 
