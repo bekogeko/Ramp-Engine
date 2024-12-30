@@ -32,6 +32,7 @@ HighRenderer::RegisterObject(float *vertices, unsigned int size, unsigned int *i
 
     newObj->registerObject();
     m_objects[newObj->getId()] = newObj;
+    return newObj->getId();
 }
 
 

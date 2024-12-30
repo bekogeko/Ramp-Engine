@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <filesystem>
 #include <openglErrorReporting.h>
 
 #include "imgui.h"
@@ -10,6 +9,8 @@
 
 #include "Engine/Window.h"
 #include "Engine/HighRenderer.h"
+
+#include "Player.h"
 
 static void error_callback(int error, const char *description) {
     std::cout << "Error: " << description << "\n";
@@ -65,9 +66,11 @@ int main() {
     unsigned int id = HighRenderer::RegisterObject(vertices, sizeof(vertices), indices, sizeof(indices));
     // get objects by id
     auto objId = HighRenderer::getById(id);
-    
+
     objId->position.x -= 0.5;
     objId->color.r = 1;
+
+    objId->attachComponent<Player>();
 
 
     std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
