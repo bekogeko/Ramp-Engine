@@ -6,32 +6,33 @@
 #define RAY_GAME_WINDOW_H
 
 #include "GLFW/glfw3.h"
+#include <memory>
 
 class Window {
 private:
-    GLFWwindow* p_window;
+    GLFWwindow *p_window;
 
 public:
-    Window(int width, int height, const char* title);
+    Window(int width, int height, const char *title);
 
 
-    [[nodiscard]] GLFWwindow *getRawWindow() const{
+    [[nodiscard]] GLFWwindow *getRawWindow() const {
         return p_window;
     }
 
-    bool shouldClose(){
+    bool shouldClose() {
         return glfwWindowShouldClose(p_window);
     }
 
-    void swapBuffers(){
+    void swapBuffers() {
         glfwSwapBuffers(p_window);
     }
 
-    void pollInputs(){
+    void pollInputs() {
         glfwPollEvents();
     }
 
-    ~Window(){
+    ~Window() {
         glfwDestroyWindow(p_window);
         glfwTerminate();
     }

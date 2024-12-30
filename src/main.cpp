@@ -77,7 +77,7 @@ int main() {
     // create obj2 with different color and position
     std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
 
-    obj2->position = {0.2, 0.2};
+    obj2->position = {1, 1};
     obj2->color = {1.0, 0.55, 0.2};
 
     HighRenderer::RegisterObject(obj);

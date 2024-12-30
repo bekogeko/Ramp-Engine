@@ -13,3 +13,50 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
 
     m_Id = HighRenderer::GetNextId();
 }
+
+void Object::Draw(glm::mat4 camera) {
+    ///
+    /// Update Stage
+    ///
+    float deltaTime = LowRenderer::getDeltaTime();
+    for (const auto &component: m_components) {
+        component->Update(deltaTime);
+    }
+
+
+
+    ///
+    /// Render Stage
+    ///
+    for (auto &firstComponent: m_components) {
+        // get first component
+        firstComponent->Draw();
+    }
+
+    m_shader->Bind();
+    
+    // set uColor
+    m_shader->SetUniform3f("uColor", color.r, color.g, color.b);
+
+    // set Camera Matrix
+    m_shader->SetUniformMat4("uProjection", &camera[0][0]);
+
+    // create model matrix from
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    // model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+    // model = glm::scale(model, glm::vec3(scale, 1.0f));
+
+
+    m_shader->SetUniformMat4("uModel", &model[0][0]);
+
+
+    m_vertexArray->Bind();
+
+    m_vertexArray->DrawElements();
+
+    m_shader->Unbind();
+    m_vertexArray->Unbind();
+
+
+}

@@ -9,13 +9,20 @@
 #include <map>
 
 #include "Object.h"
+#include "OrthoCamera.h"
 
 class HighRenderer {
 private:
     // array of game objects
     static std::map<unsigned int, std::shared_ptr<Object>> m_objects;
 
+
+    static OrthoCamera m_Camera;
+
 public:
+
+    static OrthoCamera &getCamera();
+
     static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
 
     static unsigned int

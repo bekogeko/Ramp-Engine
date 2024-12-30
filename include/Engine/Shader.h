@@ -67,6 +67,9 @@ public:
 
     void SetUniform2f(const std::string &name, float x, float y);
 
+    // for camera matrix etc
+    void SetUniformMat4(const std::string &name, const float *matrix) const;
+
 };
 
 

@@ -3,12 +3,13 @@
 //
 
 #include "Engine/Window.h"
+#include "Engine/Input.h"
+
 #include "glad/glad.h"
 #include <iostream>
 
 Window::Window(int width, int height, const char *title) {
-    if (!glfwInit())
-    {
+    if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
         return;
     }
@@ -23,8 +24,7 @@ Window::Window(int width, int height, const char *title) {
 #endif
 
     p_window = glfwCreateWindow(width, height, title, NULL, NULL);
-    if (!p_window)
-    {
+    if (!p_window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
         return;
@@ -33,14 +33,16 @@ Window::Window(int width, int height, const char *title) {
 
     glfwMakeContextCurrent(p_window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
         glfwDestroyWindow(p_window);
         glfwTerminate();
-        return ;
+        return;
     }
     std::cout << "GLAD initialized successfully\n";
 
+
+    // Init Input system
+    Input::setWindow(this);
 }
 
