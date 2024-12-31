@@ -48,6 +48,8 @@ public:
     // with EBO
     explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
 
+    ~Object();
+
     void Draw(glm::mat4 camera);
 
     // attachComponent

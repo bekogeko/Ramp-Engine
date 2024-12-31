@@ -14,6 +14,17 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
     m_Id = HighRenderer::GetNextId();
 }
 
+Object::~Object() {
+    // Clean up components
+    m_components.clear();
+
+    // Clean up shader
+    m_shader.reset();
+
+    // Clean up vertex array
+    m_vertexArray.reset();
+}
+
 void Object::Draw(glm::mat4 camera) {
     ///
     /// Update Stage
@@ -34,7 +45,7 @@ void Object::Draw(glm::mat4 camera) {
     }
 
     m_shader->Bind();
-    
+
     // set uColor
     m_shader->SetUniform3f("uColor", color.r, color.g, color.b);
 
