@@ -22,11 +22,6 @@ void Player::Draw() {
 }
 
 void Player::Update(float deltaTime) {
-
-    // get obj from Renderer
-    auto obj = getObject();
-    obj->position.x += 0.1f * deltaTime;
-
     OrthoCamera &cam = HighRenderer::getCamera();
 
 

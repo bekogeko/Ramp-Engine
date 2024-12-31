@@ -20,13 +20,18 @@ protected:
 private:
     bool isAttached = false;
 
+    virtual void onAttached() {}
+
 public:
 
-    virtual void attach(unsigned int objId) {
+
+    // will only accept the first call
+    void attach(unsigned int objId) {
         if (isAttached)
             return;
         isAttached = true;
         m_ObjectId = objId;
+        onAttached();
     }
 
     virtual ~Component() = default;

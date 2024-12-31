@@ -9,6 +9,8 @@
 
 #include "Engine/Window.h"
 #include "Engine/HighRenderer.h"
+#include "Engine/Physics.h"
+#include "Engine/PhysicsComponent.h"
 
 #include "Player.h"
 
@@ -47,6 +49,7 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330");
     std::cout << "ImGui initialized successfully\n";
 #endif
+    Physics::Init();
 
 
     // Rectangle vertices
@@ -74,14 +77,16 @@ int main() {
 
 
     std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+    HighRenderer::RegisterObject(obj);
+
     // create obj2 with different color and position
     std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
+    HighRenderer::RegisterObject(obj2);
 
     obj2->position = {1, 1};
     obj2->color = {1.0, 0.55, 0.2};
+    obj2->attachComponent<PhysicsComponent>();
 
-    HighRenderer::RegisterObject(obj);
-    HighRenderer::RegisterObject(obj2);
 
     while (!window.shouldClose()) {
 
@@ -95,8 +100,10 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-
+        Physics::Update();
         HighRenderer::Draw();
+
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -122,6 +129,7 @@ int main() {
     //clean up
     std::cout << "Cleaning up...\n";
     HighRenderer::FreeAll();
+    Physics::Cleanup();
 
     std::cout << "Application terminated successfully\n";
 
