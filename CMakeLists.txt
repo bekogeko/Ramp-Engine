@@ -35,15 +35,16 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 
-add_subdirectory(thirdparty/glfw-3.3.2)   #window oppener
-add_subdirectory(thirdparty/glad)    #opengl loader
-add_subdirectory(thirdparty/stb_image)   #loading immaged
-add_subdirectory(thirdparty/stb_truetype)  #loading ttf files
+add_subdirectory(thirdparty/glfw-3.3.2)         #window oppener
+add_subdirectory(thirdparty/glad)               #opengl loader
+add_subdirectory(thirdparty/stb_image)          #loading immaged
+add_subdirectory(thirdparty/stb_truetype)       #loading ttf files
 #add_subdirectory(thirdparty/enet-1.3.17)		#networking
-#add_subdirectory(thirdparty/raudio)				#audio
-add_subdirectory(thirdparty/glm)    #math
-add_subdirectory(thirdparty/imgui-docking)  #ui
+#add_subdirectory(thirdparty/raudio)			#audio
+add_subdirectory(thirdparty/glm)                #math
+add_subdirectory(thirdparty/imgui-docking)      #ui
 #add_subdirectory(thirdparty/gl2d)				#rendering
+add_subdirectory(thirdparty/box2d)              #Physics
 
 
 # MY_SOURCES is defined to be a list of all the source files for my game 
@@ -110,5 +111,5 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw
-        glad stb_image stb_truetype imgui)
+        glad stb_image stb_truetype imgui box2d)
 
