@@ -12,7 +12,7 @@
 void Player::Draw() {
 
     ImGui::Begin("Player");
-    
+
     auto &cam = HighRenderer::getCamera();
 
     ImGui::Text("Cam Position: (%.1f, %.1f)", cam.position.x, cam.position.y);
@@ -42,6 +42,13 @@ void Player::Update(float deltaTime) {
     }
     if (Input::getKeyPress(GLFW_KEY_S)) {
         cam.position.y -= 1.0f * deltaTime;
+    }
+
+    if (Input::getKeyPress(GLFW_KEY_PERIOD)) {
+        cam.zoom += 0.1f * deltaTime;
+    }
+    if (Input::getKeyPress(GLFW_KEY_COMMA)) {
+        cam.zoom -= 0.1f * deltaTime;
     }
 
 

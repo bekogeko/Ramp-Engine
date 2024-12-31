@@ -13,7 +13,7 @@ public:
     OrthoCamera(int width, int height) : m_size(width, height) {}
 
     glm::mat4 getCameraMatrix() override {
-        int zoom = 1;
+
         float left = -1.0f * zoom * m_size.x;
         float right = 1.0f * zoom * m_size.x;
         float bottom = -1.0f * zoom * m_size.y;
@@ -32,7 +32,7 @@ public:
         return glm::lookAt(cameraPos, target, up);
     }
 
-
+    float zoom = 1.0f;
     glm::vec2 position{0, 0};
 private:
     glm::vec2 m_size;
