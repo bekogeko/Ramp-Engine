@@ -16,7 +16,7 @@ void Physics::Init() {
 
 
     // setup ground box
-    
+
     b2BodyDef groundBodyDef = b2DefaultBodyDef();
     groundBodyDef.position = (b2Vec2) {0.0f, -1.0f};
     b2BodyId groundId = b2CreateBody(worldId, &groundBodyDef);
@@ -26,9 +26,6 @@ void Physics::Init() {
 
 }
 
-void Physics::Cleanup() {
-    b2DestroyWorld(worldId);
-}
 
 void Physics::Update() {
 
@@ -83,5 +80,10 @@ void Physics::AddObject(unsigned int m_Id) {
     // keep this related with m_Id and groundId;
     m_Objects[m_Id] = groundId;
 
+
+}
+
+Physics::~Physics() {
+    b2DestroyWorld(worldId);
 
 }

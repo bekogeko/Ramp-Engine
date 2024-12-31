@@ -11,6 +11,8 @@
 
 class Physics {
 public:
+    ~Physics();
+
     static void Init();
 
     static void Update();
@@ -18,8 +20,6 @@ public:
     static void RemoveObject(unsigned int m_Id);
 
     static void AddObject(unsigned int m_Id);
-
-    static void Cleanup();
 
 private:
     static b2WorldId worldId;
