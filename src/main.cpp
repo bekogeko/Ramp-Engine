@@ -8,6 +8,7 @@
 #include "backends/imgui_impl_opengl3.h"
 
 #include "Engine/Window.h"
+#include "Engine/Input.h"
 #include "Engine/HighRenderer.h"
 #include "Engine/Physics.h"
 #include "Engine/PhysicsComponent.h"
@@ -100,6 +101,13 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        if (Input::getMouseButton(0)) {
+            // TODO add little explosive force
+            //obj
+            obj->position = Input::getMousePosition();
+
+        }
+
         Physics::Update();
         HighRenderer::Draw();
 
@@ -129,7 +137,6 @@ int main() {
     //clean up
     std::cout << "Cleaning up...\n";
     HighRenderer::FreeAll();
-    Physics::Cleanup();
 
     std::cout << "Application terminated successfully\n";
 
