@@ -16,13 +16,14 @@ void Physics::Init() {
 
 
     // setup ground box
-
     b2BodyDef groundBodyDef = b2DefaultBodyDef();
     groundBodyDef.position = (b2Vec2) {0.0f, -1.0f};
     b2BodyId groundId = b2CreateBody(worldId, &groundBodyDef);
     b2Polygon groundBox = b2MakeBox(10.0f, .5f);
     b2ShapeDef groundShapeDef = b2DefaultShapeDef();
     b2CreatePolygonShape(groundId, &groundShapeDef, &groundBox);
+
+    //TODO: add a ground object to the renderer
 
 }
 
@@ -40,6 +41,7 @@ void Physics::Update() {
     for (auto &[id, bodyId]: m_Objects) {
         auto obj = HighRenderer::getById(id);
         b2Vec2 position = b2Body_GetPosition(bodyId);
+        auto obj = HighRenderer::getById(id);
         obj->position.x = position.x;
         obj->position.y = position.y;
     }
@@ -56,7 +58,7 @@ void Physics::RemoveObject(unsigned int m_Id) {
     }
 }
 
-void Physics::AddObject(unsigned int m_Id) {
+b2BodyId Physics::AddObject(unsigned int m_Id) {
 
     // get Objects Position
     auto obj = HighRenderer::getById(m_Id);
@@ -80,6 +82,7 @@ void Physics::AddObject(unsigned int m_Id) {
     // keep this related with m_Id and groundId;
     m_Objects[m_Id] = groundId;
 
+    return groundId;
 
 }
 

@@ -12,6 +12,14 @@ void PhysicsComponent::Draw() {
 
 void PhysicsComponent::Update(float deltaTime) {
 
+    // if Space is pressed set position upper
+    if (Input::getKeyPress(GLFW_KEY_SPACE)) {
+        auto obj = getObject();
+        // set velocity up
+        b2Body_SetLinearVelocity(m_BodyId, {0, 5.0f});
+
+    }
+
 }
 
 PhysicsComponent::~PhysicsComponent() {
@@ -21,7 +29,7 @@ PhysicsComponent::~PhysicsComponent() {
 void PhysicsComponent::onAttached() {
 
     // warning
-    Physics::AddObject(m_ObjectId);
+    m_BodyId = Physics::AddObject(m_ObjectId);
 
 
 }

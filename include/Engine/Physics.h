@@ -19,7 +19,7 @@ public:
 
     static void RemoveObject(unsigned int m_Id);
 
-    static void AddObject(unsigned int m_Id);
+    static b2BodyId AddObject(unsigned int m_Id);
 
 private:
     static b2WorldId worldId;
