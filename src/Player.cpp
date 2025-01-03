@@ -50,7 +50,6 @@ void Player::Update(float deltaTime) {
 
 
     OrthoCamera &cam = HighRenderer::getCamera();
-//    if (Input::getKeyPress(GLFW_KEY_LEFT_SHIFT)) {
 
     // if A or D pressed move camera
     if (Input::getKeyPress(GLFW_KEY_A) && Input::getKeyPress(GLFW_KEY_LEFT_SHIFT)) {
@@ -64,14 +63,18 @@ void Player::Update(float deltaTime) {
     }
     if (Input::getKeyPress(GLFW_KEY_S) && Input::getKeyPress(GLFW_KEY_LEFT_SHIFT)) {
         cam.position.y -= 100.0f * deltaTime;
+
     }
-//    }
 
     if (Input::getKeyPress(GLFW_KEY_COMMA)) {
 
         // decrease zoom by 1 per second
         cam.zoom -= 10.0f * deltaTime;
 
+    }
+    if (Input::getKeyPress(GLFW_KEY_PERIOD)) {
+        // increase zoom by 1 per second
+        cam.zoom += 10.0f * deltaTime;
     }
 
 
