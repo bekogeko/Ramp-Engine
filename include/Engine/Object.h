@@ -27,6 +27,9 @@ private:
 public:
 
     glm::vec2 position{0, 0};
+
+    // in radians
+    float rotation{0};
     glm::vec3 color{0, 0, 0};
 
 
@@ -64,7 +67,18 @@ public:
         std::unique_ptr<Component> comp = std::make_unique<T>();
         comp->attach(m_Id);
         m_components.push_back(std::move(comp));
+    }
 
+    // getComponent
+    //  - returns the first and only component of type T
+    template<class T>
+    T *getComponent() {
+        for (auto &comp: m_components) {
+            if (auto *t = dynamic_cast<T *>(comp.get())) {
+                return t;
+            }
+        }
+        return nullptr;
     }
 
 
