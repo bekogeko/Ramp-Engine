@@ -67,7 +67,7 @@ int main() {
     };
 
     // register object transfer to high renderer
-    auto objId_int = HighRenderer::RegisterObject("square.obj");
+    auto objId_int = HighRenderer::RegisterObject("man.obj");
     auto objId = HighRenderer::getById(objId_int);
 
     objId->position.x -= 0.5;
