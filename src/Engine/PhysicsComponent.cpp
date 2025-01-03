@@ -3,6 +3,7 @@
 //
 #include "Engine/PhysicsComponent.h"
 #include "Engine/Physics.h"
+#include "Engine/Input.h"
 #include <iostream>
 
 void PhysicsComponent::Draw() {
@@ -11,14 +12,6 @@ void PhysicsComponent::Draw() {
 
 
 void PhysicsComponent::Update(float deltaTime) {
-
-    // if Space is pressed set position upper
-    if (Input::getKeyPress(GLFW_KEY_SPACE)) {
-        auto obj = getObject();
-        // set velocity up
-        b2Body_SetLinearVelocity(m_BodyId, {0, 5.0f});
-
-    }
 
 }
 

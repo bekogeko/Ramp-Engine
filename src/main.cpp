@@ -91,7 +91,6 @@ int main() {
 
     while (!window.shouldClose()) {
 
-
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -100,13 +99,6 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        if (Input::getMouseButton(0)) {
-            // TODO add little explosive force
-            //obj
-            obj->position = Input::getMousePosition();
-
-        }
 
         Physics::Update();
         HighRenderer::Draw();
