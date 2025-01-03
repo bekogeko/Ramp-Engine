@@ -18,16 +18,16 @@ struct ShaderCompilationStatus {
 class Shader {
 
 private:
-    unsigned int programID;
-    unsigned int vertexShaderID;
-    unsigned int fragmentShaderID;
+    unsigned int programID{0};
+    unsigned int vertexShaderID{0};
+    unsigned int fragmentShaderID{0};
 
-    bool isCompiled;
-    bool isErrored;
+    bool isCompiled{false};
+    bool isErrored{false};
     // if errored is true, then we can check if it is a vertex or fragment shader
-    bool isFragmentShader;
-    bool isVertexShader;
-    bool isLinked;
+    bool isFragmentShader{false};
+    bool isVertexShader{false};
+    bool isLinked{false};
 
     // read shader source code from file
     static std::string ReadShaderSource(const std::string &shaderPath);

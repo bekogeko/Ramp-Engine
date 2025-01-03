@@ -18,7 +18,7 @@
 class Object {
 private:
     std::unique_ptr<VertexArray> m_vertexArray;
-    std::unique_ptr<Shader> m_shader;
+    std::shared_ptr<Shader> m_shader;
 
     std::vector<std::unique_ptr<Component>> m_components;
 private:

@@ -108,6 +108,8 @@ void Shader::CompileShader() {
 
 
     }
+    std::cout << "Shader created with id (prog,vert,frag) " << programID << "," << vertexShaderID << ","
+              << fragmentShaderID << std::endl;
 
     glDeleteShader(vertexShaderID);
     glDeleteShader(fragmentShaderID);
