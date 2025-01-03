@@ -67,9 +67,8 @@ int main() {
     };
 
     // register object transfer to high renderer
-    unsigned int id = HighRenderer::RegisterObject(vertices, sizeof(vertices), indices, sizeof(indices));
-    // get objects by id
-    auto objId = HighRenderer::getById(id);
+    auto objId_int = HighRenderer::RegisterObject("square.obj");
+    auto objId = HighRenderer::getById(objId_int);
 
     objId->position.x -= 0.5;
     objId->color.r = 1;
