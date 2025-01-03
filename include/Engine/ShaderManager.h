@@ -5,21 +5,27 @@
 #ifndef RAY_GAME_SHADERMANAGER_H
 #define RAY_GAME_SHADERMANAGER_H
 
-#include "Shader.h"
+#include "ShaderSource.h"
+#include "ShaderProgram.h"
+
 #include <map>
 
 class ShaderManager {
 
 public:
-    static std::shared_ptr<Shader> LoadShader(const char *vertexPath, const char *fragmentPath);
-
-    static std::shared_ptr<Shader> GetShader(const char *name);
+    static std::shared_ptr<ShaderProgram> LoadShader(const char *vertexPath, const char *fragmentPath);
 
     // TODO: automatic maybe ?
     static void Clear();
 
 private:
-    static std::map<std::string, std::shared_ptr<Shader>> m_Shaders;
+
+    // map of shader sources
+    static std::map<std::string, std::shared_ptr<ShaderSource>> m_Shaders;
+
+    // map of shaderPrograms and their sources
+    static std::map<std::string, std::shared_ptr<ShaderProgram>> m_Programs;
+
 
 };
 

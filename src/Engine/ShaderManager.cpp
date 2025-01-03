@@ -4,9 +4,9 @@
 
 #include "Engine/ShaderManager.h"
 
-std::map<std::string, std::shared_ptr<Shader>> ShaderManager::m_Shaders;
+std::map<std::string, std::shared_ptr<ShaderSource>> ShaderManager::m_Shaders;
 
-std::shared_ptr<Shader> ShaderManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
+std::shared_ptr<ShaderProgram> ShaderManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
 
 
     // FIXME: this is not a good way to create id
@@ -16,17 +16,30 @@ std::shared_ptr<Shader> ShaderManager::LoadShader(const char *vertexPath, const 
     //  m_programs[vertPath + fragPath] = program;
 
     //create id from paths
-    std::string id = std::string(vertexPath) + "_" + std::string(fragmentPath);
+    // first vertex shader path
+    std::string vertId = vertexPath;
+    std::string fragId = fragmentPath;
 
-    // check if shader already exists
-    if (m_Shaders.find(id) != m_Shaders.end()) {
-        return m_Shaders[id];
+    // check if vertShader exists
+    // then do not create it again
+    auto vertShader = m_Shaders.find(vertId);
+
+    // if not found create it
+    if (vertShader == m_Shaders.end()) {
+        m_Shaders[vertId] = std::make_shared<ShaderSource>(vertexPath, ShaderSource::Type::VERTEX);
     }
 
-    auto shader = std::make_shared<Shader>(std::string(vertexPath), fragmentPath);
+    // check if fragShader exists
+    // then do not create it again
+    auto fragShader = m_Shaders.find(fragId);
 
-    // add to map
-    m_Shaders[id] = shader;
+    // if not found create it
+    if (fragShader == m_Shaders.end()) {
+        m_Shaders[fragId] = std::make_shared<ShaderSource>(fragmentPath, ShaderSource::Type::FRAGMENT);
+    }
+
+    // create program
+    auto shader = std::make_shared<ShaderProgram>(m_Shaders[vertId], m_Shaders[fragId]);
 
     return shader;
 }
