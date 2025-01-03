@@ -41,9 +41,10 @@ void Physics::Update() {
     for (auto &[id, bodyId]: m_Objects) {
         auto obj = HighRenderer::getById(id);
         b2Vec2 position = b2Body_GetPosition(bodyId);
-        auto obj = HighRenderer::getById(id);
+        b2Rot rotation = b2Body_GetRotation(bodyId);
         obj->position.x = position.x;
         obj->position.y = position.y;
+        obj->rotation = glm::degrees(b2Rot_GetAngle(rotation));
     }
 
 

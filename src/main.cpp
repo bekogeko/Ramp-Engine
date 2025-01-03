@@ -75,10 +75,11 @@ int main() {
     objId->color.r = 1;
 
     objId->attachComponent<Player>();
-
+    objId->attachComponent<PhysicsComponent>();
 
     std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
     HighRenderer::RegisterObject(obj);
+    obj->attachComponent<PhysicsComponent>();
 
     // create obj2 with different color and position
     std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
