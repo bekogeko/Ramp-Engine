@@ -4,13 +4,13 @@
 
 #include "Engine/Object.h"
 #include "Engine/HighRenderer.h"
+#include "Engine/ShaderManager.h"
 
 Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize) {
 
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
 
-    m_shader = std::make_unique<Shader>(std::string("default.vert"), std::string("default.frag"));
-
+    m_shader = std::move(ShaderManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
     m_Id = HighRenderer::GetNextId();
 }
 

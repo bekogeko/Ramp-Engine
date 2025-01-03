@@ -6,19 +6,19 @@
 #define RAY_GAME_OBJECT_H
 
 #include "VertexArray.h"
-#include "Shader.h"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "Component.h"
 #include "LowRenderer.h"
 #include "Camera.h"
+#include "ShaderProgram.h"
 #include <string>
 #include <iostream>
 
 class Object {
 private:
     std::unique_ptr<VertexArray> m_vertexArray;
-    std::unique_ptr<Shader> m_shader;
+    std::shared_ptr<ShaderProgram> m_shader;
 
     std::vector<std::unique_ptr<Component>> m_components;
 private:
