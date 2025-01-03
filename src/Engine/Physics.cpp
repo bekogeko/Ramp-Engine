@@ -29,8 +29,8 @@ void Physics::Init() {
 
 
 void Physics::Update() {
-
-    //
+    // Warning: this is not the correct way to get the time step
+    float timeStep = LowRenderer::getDeltaTime();
     float timeStep = 1.0f / 60.0f;
     int subStepCount = 4;
 

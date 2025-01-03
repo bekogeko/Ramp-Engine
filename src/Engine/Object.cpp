@@ -9,7 +9,7 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
 
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
 
-    m_shader = std::make_unique<Shader>(std::string("default.vert"), std::string("default.frag"));
+    m_shader = std::make_unique<Shader>(std::string("shaders/default.vert"), std::string("shaders/default.frag"));
 
     m_Id = HighRenderer::GetNextId();
 }
