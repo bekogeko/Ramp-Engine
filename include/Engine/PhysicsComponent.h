@@ -7,6 +7,7 @@
 
 #include "Component.h"
 #include "box2d/id.h"
+#include "glm/vec2.hpp"
 
 class PhysicsComponent : public Component {
 public:
@@ -14,6 +15,8 @@ public:
 
     void onAttached() override;
 
+    void applyForce(glm::vec2 force);
+    
 private:
     void Draw() override;
 
