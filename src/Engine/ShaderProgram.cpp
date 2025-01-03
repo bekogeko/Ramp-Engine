@@ -68,12 +68,9 @@ void ShaderProgram::Unbind() const {
 
 ShaderProgram::~ShaderProgram() {
     glDeleteProgram(programID);
-    // glDeleteShader(vertexShaderID);
-    // glDeleteShader(fragmentShaderID);
-    // FIXME: delete shaders
-    // its owned by the ShaderManager now
-    // we should decrease the ref count
-    // and delete if it reaches 0
 
+    // ShaderSource owned by the ShaderManager now
+    // we don't need to delete them
 
+//    std::cout << "Shader Program deleted with id " << programID << std::endl;
 }

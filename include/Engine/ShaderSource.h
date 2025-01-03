@@ -17,6 +17,8 @@ public:
 
     ShaderSource(std::string shaderPath, Type type);
 
+    ~ShaderSource();
+
 private:
     std::string m_source;
     Type m_type;

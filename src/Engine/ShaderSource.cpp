@@ -57,3 +57,9 @@ ShaderSource::ShaderSource(std::string path, ShaderSource::Type type) {
         std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 }
+
+ShaderSource::~ShaderSource() {
+    glDeleteShader(m_shaderID);
+
+//    std::cout << "Shader deleted with id " << m_shaderID << std::endl;
+}
