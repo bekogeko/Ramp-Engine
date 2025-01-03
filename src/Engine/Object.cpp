@@ -30,7 +30,7 @@ void Object::Draw(glm::mat4 camera) {
     /// Update Stage
     ///
     float deltaTime = LowRenderer::getDeltaTime();
-    for (const auto &component: m_components) {
+    for (auto &component: m_components) {
         component->Update(deltaTime);
     }
 
@@ -39,9 +39,9 @@ void Object::Draw(glm::mat4 camera) {
     ///
     /// Render Stage
     ///
-    for (auto &firstComponent: m_components) {
+    for (auto &component: m_components) {
         // get first component
-        firstComponent->Draw();
+        component->Draw();
     }
 
     m_shader->Bind();
