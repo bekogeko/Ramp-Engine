@@ -1,23 +1,19 @@
-
--v 0,0
-
 -v 0.25, 0.5
 -v 0.5, 0.25
-
 -v 0.5,-0.25
 -v 0.25, -0.5
-
 -v -0.25, -0.5
 -v -0.5, -0.25
-
 -v -0.5, 0.25
 -v -0.25, 0.5
+# FIXME Warning why is this necessary
+-v 0,0
 
-
-
--i 0,1,2
--i 0,3,4
--i 0,5,6
--i 0,7,8
-
+# defines face with vert indexes (first is - 0)
+-f 0,6,7
+-f 0,6,1
+-f 1,5,6
+-f 1,5,2
+-f 5,2,3
+-f 5,4,3
 
