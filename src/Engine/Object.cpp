@@ -7,11 +7,17 @@
 #include "Engine/ShaderManager.h"
 
 Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize) {
-
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
 
     m_shader = std::move(ShaderManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
     m_Id = HighRenderer::GetNextId();
+
+    // for later use
+    m_indices = std::vector<unsigned int>(indices, indices + (indicesSize / sizeof(unsigned int)));
+    for (int i = 0; i < size / sizeof(float); i += 2) {
+        m_vertices.emplace_back(vertices[i], vertices[i + 1]);
+    }
+
 }
 
 Object::~Object() {
@@ -57,6 +63,7 @@ void Object::Draw(glm::mat4 camera) {
 
     model = glm::translate(model, glm::vec3(position, 0.0f));
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    // TODO: scaling factor
     // model = glm::scale(model, glm::vec3(scale, 1.0f));
 
 

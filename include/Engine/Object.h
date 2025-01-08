@@ -12,6 +12,7 @@
 #include "LowRenderer.h"
 #include "Camera.h"
 #include "ShaderProgram.h"
+#include "box2d/math_functions.h"
 #include <string>
 #include <iostream>
 
@@ -21,10 +22,24 @@ private:
     std::shared_ptr<ShaderProgram> m_shader;
 
     std::vector<std::unique_ptr<Component>> m_components;
+
+    std::vector<glm::vec2> m_vertices;
+    std::vector<unsigned int> m_indices;
 private:
     bool m_isRegistered = false;
     unsigned int m_Id = 0;
 public:
+
+    // readonly getVertices
+    [[nodiscard]] std::vector<glm::vec2> getVertices() const {
+        return m_vertices;
+    }
+
+    // get vertexCount
+    // size
+    [[nodiscard]] unsigned int getVertexCount() const {
+        return m_vertices.size();
+    }
 
     glm::vec2 position{0, 0};
 

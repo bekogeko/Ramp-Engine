@@ -62,28 +62,51 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
 
     // get Objects Position
     auto obj = HighRenderer::getById(m_Id);
+    int vertexCount = obj->getVertexCount();
 
-    b2BodyDef groundBodyDef = b2DefaultBodyDef();
+    // Create HULL
+    auto *vertices = new b2Vec2[vertexCount];
+    int deleted_vertexes = 0;
+    for (int i = 0; i < vertexCount; ++i) {
+        auto vert = obj->getVertices()[i];
+        if (vert.x == 0 && vert.y == 0) {
+            deleted_vertexes++;
+            continue;
+        }
+        vertices[i].x = vert.x;
+        vertices[i].y = vert.y;
+    }
 
-    groundBodyDef.type = b2BodyType::b2_dynamicBody;
-    groundBodyDef.position = (b2Vec2) {obj->position.x, obj->position.y};
 
-    b2BodyId groundId = b2CreateBody(worldId, &groundBodyDef);
+    b2Hull hull = b2ComputeHull(vertices, vertexCount - deleted_vertexes);
 
-    b2Polygon dynamicBox = b2MakeBox(0.5f, .5f);
+    b2BodyDef bodyDef = b2DefaultBodyDef();
+
+    bodyDef.type = b2BodyType::b2_dynamicBody;
+    bodyDef.position = (b2Vec2) {obj->position.x, obj->position.y};
+    bodyDef.userData = obj.get();
+
+
+    b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-
     shapeDef.density = 1.0f;
     shapeDef.friction = 0.3f;
 
-    b2CreatePolygonShape(groundId, &shapeDef, &dynamicBox);
+
+
+    // calculate radius
+    // TODO calculate radius on Object upon vertices creation
+    b2Polygon polygon = b2MakePolygon(&hull, 0);
+    polygon.centroid = b2Vec2_zero;
+
+    b2CreatePolygonShape(bodyId, &shapeDef, &polygon);
+
 
     // keep this related with m_Id and groundId;
-    m_Objects[m_Id] = groundId;
+    m_Objects[m_Id] = bodyId;
 
-    return groundId;
-
+    return bodyId;
 }
 
 Physics::~Physics() {
