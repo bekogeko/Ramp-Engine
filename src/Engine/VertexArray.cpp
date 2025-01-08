@@ -3,7 +3,7 @@
 //
 
 #include "Engine/VertexArray.h"
-
+#include <algorithm>
 
 VertexArray::VertexArray(float *vertices, unsigned int size) {
 
@@ -42,6 +42,10 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
 
     // size
     m_size = size;
+    m_indexSize = indicesSize;
+    // copy whole indicies to myIndicies
+    m_indices = new unsigned int[indicesSize];
+    std::copy(indices, indices + indicesSize, m_indices);
 
     // Generate VAO
     glGenVertexArrays(1, &m_VAO);

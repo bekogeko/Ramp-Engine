@@ -77,6 +77,8 @@ unsigned int HighRenderer::RegisterObject(const std::string path) {
 
     while (std::getline(file, line)) {
 
+        if (line.empty())
+            continue;
         // if line starts with -v
         // read the next 2 floats
         // floats are in the format of x,y
@@ -106,7 +108,7 @@ unsigned int HighRenderer::RegisterObject(const std::string path) {
         // there are in the order of the vertices
 
         // 1.2- read indices
-        if (strcmp(line.substr(0, 2).c_str(), "-i") == 0) {
+        if (strcmp(line.substr(0, 2).c_str(), "-f") == 0) {
             // read the next 3 integers
             // separated by a comma
 
@@ -120,6 +122,7 @@ unsigned int HighRenderer::RegisterObject(const std::string path) {
             std::getline(iss, i2, ',');
             std::getline(iss, i3);
 
+            // add face
             indices.push_back(std::stoi(i1));
             indices.push_back(std::stoi(i2));
             indices.push_back(std::stoi(i3));

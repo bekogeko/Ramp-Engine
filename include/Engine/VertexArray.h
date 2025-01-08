@@ -15,6 +15,8 @@ private:
 
     // size
     unsigned int m_size;
+    unsigned int m_indexSize;
+    unsigned int *m_indices;
 
 
 public:
@@ -53,7 +55,8 @@ public:
 
     void DrawElements() const {
         unsigned int count = m_size / sizeof(unsigned int);
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+        unsigned int indCount = m_indexSize / sizeof(unsigned int);
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 
     void Delete() {
