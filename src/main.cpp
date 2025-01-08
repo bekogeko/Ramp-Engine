@@ -53,18 +53,6 @@ int main() {
     Physics::Init();
 
 
-    // Rectangle vertices
-    float vertices[] = {
-            0.5f, 0.5f, // top right
-            0.5f, -0.5f, // bottom right
-            -0.5f, -0.5f, // bottom left
-            -0.5f, 0.5f // top left
-    };
-
-    unsigned int indices[] = {
-            0, 1, 3, // first triangle
-            1, 2, 3 // second triangle
-    };
 
     // register object transfer to high renderer
     auto objId_int = HighRenderer::RegisterObject("man.obj");
@@ -76,13 +64,15 @@ int main() {
     objId->attachComponent<Player>();
     objId->attachComponent<PhysicsComponent>();
 
-    std::shared_ptr<Object> obj = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
-    HighRenderer::RegisterObject(obj);
+    auto id = HighRenderer::RegisterObject("square.obj");
+    auto obj = HighRenderer::getById(id);
+
     obj->attachComponent<PhysicsComponent>();
 
     // create obj2 with different color and position
-    std::shared_ptr<Object> obj2 = std::make_shared<Object>(vertices, sizeof(vertices), indices, sizeof(indices));
-    HighRenderer::RegisterObject(obj2);
+    auto id2 = HighRenderer::RegisterObject("square.obj");
+    auto obj2 = HighRenderer::getById(id2);
+    
 
     obj2->position = {1, 1};
     obj2->color = {1.0, 0.55, 0.2};
