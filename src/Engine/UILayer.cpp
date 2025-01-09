@@ -8,6 +8,7 @@
 
 // rectangle shape
 #include "Engine/Renderer/Rectangle.h"
+#include "Engine/Renderer/Text.h"
 
 
 // Must be defined in one file, _before_ #include "clay.h"
@@ -89,6 +90,9 @@ void UILayer::Draw() {
             CLAY(CLAY_ID("Content2"),
                  CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
                  CLAY_RECTANGLE({.color={255, 255, 255, 40}})) {
+                CLAY_TEXT(CLAY_STRING("Help"),
+                          CLAY_TEXT_CONFIG({.fontId=0, .fontSize=16, .textColor={255, 255, 255, 255}}));
+
 
             }
         }
@@ -101,33 +105,8 @@ void UILayer::Draw() {
         Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
 
         switch (renderCommand->commandType) {
-            case CLAY_RENDER_COMMAND_TYPE_TEXT:
-                // TODO: Add text renderer
-                break;
-            default:
-                std::cerr << renderCommand->commandType << std::endl;
-
-                break;
-
             case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
-                Rectangle rect{};
-
-
-                // turn pixel movement into unit movement
-                // pos.x = 160   => unit size
-                //  640 is half width
-                // 1 half width is 4 (aka cam.size.x)
-                // [-4,4]
-                // 640 is 4
-                // 160 is 1
-
-                // turn pixel movement into unit movement
-                // pos.y = 160   => unit size
-                // 480 is half height
-                // 1 half width is 3 (aka cam.size.y)
-                // 480 is 3
-                // 160 is 1
-
+                Rectangle rect;
 
                 rect.position.x = renderCommand->boundingBox.x;
                 rect.position.y = renderCommand->boundingBox.y;
@@ -145,7 +124,27 @@ void UILayer::Draw() {
 
                 LowRenderer::DrawRectangle(rect);
                 break;
+            case CLAY_RENDER_COMMAND_TYPE_TEXT:
+                // TODO: Add text renderer
 
+                Text text;
+                text.color.r = renderCommand->config.textElementConfig->textColor.r;
+                text.color.g = renderCommand->config.textElementConfig->textColor.g;
+                text.color.b = renderCommand->config.textElementConfig->textColor.b;
+                text.color.a = renderCommand->config.textElementConfig->textColor.a;
+
+                text.value = renderCommand->text.chars;
+
+                text.position.x = renderCommand->boundingBox.x;
+                text.position.y = renderCommand->boundingBox.y;
+
+                text.size.x = renderCommand->boundingBox.width;
+                text.size.y = renderCommand->boundingBox.height;
+
+                text.fontSize = renderCommand->config.textElementConfig->fontSize;
+
+                LowRenderer::DrawText(text);
+                break;
 
         }
 
