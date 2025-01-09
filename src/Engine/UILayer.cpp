@@ -15,19 +15,12 @@
 
 #include "clay.h"
 
-const Clay_Color COLOR_LIGHT = (Clay_Color) {224, 215, 210, 255};
-const Clay_Color COLOR_RED = (Clay_Color) {168, 66, 28, 255};
 const Clay_Color COLOR_ORANGE = (Clay_Color) {225, 138, 50, 255};
-Clay_LayoutConfig sidebarItemLayout = (Clay_LayoutConfig) {
-        .sizing = {.width = CLAY_SIZING_GROW(), .height = CLAY_SIZING_FIXED(50)},
-};
-
-// Re-useable components are just normal functions
-void SidebarItemComponent() {
-    CLAY(CLAY_LAYOUT(sidebarItemLayout), CLAY_RECTANGLE({.color = COLOR_ORANGE})) {}
-}
 
 void OnUserInterfaceError(Clay_ErrorData e) {
+
+    // log error
+    std::cerr << "Error: An error message here " << e.errorText.chars << std::endl;
 
 }
 
@@ -35,6 +28,7 @@ void OnUserInterfaceError(Clay_ErrorData e) {
 static inline Clay_Dimensions MeasureText(Clay_String *text, Clay_TextElementConfig *config) {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
+    return {};
 }
 
 
@@ -66,16 +60,37 @@ void UILayer::Draw() {
 
     // An example of laying out a UI with a fixed width sidebar and flexible width main content
     CLAY(CLAY_ID("OuterContainer"),
-         CLAY_LAYOUT({.sizing = {CLAY_SIZING_FIXED(60), CLAY_SIZING_FIXED(60)}, .padding = {16, 16}, .childGap = 16}),
-         CLAY_RECTANGLE({.color = {20, 70, 20, 200}})) {
-        CLAY(CLAY_ID("Sidebar"), CLAY_LAYOUT({
-                                                     .sizing= {CLAY_SIZING_FIXED(60), CLAY_SIZING_GROW()},
-                                                     .padding={16, 16},
-                                                     .childAlignment = {
-                                                             .y = CLAY_ALIGN_Y_CENTER
-                                                     }
-                                             }), CLAY_RECTANGLE({.color={80, 0, 0, 20}})) {
+         CLAY_LAYOUT({
+                             .sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
+                             .padding={16, 16},
+                             .childGap=32,
+                             .childAlignment={
+                                     CLAY_ALIGN_X_LEFT,
+                                     CLAY_ALIGN_Y_TOP
+                             },
+                             .layoutDirection = CLAY_LEFT_TO_RIGHT,
 
+                     }),
+         CLAY_RECTANGLE({.color={255, 0, 0, 40}})) {
+
+
+        CLAY(CLAY_ID("Sidebar"),
+             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
+                                   CLAY_SIZING_FIXED(80)}})) {
+            CLAY(CLAY_ID("Content"),
+                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
+                 CLAY_RECTANGLE({.color={25, 255, 5, 40}})) {
+
+            }
+        }
+        CLAY(CLAY_ID("Sidebar2"),
+             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
+                                   CLAY_SIZING_FIXED(80)}})) {
+            CLAY(CLAY_ID("Content2"),
+                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
+                 CLAY_RECTANGLE({.color={255, 255, 255, 40}})) {
+
+            }
         }
 
     }
@@ -89,15 +104,39 @@ void UILayer::Draw() {
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
                 // TODO: Add text renderer
                 break;
+            default:
+                std::cerr << renderCommand->commandType << std::endl;
+
+                break;
 
             case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
                 Rectangle rect{};
 
+
+                // turn pixel movement into unit movement
+                // pos.x = 160   => unit size
+                //  640 is half width
+                // 1 half width is 4 (aka cam.size.x)
+                // [-4,4]
+                // 640 is 4
+                // 160 is 1
+
+                // turn pixel movement into unit movement
+                // pos.y = 160   => unit size
+                // 480 is half height
+                // 1 half width is 3 (aka cam.size.y)
+                // 480 is 3
+                // 160 is 1
+
+
                 rect.position.x = renderCommand->boundingBox.x;
                 rect.position.y = renderCommand->boundingBox.y;
 
+
+                // Scale the size
                 rect.size.x = renderCommand->boundingBox.width;
                 rect.size.y = renderCommand->boundingBox.height;
+
 
                 rect.color.r = renderCommand->config.rectangleElementConfig->color.r;
                 rect.color.g = renderCommand->config.rectangleElementConfig->color.g;
