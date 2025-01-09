@@ -32,6 +32,8 @@ public:
         return glm::lookAt(cameraPos, target, up);
     }
 
+    [[nodiscard]] glm::vec2 getSize() const { return m_size; }
+
     float zoom = 1.0f;
     glm::vec2 position{0, 0};
 private:
