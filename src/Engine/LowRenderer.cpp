@@ -12,7 +12,6 @@
 #include "glad/glad.h"
 #include "stb_truetype/stb_truetype.h"
 #include <GLFW/glfw3.h>
-#include "Engine/Renderer/FontManager.h"
 
 float LowRenderer::lastTime = 0.0f; // Initialization of lastTime
 float LowRenderer::getDeltaTime() {
