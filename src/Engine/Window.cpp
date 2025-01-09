@@ -8,6 +8,9 @@
 #include "glad/glad.h"
 #include <iostream>
 
+int Window::s_width = 0;
+int Window::s_height = 0;
+
 Window::Window(int width, int height, const char *title) {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
@@ -24,6 +27,9 @@ Window::Window(int width, int height, const char *title) {
 #endif
 
     p_window = glfwCreateWindow(width, height, title, NULL, NULL);
+    s_height = height;
+    s_width = width;
+
     if (!p_window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();

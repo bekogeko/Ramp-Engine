@@ -5,12 +5,13 @@
 #include "Engine/Object.h"
 #include "Engine/HighRenderer.h"
 #include "Engine/ShaderManager.h"
+#include "Engine/World.h"
 
 Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize) {
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
 
     m_shader = std::move(ShaderManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
-    m_Id = HighRenderer::GetNextId();
+    m_Id = World::GetNextId();
 
     // for later use
     m_indices = std::vector<unsigned int>(indices, indices + (indicesSize / sizeof(unsigned int)));
@@ -31,7 +32,7 @@ Object::~Object() {
     m_vertexArray.reset();
 }
 
-void Object::Draw(glm::mat4 camera) {
+void Object::Draw() {
     ///
     /// Update Stage
     ///
@@ -53,10 +54,15 @@ void Object::Draw(glm::mat4 camera) {
     m_shader->Bind();
 
     // set uColor
-    m_shader->SetUniform3f("uColor", color.r, color.g, color.b);
+    m_shader->SetUniform4f("uColor", color.r, color.g, color.b, color.a);
 
+    // get camera
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
     // set Camera Matrix
-    m_shader->SetUniformMat4("uProjection", &camera[0][0]);
+    m_shader->SetUniformMat4("uProjection", &projMat[0][0]);
+    m_shader->SetUniformMat4("uView", &viewMat[0][0]);
+
 
     // create model matrix from
     glm::mat4 model = glm::mat4(1.0f);
@@ -64,7 +70,7 @@ void Object::Draw(glm::mat4 camera) {
     model = glm::translate(model, glm::vec3(position, 0.0f));
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
     // TODO: scaling factor
-    // model = glm::scale(model, glm::vec3(scale, 1.0f));
+    model = glm::scale(model, glm::vec3(scale, 1.0f));
 
 
     m_shader->SetUniformMat4("uModel", &model[0][0]);
@@ -77,5 +83,9 @@ void Object::Draw(glm::mat4 camera) {
     m_shader->Unbind();
     m_vertexArray->Unbind();
 
+}
+
+void Object::LoadShader(const std::string &vertexPath, const std::string &fragmentPath) {
+    m_shader = ShaderManager::LoadShader(vertexPath.c_str(), fragmentPath.c_str());
 
 }

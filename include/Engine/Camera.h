@@ -12,7 +12,10 @@
 class Camera {
 
 public:
-    virtual glm::mat4 getCameraMatrix() = 0;
+    [[nodiscard]] virtual glm::mat4 getProjectionMatrix() const = 0;
+
+    [[nodiscard]] virtual glm::mat4 getViewMatrix() const = 0;
+
 
     glm::vec2 position;
 };

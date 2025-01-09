@@ -41,11 +41,12 @@ public:
         return m_vertices.size();
     }
 
-    glm::vec2 position{0, 0};
 
     // in radians
     float rotation{0};
-    glm::vec3 color{0, 0, 0};
+    glm::vec2 position{0, 0};
+    glm::vec2 scale{1, 1};
+    glm::vec4 color{0, 0, 0, 1};
 
 
     // 'registered' event called by HighRenderer
@@ -66,9 +67,14 @@ public:
     // with EBO
     explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
 
+    // TODO: we should be able to reAttachShader
+    //  load other shaders on go
+    // Load a new shader program
+    void LoadShader(const std::string &vertexPath, const std::string &fragmentPath);
+
     ~Object();
 
-    void Draw(glm::mat4 camera);
+    void Draw();
 
     // attachComponent
     //  - Each Component type is only attachable once

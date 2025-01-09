@@ -1,0 +1,122 @@
+//
+// Created by Bekir Gulestan on 1/8/25.
+//
+
+#include "Engine/UILayer.h"
+#include "Engine/Window.h"
+#include "Engine/Input.h"
+
+// rectangle shape
+#include "Engine/Renderer/Rectangle.h"
+
+
+// Must be defined in one file, _before_ #include "clay.h"
+#define CLAY_IMPLEMENTATION
+
+#include "clay.h"
+
+const Clay_Color COLOR_LIGHT = (Clay_Color) {224, 215, 210, 255};
+const Clay_Color COLOR_RED = (Clay_Color) {168, 66, 28, 255};
+const Clay_Color COLOR_ORANGE = (Clay_Color) {225, 138, 50, 255};
+Clay_LayoutConfig sidebarItemLayout = (Clay_LayoutConfig) {
+        .sizing = {.width = CLAY_SIZING_GROW(), .height = CLAY_SIZING_FIXED(50)},
+};
+
+// Re-useable components are just normal functions
+void SidebarItemComponent() {
+    CLAY(CLAY_LAYOUT(sidebarItemLayout), CLAY_RECTANGLE({.color = COLOR_ORANGE})) {}
+}
+
+void OnUserInterfaceError(Clay_ErrorData e) {
+
+}
+
+// Example measure text function
+static inline Clay_Dimensions MeasureText(Clay_String *text, Clay_TextElementConfig *config) {
+    // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
+    // Note: Clay_String->chars is not guaranteed to be null terminated
+}
+
+
+UILayer::UILayer(int index) : Layer(index) {
+    // Note: malloc is only used here as an example, any allocator that provides
+    // a pointer to addressable memory of at least totalMemorySize will work
+    uint64_t totalMemorySize = Clay_MinMemorySize();
+    Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, malloc(totalMemorySize));
+
+    Clay_ErrorHandler errorHandler;
+    errorHandler.userData = index;
+    errorHandler.errorHandlerFunction = OnUserInterfaceError;
+
+    Clay_Initialize(arena, (Clay_Dimensions) {static_cast<float>(Window::getWidth()),
+                                              static_cast<float>(Window::getHeight())}, errorHandler);
+
+    // Tell clay how to measure text
+    Clay_SetMeasureTextFunction(MeasureText);
+
+    auto mousePos = Input::getMousePosition();
+    auto isMouseDown = Input::getMouseButton(0);
+
+    // Update internal pointer position for handling mouseover / click / touch events
+    Clay_SetPointerState((Clay_Vector2) {mousePos.x, mousePos.y}, isMouseDown);
+}
+
+void UILayer::Draw() {
+    Clay_BeginLayout();
+
+    // An example of laying out a UI with a fixed width sidebar and flexible width main content
+    CLAY(CLAY_ID("OuterContainer"),
+         CLAY_LAYOUT({.sizing = {CLAY_SIZING_FIXED(60), CLAY_SIZING_FIXED(60)}, .padding = {16, 16}, .childGap = 16}),
+         CLAY_RECTANGLE({.color = {20, 70, 20, 200}})) {
+        CLAY(CLAY_ID("Sidebar"), CLAY_LAYOUT({
+                                                     .sizing= {CLAY_SIZING_FIXED(60), CLAY_SIZING_GROW()},
+                                                     .padding={16, 16},
+                                                     .childAlignment = {
+                                                             .y = CLAY_ALIGN_Y_CENTER
+                                                     }
+                                             }), CLAY_RECTANGLE({.color={80, 0, 0, 20}})) {
+
+        }
+
+    }
+
+    Clay_RenderCommandArray renderCommands = Clay_EndLayout();
+
+    for (int i = 0; i < renderCommands.length; ++i) {
+        Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
+
+        switch (renderCommand->commandType) {
+            case CLAY_RENDER_COMMAND_TYPE_TEXT:
+                // TODO: Add text renderer
+                break;
+
+            case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
+                Rectangle rect{};
+
+                rect.position.x = renderCommand->boundingBox.x;
+                rect.position.y = renderCommand->boundingBox.y;
+
+                rect.size.x = renderCommand->boundingBox.width;
+                rect.size.y = renderCommand->boundingBox.height;
+
+                rect.color.r = renderCommand->config.rectangleElementConfig->color.r;
+                rect.color.g = renderCommand->config.rectangleElementConfig->color.g;
+                rect.color.b = renderCommand->config.rectangleElementConfig->color.b;
+                rect.color.a = renderCommand->config.rectangleElementConfig->color.a;
+
+                LowRenderer::DrawRectangle(rect);
+                break;
+
+
+        }
+
+    }
+}
+
+
+void UILayer::Update(float deltaTime) {
+
+}
+
+
+

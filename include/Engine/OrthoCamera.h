@@ -12,7 +12,7 @@ class OrthoCamera : public Camera {
 public:
     OrthoCamera(int width, int height) : m_size(width, height) {}
 
-    glm::mat4 getCameraMatrix() override {
+    [[nodiscard]] glm::mat4 getProjectionMatrix() const override {
 
         float left = -1.0f * zoom * m_size.x;
         float right = 1.0f * zoom * m_size.x;
@@ -21,11 +21,11 @@ public:
 
         glm::mat4 projection = glm::ortho(left, right, bottom, top);
 
-        glm::mat4 view = getViewMatrix();
-        return projection * view;
+        return projection;
     }
 
-    [[nodiscard]] glm::mat4 getViewMatrix() const {
+    //
+    [[nodiscard]] glm::mat4 getViewMatrix() const override {
         glm::vec3 cameraPos = glm::vec3(position, 1.0f);
         glm::vec3 target = glm::vec3(position, 0.0f);
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);

@@ -4,8 +4,9 @@
 
 #include "Engine/Component.h"
 #include "Engine/HighRenderer.h"
+#include "Engine/World.h"
 
 std::shared_ptr<Object> Component::getObject() const {
-    auto obj = HighRenderer::getById(m_ObjectId);
+    auto obj = World::getById(m_ObjectId);
     return obj;
 }

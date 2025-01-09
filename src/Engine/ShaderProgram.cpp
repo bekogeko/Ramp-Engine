@@ -12,7 +12,9 @@
 void ShaderProgram::SetUniform3f(const std::string &name, float x, float y, float z) {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
+#ifdef GL_ERROR_SILENTa
         std::cerr << "Warning: uniform '" << name << "' doesn't exist!\n";
+#endif
     } else {
         glUniform3f(location, x, y, z);
     }
@@ -21,7 +23,9 @@ void ShaderProgram::SetUniform3f(const std::string &name, float x, float y, floa
 void ShaderProgram::SetUniform2f(const std::string &name, float x, float y) {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
+#ifdef GL_ERROR_SILENT
         std::cerr << "Warning: uniform '" << name << "' doesn't exist!\n";
+#endif
     } else {
         glUniform2f(location, x, y);
     }
@@ -30,7 +34,9 @@ void ShaderProgram::SetUniform2f(const std::string &name, float x, float y) {
 void ShaderProgram::SetUniformMat4(const std::string &name, const float *matrix) const {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
+#ifdef GL_ERROR_SILENT
         std::cerr << "Warning: uniform '" << name << "' doesn't exist!\n";
+#endif
     } else {
         glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
     }
@@ -73,4 +79,15 @@ ShaderProgram::~ShaderProgram() {
     // we don't need to delete them
 
 //    std::cout << "Shader Program deleted with id " << programID << std::endl;
+}
+
+void ShaderProgram::SetUniform4f(const std::string &name, float x, float y, float z, float w) {
+    int location = glGetUniformLocation(programID, name.c_str());
+    if (location == -1) {
+#ifdef GL_ERROR_SILENT
+        std::cerr << "Warning: uniform '" << name << "' doesn't exist!\n";
+#endif
+    } else {
+        glUniform4f(location, x, y, z, w);
+    }
 }
