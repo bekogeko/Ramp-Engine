@@ -10,7 +10,9 @@
 #include "Engine/Window.h"
 
 #include "glad/glad.h"
+#include "stb_truetype/stb_truetype.h"
 #include <GLFW/glfw3.h>
+#include "Engine/Renderer/FontManager.h"
 
 float LowRenderer::lastTime = 0.0f; // Initialization of lastTime
 float LowRenderer::getDeltaTime() {
@@ -86,6 +88,73 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 #define GL_ERROR_SILENT
     obj->Draw();
 #undef GL_ERROR_SILENT
+
+    delete obj;
+}
+
+
+void LowRenderer::DrawText(Text text) {
+    auto objParsed = ObjectParser::LoadObject("square.obj");
+
+    auto *vertices = new float[objParsed.vertices.size() * 2];
+    auto *indices = new unsigned int[objParsed.indices.size()];
+
+    // move vertices and indices
+    std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+
+    int i = 0;
+    for (auto vert: objParsed.vertices) {
+        vertices[i++] = vert.x;
+        vertices[i++] = vert.y;
+    }
+
+    // define sizeof vertices
+    unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * 2;
+    // define sizeof indices
+    unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
+
+
+    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize);
+
+// Calculate pixel scaling based on the window's size and aspect ratio
+    auto screenWidth = static_cast<float>(Window::getWidth());
+    auto screenHeight = static_cast<float>(Window::getHeight());
+
+    // TODO maybe use aspectRatio
+    float aspectRatio = screenWidth / screenHeight;
+
+    float camHalfWidth = HighRenderer::getCamera().getSize().x;
+    float camWidth = camHalfWidth * 2;
+    float camHalfHeight = HighRenderer::getCamera().getSize().y;
+    float camHeight = camHalfHeight * 2;
+
+    int sizeX = 1;
+    int sizeY = 1;
+
+    float posX = (text.position.x / screenWidth) * camWidth - camHalfWidth + (0.5f * sizeX);
+    float posY = camHalfHeight - (text.position.y / screenHeight) * camHeight - (0.5f * sizeY);
+
+    obj->position.x = posX;
+    obj->position.y = posY;
+
+    obj->scale.x = sizeX;
+    obj->scale.y = sizeY;
+
+
+    ///
+    /// Text Rendering
+    ///
+
+    //TODO add text rendering
+
+    ///
+    ///
+    ///
+
+
+
+    obj->LoadShader("shaders/ui.vert", "shaders/ui.frag");
+//    obj->getShader()->SetUniform2f("texCoord", texCoord.x, texCoord.y);
 
     delete obj;
 }

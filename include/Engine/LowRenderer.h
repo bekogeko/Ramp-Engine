@@ -7,6 +7,8 @@
 
 
 #include "Engine/Renderer/Rectangle.h"
+#include "Engine/Renderer/Text.h"
+
 
 class LowRenderer {
 private:
@@ -15,6 +17,8 @@ public:
     static float getDeltaTime();
 
     static void DrawRectangle(Rectangle rectangle);
+
+    static void DrawText(Text text);
 };
 
 
