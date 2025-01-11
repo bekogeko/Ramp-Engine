@@ -143,8 +143,14 @@ void LowRenderer::DrawText(Text text) {
     obj->position.x = posX;
     obj->position.y = posY;
 
-    obj->scale.x = sizeX;
-    obj->scale.y = sizeY;
+    obj->scale.x = sizeX * 0.5;
+    obj->scale.y = sizeY * 0.5;
+
+
+    obj->color.r = text.color.r / 255;
+    obj->color.g = text.color.g / 255;
+    obj->color.b = text.color.b / 255;
+    obj->color.a = text.color.a / 255;
 
 
     ///
@@ -159,7 +165,14 @@ void LowRenderer::DrawText(Text text) {
 
 
 
-    obj->LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    obj->LoadShader("shaders/text.vert", "shaders/text.frag");
+    obj->getShader()->Bind();
+
+    printf("R: %.2f G: %.2f B: %.2f", obj->color.r, obj->color.g, obj->color.b);
+//    obj->getShader()->SetUniform4f("uTextColor", 0.5, 1, 0.5f, 1);
+    obj->Draw();
+
+
 //    obj->getShader()->SetUniform2f("texCoord", texCoord.x, texCoord.y);
 
     delete obj;

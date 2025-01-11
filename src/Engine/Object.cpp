@@ -87,5 +87,4 @@ void Object::Draw() {
 
 void Object::LoadShader(const std::string &vertexPath, const std::string &fragmentPath) {
     m_shader = ShaderManager::LoadShader(vertexPath.c_str(), fragmentPath.c_str());
-
 }

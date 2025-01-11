@@ -73,6 +73,10 @@ public:
     // Load a new shader program
     void LoadShader(const std::string &vertexPath, const std::string &fragmentPath);
 
+    std::shared_ptr<ShaderProgram> getShader() const {
+        return m_shader;
+    }
+
     ~Object();
 
     void Draw();
