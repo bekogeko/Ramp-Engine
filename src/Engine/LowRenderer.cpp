@@ -5,8 +5,8 @@
 
 #include "Engine/HighRenderer.h"
 #include "Engine/LowRenderer.h"
-#include "Engine/Object.h"
-#include "Engine/ObjectParser.h"
+#include "Engine/Object/Object.h"
+#include "Engine/Object/ObjectParser.h"
 #include "Engine/Window.h"
 
 #include "glad/glad.h"

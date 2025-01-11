@@ -11,7 +11,7 @@
 #include "Engine/Input.h"
 #include "Engine/HighRenderer.h"
 #include "Engine/Physics.h"
-#include "Engine/PhysicsComponent.h"
+#include "Engine/Object/PhysicsComponent.h"
 
 
 #include "Player.h"

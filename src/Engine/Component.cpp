@@ -2,7 +2,7 @@
 // Created by Bekir Gulestan on 12/30/24.
 //
 
-#include "Engine/Component.h"
+#include "Engine/Object/Component.h"
 #include "Engine/HighRenderer.h"
 #include "Engine/World.h"
 

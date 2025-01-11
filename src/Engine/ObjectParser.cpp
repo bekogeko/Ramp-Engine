@@ -2,7 +2,7 @@
 // Created by Bekir Gulestan on 1/9/25.
 //
 
-#include "Engine/ObjectParser.h"
+#include "Engine/Object/ObjectParser.h"
 
 #include <iostream>
 #include <sstream>

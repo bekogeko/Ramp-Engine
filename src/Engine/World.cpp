@@ -3,7 +3,9 @@
 //
 
 #include "Engine/World.h"
-#include "Engine/ObjectParser.h"
+#include "Engine/Object/ObjectParser.h"
+#include "Engine/Object/Object.h"
+#include "Engine/VertexArray.h"
 
 #include <sstream>
 #include <utility>

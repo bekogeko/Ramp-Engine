@@ -5,7 +5,7 @@
 #ifndef RAY_GAME_PLAYER_H
 #define RAY_GAME_PLAYER_H
 
-#include "Engine/Component.h"
+#include "Engine/Object/Component.h"
 
 class Player : public Component {
 
