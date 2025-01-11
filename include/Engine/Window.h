@@ -11,6 +11,7 @@
 class Window {
 private:
     GLFWwindow *p_window;
+    static int s_width, s_height;
 
 public:
     Window(int width, int height, const char *title);
@@ -31,6 +32,11 @@ public:
     void pollInputs() {
         glfwPollEvents();
     }
+
+
+    static int getWidth() { return s_width; }
+
+    static int getHeight() { return s_height; }
 
     ~Window() {
         glfwDestroyWindow(p_window);

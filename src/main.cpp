@@ -11,9 +11,11 @@
 #include "Engine/Input.h"
 #include "Engine/HighRenderer.h"
 #include "Engine/Physics.h"
-#include "Engine/PhysicsComponent.h"
+#include "Engine/Object/PhysicsComponent.h"
+
 
 #include "Player.h"
+#include "Engine/World.h"
 
 static void error_callback(int error, const char *description) {
     std::cout << "Error: " << description << "\n";
@@ -51,12 +53,13 @@ int main() {
     std::cout << "ImGui initialized successfully\n";
 #endif
     Physics::Init();
+    HighRenderer::Init();
 
 
 
     // register object transfer to high renderer
-    auto objId_int = HighRenderer::RegisterObject("man.obj");
-    auto objId = HighRenderer::getById(objId_int);
+    auto objId_int = World::RegisterObject("man.obj");
+    auto objId = World::getById(objId_int);
 
     objId->position.x -= 0.5;
     objId->color.r = 1;
@@ -64,20 +67,26 @@ int main() {
     objId->attachComponent<Player>();
     objId->attachComponent<PhysicsComponent>();
 
-    auto id = HighRenderer::RegisterObject("square.obj");
-    auto obj = HighRenderer::getById(id);
+    auto id = World::RegisterObject("square.obj");
+    auto obj = World::getById(id);
 
     obj->attachComponent<PhysicsComponent>();
 
     // create obj2 with different color and position
-    auto id2 = HighRenderer::RegisterObject("square.obj");
-    auto obj2 = HighRenderer::getById(id2);
-    
+    auto id2 = World::RegisterObject("square.obj");
+    auto obj2 = World::getById(id2);
+
 
     obj2->position = {1, 1};
-    obj2->color = {1.0, 0.55, 0.2};
+    obj2->color = {1.0, 0.55, 0.2, 1};
     obj2->attachComponent<PhysicsComponent>();
 
+
+    // enable alpha blending
+    // 0 means opaque
+    // 1 means transparent
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     while (!window.shouldClose()) {
 
@@ -118,7 +127,6 @@ int main() {
 
     //clean up
     std::cout << "Cleaning up...\n";
-    HighRenderer::FreeAll();
 
     std::cout << "Application terminated successfully\n";
 

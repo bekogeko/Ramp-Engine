@@ -7,14 +7,7 @@
 std::map<std::string, std::shared_ptr<ShaderSource>> ShaderManager::m_Shaders;
 
 std::shared_ptr<ShaderProgram> ShaderManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
-
-
-    // FIXME: this is not a good way to create id
-    //  we should hash each file and create id from that
-    //  m_shaders[vertPath] = vertexShader;
-    //  m_shaders[fragPath] = fragmentShader;
-    //  m_programs[vertPath + fragPath] = program;
-
+    
     //create id from paths
     // first vertex shader path
     std::string vertId = vertexPath;

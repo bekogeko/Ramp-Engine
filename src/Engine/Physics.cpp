@@ -2,7 +2,7 @@
 // Created by Bekir Gulestan on 12/31/24.
 //
 #include "Engine/Physics.h"
-#include "Engine/HighRenderer.h"
+#include "Engine/World.h"
 
 b2WorldId Physics::worldId;
 
@@ -38,7 +38,7 @@ void Physics::Update() {
 
     // update obj positions according to the simulation
     for (auto &[id, bodyId]: m_Objects) {
-        auto obj = HighRenderer::getById(id);
+        auto obj = World::getById(id);
         b2Vec2 position = b2Body_GetPosition(bodyId);
         b2Rot rotation = b2Body_GetRotation(bodyId);
         obj->position.x = position.x;
@@ -61,7 +61,7 @@ void Physics::RemoveObject(unsigned int m_Id) {
 b2BodyId Physics::AddObject(unsigned int m_Id) {
 
     // get Objects Position
-    auto obj = HighRenderer::getById(m_Id);
+    auto obj = World::getById(m_Id);
     int vertexCount = obj->getVertexCount();
 
     // Create HULL

@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include "imgui.h"
-#include "Engine/PhysicsComponent.h"
+#include "Engine/Object/PhysicsComponent.h"
 
 void Player::Draw() {
 

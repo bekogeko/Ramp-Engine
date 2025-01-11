@@ -5,13 +5,13 @@
 #ifndef RAY_GAME_OBJECT_H
 #define RAY_GAME_OBJECT_H
 
-#include "VertexArray.h"
+#include "Engine/VertexArray.h"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "Component.h"
-#include "LowRenderer.h"
-#include "Camera.h"
-#include "ShaderProgram.h"
+#include "Engine/LowRenderer.h"
+#include "Engine/Camera.h"
+#include "Engine/ShaderProgram.h"
 #include "box2d/math_functions.h"
 #include <string>
 #include <iostream>
@@ -41,11 +41,12 @@ public:
         return m_vertices.size();
     }
 
-    glm::vec2 position{0, 0};
 
     // in radians
     float rotation{0};
-    glm::vec3 color{0, 0, 0};
+    glm::vec2 position{0, 0};
+    glm::vec2 scale{1, 1};
+    glm::vec4 color{0, 0, 0, 1};
 
 
     // 'registered' event called by HighRenderer
@@ -64,11 +65,21 @@ public:
     }
 
     // with EBO
-    explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
+    explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+                    LayoutStack stack);
+
+    // TODO: we should be able to reAttachShader
+    //  load other shaders on go
+    // Load a new shader program
+    void LoadShader(const std::string &vertexPath, const std::string &fragmentPath);
+
+    std::shared_ptr<ShaderProgram> getShader() const {
+        return m_shader;
+    }
 
     ~Object();
 
-    void Draw(glm::mat4 camera);
+    void Draw();
 
     // attachComponent
     //  - Each Component type is only attachable once

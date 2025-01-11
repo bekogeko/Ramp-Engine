@@ -15,7 +15,7 @@ ShaderSource::ShaderSource(std::string path, ShaderSource::Type type) {
     // solve for relative path
     std::string shaderFullPath = std::filesystem::current_path().c_str();
     shaderFullPath += &RESOURCES_PATH[1];
-    shaderFullPath += shaderPath;
+    shaderFullPath += path;
 ßß
 #elif PRODUCTION_BUILD == 0
     std::string shaderFullPath = RESOURCES_PATH + path;
@@ -54,7 +54,8 @@ ShaderSource::ShaderSource(std::string path, ShaderSource::Type type) {
 
     if (!success) {
         glGetShaderInfoLog(m_shaderID, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cerr << "ERROR::" << (type == Type::VERTEX ? "VERTEX" : "FRAGMENT") << "::SHADER::COMPILATION_FAILED\n"
+                  << infoLog << std::endl;
     }
 }
 

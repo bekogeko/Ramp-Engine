@@ -1,7 +1,7 @@
 //
 // Created by Bekir Gulestan on 12/31/24.
 //
-#include "Engine/PhysicsComponent.h"
+#include "Engine/Object/PhysicsComponent.h"
 #include "Engine/Physics.h"
 #include "Engine/Input.h"
 #include <iostream>
