@@ -13,7 +13,7 @@
 class TextureManager {
 public:
 
-    static std::shared_ptr<Texture> LoadTexture(std::string path) {
+    static std::shared_ptr<Texture> LoadTexture(const std::string &path) {
         // check if string exists in the map
         if (m_Textures.find(path) != m_Textures.end()) {
             return m_Textures[path];
