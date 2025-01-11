@@ -7,6 +7,7 @@
 #include "Engine/LowRenderer.h"
 #include "Engine/Object/Object.h"
 #include "Engine/Object/ObjectParser.h"
+#include "Engine/TextureManager.h"
 #include "Engine/Window.h"
 
 #include "glad/glad.h"
@@ -110,23 +111,33 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 void LowRenderer::DrawText(Text text) {
     auto objParsed = ObjectParser::LoadObject("square.obj");
     LayoutStack stack = {
+            VertexLayout(2),
             VertexLayout(2)
     };
 
-    auto *vertices = new float[objParsed.vertices.size() * 2];
+    auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
     auto *indices = new unsigned int[objParsed.indices.size()];
 
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
+
     int i = 0;
-    for (auto vert: objParsed.vertices) {
+    for (int j = 0; j < objParsed.vertices.size(); ++j) {
+        auto vert = objParsed.vertices[j];
+
         vertices[i++] = vert.x;
         vertices[i++] = vert.y;
+
+
+        auto nextVert = objParsed.texCoords[j];
+        vertices[i++] = nextVert.x;
+        vertices[i++] = nextVert.y;
+
     }
 
     // define sizeof vertices
-    unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * 2;
+    unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * stack.getDimentionCount();
     // define sizeof indices
     unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
 
@@ -175,16 +186,14 @@ void LowRenderer::DrawText(Text text) {
     ///
 
 
-
     obj->LoadShader("shaders/text.vert", "shaders/text.frag");
     obj->getShader()->Bind();
 
 
-//    obj->getShader()->SetUniform1i("textureID", texture.slot);
-//    texture.Bind();
+    auto texture = TextureManager::LoadTexture("textures/wall.png");
+    texture->Bind(1);
 
-//    printf("R: %.2f G: %.2f B: %.2f", obj->color.r, obj->color.g, obj->color.b);
-//    obj->getShader()->SetUniform4f("uTextColor", 0.5, 1, 0.5f, 1);
+    obj->getShader()->SetUniform1i("textureID", texture->slot());
     obj->Draw();
 
     delete obj;
