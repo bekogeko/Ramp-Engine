@@ -11,6 +11,8 @@
 struct ParsedObject {
     std::vector<unsigned int> indices;
     std::vector<glm::vec2> vertices;
+    std::vector<glm::vec2> texCoords;
+    bool isTextured = false;
 };
 
 class ObjectParser {
