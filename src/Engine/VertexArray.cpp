@@ -5,7 +5,7 @@
 #include "Engine/VertexArray.h"
 #include <algorithm>
 
-VertexArray::VertexArray(float *vertices, unsigned int size) {
+VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) {
 
     // size
     m_size = size;
@@ -20,13 +20,13 @@ VertexArray::VertexArray(float *vertices, unsigned int size) {
 
     // Copy vertices to buffer
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-
-    // Set vertex attributes
-    // Position attribute (2 floats)
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
-
-    // Enable vertex attributes
-    glEnableVertexAttribArray(0);
+    int i = 0;
+    for (auto &layout: stack) {
+        glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE, stack.getDimentionCount() * sizeof(float),
+                              (void *) stack.getOffsetOfIndex(i));
+        glEnableVertexAttribArray(i);
+        i++;
+    }
 
     // Unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);

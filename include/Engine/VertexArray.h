@@ -6,6 +6,63 @@
 #define RAY_GAME_VERTEXARRAY_H
 
 #include <glad/glad.h>
+#include <vector>
+
+
+class VertexLayout {
+public:
+
+    template<typename T>
+    explicit VertexLayout(int count) {
+        m_size = sizeof(T) * count;
+        m_Dimension = count;
+    }
+
+
+    int getDimension() const {
+        return m_Dimension;
+    }
+
+    int size() const {
+        return m_size;
+    }
+
+private:
+
+    int m_size; // size in bytes
+    int m_Dimension;
+};
+
+class LayoutStack {
+public:
+    // list constructor
+    LayoutStack(std::initializer_list<VertexLayout> layouts) : m_layout(layouts) {}
+
+    int getDimentionCount() {
+        int totalDimension = 0;
+        for (auto layout: *this) {
+            totalDimension += layout.getDimension();
+        }
+        return totalDimension;
+    }
+
+    void *getOffsetOfIndex(int index) {
+        int offset = 0;
+        for (int i = 0; i < index; ++i) {
+            offset += m_layout[i].size();
+        }
+        return (void *) offset;
+    }
+
+    // will be able to used in for loop (auto a : stack)
+    std::vector<VertexLayout>::iterator begin() { return m_layout.begin(); }
+
+    // will be able to used in for loop (auto a: stack)
+    std::vector<VertexLayout>::iterator end() { return m_layout.end(); }
+
+private:
+    std::vector<VertexLayout> m_layout;
+};
 
 class VertexArray {
 private:
@@ -21,7 +78,7 @@ private:
 
 public:
     // without EBO Constructor
-    VertexArray(float *vertices, unsigned int size);
+    VertexArray(float *vertices, unsigned int size, LayoutStack stack);
 
     //  with EBO Constructor
     VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
