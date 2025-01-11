@@ -42,6 +42,6 @@ Texture::Texture(std::string path) {
 
 void Texture::Bind(int slot) {
     m_slot = slot;
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
 }

@@ -13,6 +13,10 @@ public:
 
     void Bind(int slot = 0);
 
+    int slot() {
+        return m_slot;
+    }
+
 private:
     unsigned int m_textureId;
     unsigned int m_slot;
