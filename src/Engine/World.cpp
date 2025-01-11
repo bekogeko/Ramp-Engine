@@ -30,9 +30,10 @@ std::shared_ptr<Object> World::getById(unsigned int id) {
 }
 
 unsigned int
-World::RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize) {
+World::RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+                      LayoutStack stack) {
     // create
-    std::shared_ptr<Object> newObj = std::make_shared<Object>(vertices, size, indices, indicesSize);
+    std::shared_ptr<Object> newObj = std::make_shared<Object>(vertices, size, indices, indicesSize, stack);
 
     newObj->registerObject();
     m_objects[newObj->getId()] = newObj;
@@ -48,6 +49,9 @@ unsigned int World::RegisterObject(std::string pathName) {
     // 4- return id
 
     auto objParsed = ObjectParser::LoadObject(pathName);
+    LayoutStack stack = {
+            VertexLayout(2)
+    };
 
     // 2.1- create object
     auto *verticesArray = new float[objParsed.vertices.size() * 2];
@@ -74,7 +78,8 @@ unsigned int World::RegisterObject(std::string pathName) {
     std::shared_ptr<Object> newObj = std::make_shared<Object>(verticesArray,
                                                               objParsed.vertices.size() * 2 * sizeof(float),
                                                               indicesArray,
-                                                              objParsed.indices.size() * sizeof(unsigned int));
+                                                              objParsed.indices.size() * sizeof(unsigned int),
+                                                              stack);
 
     // 3- register object
     newObj->registerObject();

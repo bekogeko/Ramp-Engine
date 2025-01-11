@@ -24,6 +24,10 @@ float LowRenderer::getDeltaTime() {
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
     auto objParsed = ObjectParser::LoadObject("square.obj");
 
+    LayoutStack stack = {
+            VertexLayout(2)
+    };
+
     auto *vertices = new float[objParsed.vertices.size() * 2];
     auto *indices = new unsigned int[objParsed.indices.size()];
 
@@ -42,7 +46,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
 
 
-    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize);
+    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
 
 //    std::cout << "R: " << rectangle.color.r << "\t G: " << rectangle.color.g << "\t B:" << rectangle.color.b
 //              << std::endl;
@@ -94,6 +98,9 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 void LowRenderer::DrawText(Text text) {
     auto objParsed = ObjectParser::LoadObject("square.obj");
+    LayoutStack stack = {
+            VertexLayout(2)
+    };
 
     auto *vertices = new float[objParsed.vertices.size() * 2];
     auto *indices = new unsigned int[objParsed.indices.size()];
@@ -113,7 +120,7 @@ void LowRenderer::DrawText(Text text) {
     unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
 
 
-    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize);
+    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
 
 // Calculate pixel scaling based on the window's size and aspect ratio
     auto screenWidth = static_cast<float>(Window::getWidth());

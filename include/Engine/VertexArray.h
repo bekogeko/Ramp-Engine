@@ -11,8 +11,7 @@
 
 class VertexLayout {
 public:
-
-    template<typename T>
+    template<typename T = float>
     explicit VertexLayout(int count) {
         m_size = sizeof(T) * count;
         m_Dimension = count;
@@ -46,12 +45,12 @@ public:
         return totalDimension;
     }
 
-    void *getOffsetOfIndex(int index) {
+    int getOffsetOfIndex(int index) {
         int offset = 0;
         for (int i = 0; i < index; ++i) {
             offset += m_layout[i].size();
         }
-        return (void *) offset;
+        return offset;
     }
 
     // will be able to used in for loop (auto a : stack)
@@ -81,7 +80,7 @@ public:
     VertexArray(float *vertices, unsigned int size, LayoutStack stack);
 
     //  with EBO Constructor
-    VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
+    VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack);
 
 
     ~VertexArray() {

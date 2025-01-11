@@ -7,8 +7,8 @@
 #include "Engine/ShaderManager.h"
 #include "Engine/World.h"
 
-Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize) {
-    m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize);
+Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack) {
+    m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize, stack);
 
     m_shader = std::move(ShaderManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
     m_Id = World::GetNextId();

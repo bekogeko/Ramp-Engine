@@ -65,7 +65,8 @@ public:
     }
 
     // with EBO
-    explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize);
+    explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+                    LayoutStack stack);
 
     // TODO: we should be able to reAttachShader
     //  load other shaders on go
