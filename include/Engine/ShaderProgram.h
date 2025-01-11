@@ -29,6 +29,8 @@ public:
 
     void SetUniform2f(const std::string &name, float x, float y);
 
+    void SetUniform1i(const std::string &name, int x);
+
     void SetUniformMat4(const std::string &name, const float *matrix) const;
 
 };

@@ -91,3 +91,15 @@ void ShaderProgram::SetUniform4f(const std::string &name, float x, float y, floa
         glUniform4f(location, x, y, z, w);
     }
 }
+
+
+void ShaderProgram::SetUniform1i(const std::string &name, int x) {
+    int location = glGetUniformLocation(programID, name.c_str());
+    if (location == -1) {
+#ifdef GL_ERROR_SILENT
+        std::cerr << "Warning: uniform '" << name << "' doesn't exist!\n";
+#endif
+    } else {
+        glUniform1i(location, x);
+    }
+}
