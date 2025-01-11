@@ -5,8 +5,8 @@
 #include "Engine/World.h"
 #include "Engine/ObjectParser.h"
 
-#include <fstream>
 #include <sstream>
+#include <utility>
 
 std::map<unsigned int, std::shared_ptr<Object>> World::m_objects;
 
@@ -31,7 +31,7 @@ std::shared_ptr<Object> World::getById(unsigned int id) {
 
 unsigned int
 World::RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
-                      LayoutStack stack) {
+                      const LayoutStack &stack) {
     // create
     std::shared_ptr<Object> newObj = std::make_shared<Object>(vertices, size, indices, indicesSize, stack);
 
@@ -48,7 +48,7 @@ unsigned int World::RegisterObject(std::string pathName) {
     // 3- register object
     // 4- return id
 
-    auto objParsed = ObjectParser::LoadObject(pathName);
+    auto objParsed = ObjectParser::LoadObject(std::move(pathName));
     LayoutStack stack = {
             VertexLayout(2)
     };
@@ -76,7 +76,7 @@ unsigned int World::RegisterObject(std::string pathName) {
 
     // 2.2- create object
     std::shared_ptr<Object> newObj = std::make_shared<Object>(verticesArray,
-                                                              objParsed.vertices.size() * 2 * sizeof(float),
+                                                              objParsed.vertices.size() * stack.getSize(),
                                                               indicesArray,
                                                               objParsed.indices.size() * sizeof(unsigned int),
                                                               stack);

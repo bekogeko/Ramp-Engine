@@ -27,7 +27,7 @@ public:
 
     static unsigned int
     RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
-                   LayoutStack stack);
+                   const LayoutStack &stack);
 
     static unsigned int RegisterObject(std::string pathName);
 

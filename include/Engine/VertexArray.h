@@ -45,6 +45,15 @@ public:
         return totalDimension;
     }
 
+    int getSize() {
+        int totalSize = 0;
+        for (auto layout: *this) {
+            totalSize += layout.size();
+        }
+        return totalSize;
+    }
+
+
     int getOffsetOfIndex(int index) {
         int offset = 0;
         for (int i = 0; i < index; ++i) {
