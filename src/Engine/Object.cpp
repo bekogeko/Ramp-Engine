@@ -4,13 +4,13 @@
 
 #include "Engine/Object/Object.h"
 #include "Engine/HighRenderer.h"
-#include "Engine/ShaderManager.h"
 #include "Engine/World.h"
+#include "Engine/ResourceManager.h"
 
 Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack) {
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize, stack);
 
-    m_shader = std::move(ShaderManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
+    m_shader = std::move(ResourceManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
     m_Id = World::GetNextId();
 
     // for later use
@@ -86,5 +86,5 @@ void Object::Draw() {
 }
 
 void Object::LoadShader(const std::string &vertexPath, const std::string &fragmentPath) {
-    m_shader = ShaderManager::LoadShader(vertexPath.c_str(), fragmentPath.c_str());
+    m_shader = ResourceManager::LoadShader(vertexPath.c_str(), fragmentPath.c_str());
 }

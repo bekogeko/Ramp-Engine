@@ -7,11 +7,11 @@
 #include "Engine/LowRenderer.h"
 #include "Engine/Object/Object.h"
 #include "Engine/Object/ObjectParser.h"
-#include "Engine/TextureManager.h"
 #include "Engine/Window.h"
 
 #include "glad/glad.h"
 #include "stb_truetype/stb_truetype.h"
+#include "Engine/ResourceManager.h"
 #include <GLFW/glfw3.h>
 
 float LowRenderer::lastTime = 0.0f; // Initialization of lastTime
@@ -190,7 +190,7 @@ void LowRenderer::DrawText(Text text) {
     obj->getShader()->Bind();
 
 
-    auto texture = TextureManager::LoadTexture("textures/wall.png");
+    auto texture = ResourceManager::LoadTexture("textures/wall.png");
     texture->Bind(1);
 
     obj->getShader()->SetUniform1i("textureID", texture->slot());
