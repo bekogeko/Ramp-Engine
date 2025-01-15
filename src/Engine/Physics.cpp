@@ -30,8 +30,13 @@ void Physics::Init() {
 
 void Physics::Update() {
     // Warning: this is not the correct way to get the time step
-    float timeStep = LowRenderer::getDeltaTime();
-    int subStepCount = 4;
+    float timeStep = 1.0f / LowRenderer::getFPS();
+
+    // for every 60 fps do a one iteration
+    // no Vsync 360 fps = which means 6 iteration
+    // with vSync we going to get 120fps = with 2 iteration
+    // TODO: maybe add option of VSync with 4 iteration (for every 30 fps)
+    int subStepCount = int(LowRenderer::getFPS() / 30);
 
 
     b2World_Step(worldId, timeStep, subStepCount);

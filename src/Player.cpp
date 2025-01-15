@@ -17,8 +17,13 @@ void Player::Draw() {
     auto &cam = HighRenderer::getCamera();
 
     // calculate fps with previous time
-    float fps = ImGui::GetIO().Framerate;
-    ImGui::Text("FPS: %.1f", fps);
+    float fpsIO = ImGui::GetIO().Framerate;
+    float fpsLR = LowRenderer::getFPS();
+    float dt = ImGui::GetIO().DeltaTime;
+    ImGui::Text("FPS IO: %.1f", fpsIO);
+    ImGui::Text("FPS LR: %.1f", fpsLR);
+
+    ImGui::Text("dT: %.6f", dt);
     ImGui::Text("Cam Position: (%.1f, %.1f)", cam.position.x, cam.position.y);
     ImGui::Text("Cam zoom: (%.3f)", cam.zoom);
 

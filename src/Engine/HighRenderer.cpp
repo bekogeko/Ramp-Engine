@@ -15,9 +15,11 @@ OrthoCamera HighRenderer::m_Camera(4, 3);
 std::vector<std::unique_ptr<Layer>> HighRenderer::layers;
 
 void HighRenderer::Draw() {
+    LowRenderer::swapTime();
     for (auto &layer: layers) {
         layer->Draw();
     }
+
 }
 
 OrthoCamera &HighRenderer::getCamera() {

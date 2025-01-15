@@ -12,13 +12,20 @@
 
 class LowRenderer {
 private:
-    static float lastTime;
+    static double lastTime;
+    static double currentTime;
 public:
     static float getDeltaTime();
+
+    static float getFPS();
 
     static void DrawRectangle(Rectangle rectangle);
 
     static void DrawText(Text text);
+
+    static void swapTime();
+
+    static void updateTime();
 };
 
 

@@ -14,11 +14,12 @@
 #include "Engine/ResourceManager.h"
 #include <GLFW/glfw3.h>
 
-float LowRenderer::lastTime = 0.0f; // Initialization of lastTime
+
+double LowRenderer::currentTime = 0.0f; // Initialization of lastTime
+double LowRenderer::lastTime = 0.0f; // Initialization of lastTime
+
 float LowRenderer::getDeltaTime() {
-    float currentTime = glfwGetTime();
-    float deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
+    auto deltaTime = (float) (currentTime - lastTime);
     return deltaTime;
 }
 
@@ -197,4 +198,18 @@ void LowRenderer::DrawText(Text text) {
     obj->Draw();
 
     delete obj;
+}
+
+float LowRenderer::getFPS() {
+    double deltaTime = (currentTime - lastTime);
+    return (float) (1.0 / deltaTime);
+}
+
+void LowRenderer::swapTime() {
+    lastTime = currentTime;
+    currentTime = glfwGetTime();
+}
+
+void LowRenderer::updateTime() {
+
 }
