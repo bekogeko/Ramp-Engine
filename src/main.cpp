@@ -87,6 +87,8 @@ int main() {
     // 1 means transparent
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // disable vSync
+    glfwSwapInterval(0);
 
     while (!window.shouldClose()) {
 
