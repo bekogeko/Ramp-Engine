@@ -15,36 +15,40 @@ std::map<std::string, std::shared_ptr<Font>> ResourceManager::m_Fonts;
 
 std::shared_ptr<ShaderProgram> ResourceManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
 
+
     //create id from paths
     // first vertex shader path
     std::string vertId = vertexPath;
     std::string fragId = fragmentPath;
-
-    // check if vertShader exists
-    // then do not create it again
-    auto vertShader = m_Shaders.find(vertId);
-
-    // if not found create it
-    if (vertShader == m_Shaders.end()) {
-        m_Shaders[vertId] = std::make_shared<ShaderSource>(vertexPath, ShaderSource::Type::VERTEX);
+    // check if program exists
+    if (m_Programs.find(vertId + fragId) != m_Programs.end()) {
+        return m_Programs[vertId + fragId];
     }
 
-    // check if fragShader exists
-    // then do not create it again
-    auto fragShader = m_Shaders.find(fragId);
 
-    // if not found create it
-    if (fragShader == m_Shaders.end()) {
-        m_Shaders[fragId] = std::make_shared<ShaderSource>(fragmentPath, ShaderSource::Type::FRAGMENT);
+    std::shared_ptr<ShaderSource> vertex;
+    // check if
+    if (m_Shaders.find(vertId) != m_Shaders.end()) {
+        vertex = m_Shaders[vertId];
+    } else {
+        vertex = std::make_shared<ShaderSource>(vertId, ShaderSource::Type::VERTEX);
+        m_Shaders[vertId] = vertex;
     }
 
-    // create program
-    auto shader = std::make_shared<ShaderProgram>(m_Shaders[vertId], m_Shaders[fragId]);
 
-    // add it to m_Programs
-    m_Programs[vertId + fragId] = shader;
+    std::shared_ptr<ShaderSource> fragment;
+    // check if
+    if (m_Shaders.find(fragId) != m_Shaders.end()) {
+        fragment = m_Shaders[fragId];
+    } else {
+        fragment = std::make_shared<ShaderSource>(fragId, ShaderSource::Type::FRAGMENT);
+        m_Shaders[fragId] = fragment;
+    }
 
-    return shader;
+    auto program = std::make_shared<ShaderProgram>(vertex, fragment);
+    m_Programs[vertId + fragId] = program;
+
+    return program;
 }
 
 std::shared_ptr<Texture> ResourceManager::LoadTexture(const std::string &path) {

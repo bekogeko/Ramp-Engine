@@ -170,6 +170,7 @@ void LowRenderer::DrawText(Text text) {
         unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
 
 
+        // TODO: Optimize object creations
         auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
 
         // Calculate pixel scaling based on the window's size and aspect ratio
@@ -177,7 +178,7 @@ void LowRenderer::DrawText(Text text) {
         auto screenHeight = static_cast<float>(Window::getHeight());
 
         // TODO maybe use aspectRatio
-        float aspectRatio = screenWidth / screenHeight;
+//        float aspectRatio = screenWidth / screenHeight;
 
         float camHalfWidth = HighRenderer::getCamera().getSize().x;
         float camHalfHeight = HighRenderer::getCamera().getSize().y;
