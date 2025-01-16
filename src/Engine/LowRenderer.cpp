@@ -130,7 +130,24 @@ void LowRenderer::DrawText(Text text) {
     auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
     glm::vec2 cursorPosition = {0, text.fontSize};
+    bool isNewLine = true;
     for (int i = 0; i < text.value.length(); ++i) {
+
+        if (text.value[i] == '\n') {
+            cursorPosition.y += text.fontSize;
+            cursorPosition.x = 0;
+            isNewLine = true;
+            continue;
+        }
+        if (text.value[i] == ' ') {
+            if (isNewLine) {
+                continue;
+            }
+            cursorPosition.x += text.fontSize;
+            continue;
+        }
+        isNewLine = false;
+
         auto texCoords = fontTex->getTextureCoords(text.value[i]);
         auto glyph = fontTex->getChar(text.value[i]);
 
