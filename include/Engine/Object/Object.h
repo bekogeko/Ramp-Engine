@@ -71,7 +71,7 @@ public:
     // TODO: we should be able to reAttachShader
     //  load other shaders on go
     // Load a new shader program
-    void LoadShader(const std::string &vertexPath, const std::string &fragmentPath);
+    void UseShader(const std::string &vertexPath, const std::string &fragmentPath);
 
     std::shared_ptr<ShaderProgram> getShader() const {
         return m_shader;

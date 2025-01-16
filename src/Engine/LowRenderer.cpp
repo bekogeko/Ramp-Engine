@@ -97,7 +97,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     obj->color.a = rectangle.color.a / 255;
 
 
-    obj->LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    obj->UseShader("shaders/ui.vert", "shaders/ui.frag");
 
 #define GL_ERROR_SILENT
     obj->Draw();
@@ -182,6 +182,7 @@ void LowRenderer::DrawText(Text text) {
         float sizeX = (glyph.size.x / text.fontSize);
         float sizeY = (glyph.size.y / text.fontSize);
 
+//        std::cout << "textPos: " << text.position.x << " " << text.position.y << std::endl;
 
         auto pixelPosition =
                 text.position + cursorPosition + glm::vec2(glyph.bearing.x, (glyph.size.y / 2) + glyph.bearing.y);
@@ -212,7 +213,7 @@ void LowRenderer::DrawText(Text text) {
 
         // TODO: maybe manage slotNumber
         fontTex->Bind(1);
-        obj->LoadShader("shaders/text.vert", "shaders/text.frag");
+        obj->UseShader("shaders/text.vert", "shaders/text.frag");
         obj->getShader()->Bind();
 
         obj->getShader()->SetUniform1i("textureID", fontTex->slot());

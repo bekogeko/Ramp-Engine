@@ -85,6 +85,6 @@ void Object::Draw() {
 
 }
 
-void Object::LoadShader(const std::string &vertexPath, const std::string &fragmentPath) {
+void Object::UseShader(const std::string &vertexPath, const std::string &fragmentPath) {
     m_shader = ResourceManager::LoadShader(vertexPath.c_str(), fragmentPath.c_str());
 }
