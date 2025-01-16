@@ -57,6 +57,8 @@ UILayer::UILayer(int index) : Layer(index) {
 }
 
 void UILayer::Draw() {
+
+    std::string val = "hello world yanki gap";
     Clay_BeginLayout();
 
     // An example of laying out a UI with a fixed width sidebar and flexible width main content
@@ -64,7 +66,7 @@ void UILayer::Draw() {
          CLAY_LAYOUT({
                              .sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
                              .padding={16, 16},
-                             .childGap=32,
+                             .childGap=16,
                              .childAlignment={
                                      CLAY_ALIGN_X_LEFT,
                                      CLAY_ALIGN_Y_TOP
@@ -72,7 +74,9 @@ void UILayer::Draw() {
                              .layoutDirection = CLAY_LEFT_TO_RIGHT,
 
                      }),
-         CLAY_RECTANGLE({.color={255, 0, 0, 40}})) {
+         CLAY_RECTANGLE({.color={255, 0, 50, 40}})
+//         CLAY_RECTANGLE({.color={0, 0, 0, 0}})
+    ) {
 
 
         CLAY(CLAY_ID("Sidebar"),
@@ -90,7 +94,7 @@ void UILayer::Draw() {
             CLAY(CLAY_ID("Content2"),
                  CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
                  CLAY_RECTANGLE({.color={255, 255, 255, 40}})) {
-                CLAY_TEXT(CLAY_STRING("Help"),
+                CLAY_TEXT(CLAY_STRING(val.c_str()),
                           CLAY_TEXT_CONFIG({.fontId=0, .fontSize=16, .textColor={125, 255, 125, 255}}));
 
 
@@ -111,7 +115,6 @@ void UILayer::Draw() {
                 rect.position.x = renderCommand->boundingBox.x;
                 rect.position.y = renderCommand->boundingBox.y;
 
-
                 // Scale the size
                 rect.size.x = renderCommand->boundingBox.width;
                 rect.size.y = renderCommand->boundingBox.height;
@@ -125,7 +128,6 @@ void UILayer::Draw() {
                 LowRenderer::DrawRectangle(rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
-                // TODO: Add text renderer
 
                 Text text;
                 text.color.r = renderCommand->config.textElementConfig->textColor.r;
@@ -145,7 +147,6 @@ void UILayer::Draw() {
 
                 LowRenderer::DrawText(text);
                 break;
-
         }
 
     }

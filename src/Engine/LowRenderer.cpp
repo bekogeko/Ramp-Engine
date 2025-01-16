@@ -84,11 +84,13 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     float sizeX = (rectangle.size.x / screenWidth) * camWidth;// half so use two times
     float sizeY = (rectangle.size.y / screenHeight) * camHeight; // half so use two times
 
-    float posX = (rectangle.position.x / screenWidth) * camWidth - camHalfWidth + (0.5f * sizeX);
-    float posY = camHalfHeight - (rectangle.position.y / screenHeight) * camHeight - (0.5f * sizeY);
 
-    obj->position.x = posX;
-    obj->position.y = posY;
+    std::cout << ":rect Position: " << rectangle.position.x << "\t" << rectangle.position.y << std::endl;
+    std::cout << ":rect Size: " << rectangle.size.x << "\t" << rectangle.size.y << std::endl;
+
+
+    obj->position.x = -camHalfWidth + (sizeX / 2) + (rectangle.position.x / screenWidth) * camWidth;
+    obj->position.y = camHalfHeight - (sizeY / 2) - (rectangle.position.y / screenWidth) * camHeight;
 
     obj->scale.x = sizeX;
     obj->scale.y = sizeY;
@@ -125,11 +127,9 @@ void LowRenderer::DrawText(Text text) {
 
 
 //    auto fontTex = ResourceManager::LoadFont("fonts/DefaultSansRegular.ttf", text.fontSize);
-
     auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
-
-    glm::vec2 pos = {0, 0};
+    glm::vec2 cursorPosition = {0, text.fontSize};
     for (int i = 0; i < text.value.length(); ++i) {
         auto texCoords = fontTex->getTextureCoords(text.value[i]);
         auto glyph = fontTex->getChar(text.value[i]);
@@ -138,8 +138,7 @@ void LowRenderer::DrawText(Text text) {
         for (int j = 0; j < objParsed.vertices.size(); ++j) {
             auto vert = objParsed.vertices[j];
 
-            std::cout << text.value[i] << ":WH: " << glyph.size.x << "\t" << glyph.size.y << std::endl;
-
+            // 32 px is 1 unit
             vertices[vIndex++] = vert.x * ((float) text.fontSize / 32.0f) * (glyph.size.x / glyph.size.y);
             vertices[vIndex++] = vert.y * ((float) text.fontSize / 32.0f);
 
@@ -156,7 +155,7 @@ void LowRenderer::DrawText(Text text) {
 
         auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
 
-// Calculate pixel scaling based on the window's size and aspect ratio
+        // Calculate pixel scaling based on the window's size and aspect ratio
         auto screenWidth = static_cast<float>(Window::getWidth());
         auto screenHeight = static_cast<float>(Window::getHeight());
 
@@ -164,23 +163,29 @@ void LowRenderer::DrawText(Text text) {
         float aspectRatio = screenWidth / screenHeight;
 
         float camHalfWidth = HighRenderer::getCamera().getSize().x;
-        float camWidth = camHalfWidth * 2;
         float camHalfHeight = HighRenderer::getCamera().getSize().y;
-        float camHeight = camHalfHeight * 2;
 
-        int sizeX = 1;
-        int sizeY = 1;
+        float sizeX = (glyph.size.x / text.fontSize);
+        float sizeY = (glyph.size.y / text.fontSize);
 
-        float posX =
-                ((text.position.x + pos.x) / screenWidth) * camWidth - camHalfWidth +
-                (0.5f * sizeX);
-        float posY =
-                camHalfHeight -
-                ((text.position.y + ((float) glyph.bearing.y) / text.fontSize) / screenHeight) * camHeight -
-                (0.5f * sizeY);
 
-        obj->position.x = posX;
-        obj->position.y = posY;
+        auto pixelPosition =
+                text.position + cursorPosition + glm::vec2(glyph.bearing.x, (glyph.size.y / 2) + glyph.bearing.y);
+
+        auto transformedPos =
+                glm::vec2(camHalfWidth, camHalfHeight) *
+                ((glm::vec2(2, 2) * (pixelPosition / glm::vec2(screenWidth, screenHeight))) - glm::vec2(1, 1));
+
+        // pixelPosition = [0,640]
+        // pixelPosition / screenSize   = [0,1]
+        // *2 = [0,2]
+        // -1 = [-1,1]
+        // * axisSize = [-4,4]
+
+
+        obj->position.x = transformedPos.x;
+        obj->position.y -= transformedPos.y;
+
 
         obj->scale.x = sizeX * 0.5;
         obj->scale.y = sizeY * 0.5;
@@ -201,7 +206,7 @@ void LowRenderer::DrawText(Text text) {
 
         delete obj;
 
-        pos.x += (float) (glyph.size.x - glyph.advance) + (float) text.fontSize;
+        cursorPosition.x += (float) (glyph.advance) - (glyph.size.x / 2) + 2 * (glyph.bearing.x);
     }
 
 

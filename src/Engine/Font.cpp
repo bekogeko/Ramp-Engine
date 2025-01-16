@@ -59,10 +59,10 @@ std::vector<glm::vec2> Font::getTextureCoords(char c) {
 
 
     // cout vertices
-    std::cout << texCoords[0].x << "\t" << texCoords[0].y << std::endl;
-    std::cout << texCoords[1].x << "\t" << texCoords[1].y << std::endl;
-    std::cout << texCoords[2].x << "\t" << texCoords[2].y << std::endl;
-    std::cout << texCoords[3].x << "\t" << texCoords[3].y << std::endl;
+//    std::cout << texCoords[0].x << "\t" << texCoords[0].y << std::endl;
+//    std::cout << texCoords[1].x << "\t" << texCoords[1].y << std::endl;
+//    std::cout << texCoords[2].x << "\t" << texCoords[2].y << std::endl;
+//    std::cout << texCoords[3].x << "\t" << texCoords[3].y << std::endl;
 
 
 //    return {v1, v2, v3, v4};
@@ -80,10 +80,10 @@ std::vector<glm::vec2> Font::getTextureCoords(char c) {
 Glyph Font::getChar(char c) {
     Glyph glyph;
 
-
     glyph.size = glm::vec2(cdata[c - 32].x1 - cdata[c - 32].x0, cdata[c - 32].y1 - cdata[c - 32].y0);
-    glyph.bearing = glm::vec2(cdata[c - 32].x0, cdata[c - 32].y0);
+    glyph.bearing = glm::vec2(cdata[c - 32].xoff, cdata[c - 32].yoff);
     glyph.advance = cdata[c - 32].xadvance;
+
     return glyph;
 }
 
