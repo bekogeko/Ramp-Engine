@@ -111,9 +111,10 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 void LowRenderer::DrawText(Text text) {
     auto objParsed = ObjectParser::LoadObject("square.obj");
+
     LayoutStack stack = {
-            VertexLayout(2),
-            VertexLayout(2)
+            VertexLayout(2), // Position
+            VertexLayout(2) // TexCoords
     };
 
     auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
@@ -123,81 +124,87 @@ void LowRenderer::DrawText(Text text) {
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
 
-    int i = 0;
-    for (int j = 0; j < objParsed.vertices.size(); ++j) {
-        auto vert = objParsed.vertices[j];
+//    auto fontTex = ResourceManager::LoadFont("fonts/DefaultSansRegular.ttf", text.fontSize);
 
-        vertices[i++] = vert.x;
-        vertices[i++] = vert.y;
+    auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
 
-        auto nextVert = objParsed.texCoords[j];
-        vertices[i++] = nextVert.x;
-        vertices[i++] = nextVert.y;
+    glm::vec2 pos = {0, 0};
+    for (int i = 0; i < text.value.length(); ++i) {
+        auto texCoords = fontTex->getTextureCoords(text.value[i]);
+        auto glyph = fontTex->getChar(text.value[i]);
 
-    }
+        int vIndex = 0;
+        for (int j = 0; j < objParsed.vertices.size(); ++j) {
+            auto vert = objParsed.vertices[j];
 
-    // define sizeof vertices
-    unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * stack.getDimentionCount();
-    // define sizeof indices
-    unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
+            std::cout << text.value[i] << ":WH: " << glyph.size.x << "\t" << glyph.size.y << std::endl;
+
+            vertices[vIndex++] = vert.x * ((float) text.fontSize / 32.0f) * (glyph.size.x / glyph.size.y);
+            vertices[vIndex++] = vert.y * ((float) text.fontSize / 32.0f);
+
+            auto texCoord = texCoords[j];
+            vertices[vIndex++] = texCoord.x;
+            vertices[vIndex++] = texCoord.y;
+
+        }
+        // define sizeof vertices
+        unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * stack.getDimentionCount();
+        // define sizeof indices
+        unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
 
 
-    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
+        auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
 
 // Calculate pixel scaling based on the window's size and aspect ratio
-    auto screenWidth = static_cast<float>(Window::getWidth());
-    auto screenHeight = static_cast<float>(Window::getHeight());
+        auto screenWidth = static_cast<float>(Window::getWidth());
+        auto screenHeight = static_cast<float>(Window::getHeight());
 
-    // TODO maybe use aspectRatio
-    float aspectRatio = screenWidth / screenHeight;
+        // TODO maybe use aspectRatio
+        float aspectRatio = screenWidth / screenHeight;
 
-    float camHalfWidth = HighRenderer::getCamera().getSize().x;
-    float camWidth = camHalfWidth * 2;
-    float camHalfHeight = HighRenderer::getCamera().getSize().y;
-    float camHeight = camHalfHeight * 2;
+        float camHalfWidth = HighRenderer::getCamera().getSize().x;
+        float camWidth = camHalfWidth * 2;
+        float camHalfHeight = HighRenderer::getCamera().getSize().y;
+        float camHeight = camHalfHeight * 2;
 
-    int sizeX = 1;
-    int sizeY = 1;
+        int sizeX = 1;
+        int sizeY = 1;
 
-    float posX = (text.position.x / screenWidth) * camWidth - camHalfWidth + (0.5f * sizeX);
-    float posY = camHalfHeight - (text.position.y / screenHeight) * camHeight - (0.5f * sizeY);
+        float posX =
+                ((text.position.x + pos.x) / screenWidth) * camWidth - camHalfWidth +
+                (0.5f * sizeX);
+        float posY =
+                camHalfHeight -
+                ((text.position.y + ((float) glyph.bearing.y) / text.fontSize) / screenHeight) * camHeight -
+                (0.5f * sizeY);
 
-    obj->position.x = posX;
-    obj->position.y = posY;
+        obj->position.x = posX;
+        obj->position.y = posY;
 
-    obj->scale.x = sizeX * 0.5;
-    obj->scale.y = sizeY * 0.5;
-
-
-    obj->color.r = text.color.r / 255;
-    obj->color.g = text.color.g / 255;
-    obj->color.b = text.color.b / 255;
-    obj->color.a = text.color.a / 255;
-
-
-    ///
-    /// Text Rendering
-    ///
-
-    //TODO add text rendering
-
-    ///
-    ///
-    ///
+        obj->scale.x = sizeX * 0.5;
+        obj->scale.y = sizeY * 0.5;
 
 
-    obj->LoadShader("shaders/text.vert", "shaders/text.frag");
-    obj->getShader()->Bind();
+        obj->color.r = text.color.r / 255;
+        obj->color.g = text.color.g / 255;
+        obj->color.b = text.color.b / 255;
+        obj->color.a = text.color.a / 255;
+
+        // TODO: maybe manage slotNumber
+        fontTex->Bind(1);
+        obj->LoadShader("shaders/text.vert", "shaders/text.frag");
+        obj->getShader()->Bind();
+
+        obj->getShader()->SetUniform1i("textureID", fontTex->slot());
+        obj->Draw();
+
+        delete obj;
+
+        pos.x += (float) (glyph.size.x - glyph.advance) + (float) text.fontSize;
+    }
 
 
-    auto texture = ResourceManager::LoadTexture("textures/wall.png");
-    texture->Bind(1);
-
-    obj->getShader()->SetUniform1i("textureID", texture->slot());
-    obj->Draw();
-
-    delete obj;
 }
 
 float LowRenderer::getFPS() {

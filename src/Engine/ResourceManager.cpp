@@ -10,6 +10,8 @@ std::map<std::string, std::shared_ptr<Texture>> ResourceManager::m_Textures;
 
 std::map<std::string, std::shared_ptr<ShaderProgram>> ResourceManager::m_Programs;
 
+std::map<std::string, std::shared_ptr<Font>> ResourceManager::m_Fonts;
+
 
 std::shared_ptr<ShaderProgram> ResourceManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
 
@@ -55,4 +57,15 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(const std::string &path) {
     m_Textures[path] = texture;
     return texture;
 
+}
+
+std::shared_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
+    if (m_Fonts.find(path) != m_Fonts.end()) {
+        return m_Fonts[path];
+    }
+
+    auto font = std::make_shared<Font>(path, fontSize);
+
+    m_Fonts[path] = font;
+    return font;
 }

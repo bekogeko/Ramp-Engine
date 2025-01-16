@@ -54,7 +54,6 @@ unsigned int World::RegisterObject(std::string pathName) {
     LayoutStack stack = {
             VertexLayout(2)
     };
-
     // 2.1- create object
     auto *verticesArray = new float[objParsed.vertices.size() * 2];
     auto *indicesArray = new unsigned int[objParsed.indices.size()];
