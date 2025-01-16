@@ -78,7 +78,10 @@ void Object::Draw() {
 
     m_vertexArray->Bind();
 
-    m_vertexArray->DrawElements();
+    if (isInstanced)
+        m_vertexArray->DrawElementsInstanced(1);
+    else
+        m_vertexArray->DrawElements();
 
     m_shader->Unbind();
     m_vertexArray->Unbind();
