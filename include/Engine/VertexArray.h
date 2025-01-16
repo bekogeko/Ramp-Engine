@@ -37,6 +37,7 @@ public:
     // list constructor
     LayoutStack(std::initializer_list<VertexLayout> layouts) : m_layout(layouts) {}
 
+    /// Returns total dimentsion count
     int getDimentionCount() {
         int totalDimension = 0;
         for (auto layout: *this) {

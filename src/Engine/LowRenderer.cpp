@@ -85,10 +85,6 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     float sizeY = (rectangle.size.y / screenHeight) * camHeight; // half so use two times
 
 
-    std::cout << ":rect Position: " << rectangle.position.x << "\t" << rectangle.position.y << std::endl;
-    std::cout << ":rect Size: " << rectangle.size.x << "\t" << rectangle.size.y << std::endl;
-
-
     obj->position.x = -camHalfWidth + (sizeX / 2) + (rectangle.position.x / screenWidth) * camWidth;
     obj->position.y = camHalfHeight - (sizeY / 2) - (rectangle.position.y / screenWidth) * camHeight;
 
@@ -226,8 +222,6 @@ void LowRenderer::DrawText(Text text) {
 
         cursorPosition.x += (float) (glyph.advance) - (glyph.size.x / 2) + 2 * (glyph.bearing.x);
     }
-
-
 }
 
 float LowRenderer::getFPS() {
