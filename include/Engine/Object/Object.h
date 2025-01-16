@@ -11,15 +11,15 @@
 #include "Component.h"
 #include "Engine/LowRenderer.h"
 #include "Engine/Camera.h"
-#include "Engine/ShaderProgram.h"
+#include "Engine/ObjectInterface.h"
 #include "box2d/math_functions.h"
 #include <string>
 #include <iostream>
 
-class Object {
+class Object : public ObjectInterface {
 private:
     std::unique_ptr<VertexArray> m_vertexArray;
-    std::shared_ptr<ShaderProgram> m_shader;
+
 
     std::vector<std::unique_ptr<Component>> m_components;
 
@@ -28,8 +28,8 @@ private:
 private:
     bool m_isRegistered = false;
     unsigned int m_Id = 0;
-public:
 
+public:
     // readonly getVertices
     [[nodiscard]] std::vector<glm::vec2> getVertices() const {
         return m_vertices;
@@ -47,7 +47,6 @@ public:
     glm::vec2 position{0, 0};
     glm::vec2 scale{1, 1};
     glm::vec4 color{0, 0, 0, 1};
-    bool isInstanced = false;
 
 
     // 'registered' event called by HighRenderer
@@ -69,14 +68,6 @@ public:
     explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
                     LayoutStack stack);
 
-    // TODO: we should be able to reAttachShader
-    //  load other shaders on go
-    // Load a new shader program
-    void UseShader(const std::string &vertexPath, const std::string &fragmentPath);
-
-    std::shared_ptr<ShaderProgram> getShader() const {
-        return m_shader;
-    }
 
     ~Object();
 

@@ -97,7 +97,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     obj->color.a = rectangle.color.a / 255;
 
 
-    obj->UseShader("shaders/ui.vert", "shaders/ui.frag");
+    obj->useShader("shaders/ui.vert", "shaders/ui.frag");
 
 #define GL_ERROR_SILENT
     obj->Draw();
@@ -122,108 +122,13 @@ void LowRenderer::DrawText(Text text) {
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
 
+
 //    auto fontTex = ResourceManager::LoadFont("fonts/DefaultSansRegular.ttf", text.fontSize);
     auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
     glm::vec2 cursorPosition = {0, text.fontSize};
-    bool isNewLine = true;
-    for (int i = 0; i < text.value.length(); ++i) {
-
-        if (text.value[i] == '\n') {
-            cursorPosition.y += text.fontSize;
-            cursorPosition.x = 0;
-            isNewLine = true;
-            continue;
-        }
-        if (text.value[i] == ' ') {
-            if (isNewLine) {
-                continue;
-            }
-            cursorPosition.x += text.fontSize;
-            continue;
-        }
-        isNewLine = false;
-
-        auto texCoords = fontTex->getTextureCoords(text.value[i]);
-        auto glyph = fontTex->getChar(text.value[i]);
-
-        int vIndex = 0;
-        for (int j = 0; j < objParsed.vertices.size(); ++j) {
-            auto vert = objParsed.vertices[j];
-
-            // 32 px is 1 unit
-            vertices[vIndex++] = vert.x * ((float) text.fontSize / 32.0f) * (glyph.size.x / glyph.size.y);
-            vertices[vIndex++] = vert.y * ((float) text.fontSize / 32.0f);
-
-            auto texCoord = texCoords[j];
-            vertices[vIndex++] = texCoord.x;
-            vertices[vIndex++] = texCoord.y;
-
-        }
-        // define sizeof vertices
-        unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * stack.getDimentionCount();
-        // define sizeof indices
-        unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
 
 
-        // TODO: Optimize object creations
-        auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
-
-        // Calculate pixel scaling based on the window's size and aspect ratio
-        auto screenWidth = static_cast<float>(Window::getWidth());
-        auto screenHeight = static_cast<float>(Window::getHeight());
-
-        // TODO maybe use aspectRatio
-//        float aspectRatio = screenWidth / screenHeight;
-
-        float camHalfWidth = HighRenderer::getCamera().getSize().x;
-        float camHalfHeight = HighRenderer::getCamera().getSize().y;
-
-        float sizeX = (glyph.size.x / text.fontSize);
-        float sizeY = (glyph.size.y / text.fontSize);
-
-//        std::cout << "textPos: " << text.position.x << " " << text.position.y << std::endl;
-
-        auto pixelPosition =
-                text.position + cursorPosition + glm::vec2(glyph.bearing.x, (glyph.size.y / 2) + glyph.bearing.y);
-
-        auto transformedPos =
-                glm::vec2(camHalfWidth, camHalfHeight) *
-                ((glm::vec2(2, 2) * (pixelPosition / glm::vec2(screenWidth, screenHeight))) - glm::vec2(1, 1));
-
-        // pixelPosition = [0,640]
-        // pixelPosition / screenSize   = [0,1]
-        // *2 = [0,2]
-        // -1 = [-1,1]
-        // * axisSize = [-4,4]
-
-
-        obj->position.x = transformedPos.x;
-        obj->position.y -= transformedPos.y;
-
-
-        obj->scale.x = sizeX * 0.5;
-        obj->scale.y = sizeY * 0.5;
-
-
-        obj->color.r = text.color.r / 255;
-        obj->color.g = text.color.g / 255;
-        obj->color.b = text.color.b / 255;
-        obj->color.a = text.color.a / 255;
-
-        // TODO: maybe manage slotNumber
-        fontTex->Bind(1);
-        obj->UseShader("shaders/text.vert", "shaders/text.frag");
-        obj->isInstanced = true;
-        obj->getShader()->Bind();
-
-        obj->getShader()->SetUniform1i("textureID", fontTex->slot());
-        obj->Draw();
-
-        delete obj;
-
-        cursorPosition.x += (float) (glyph.advance) - (glyph.size.x / 2) + 2 * (glyph.bearing.x);
-    }
 }
 
 float LowRenderer::getFPS() {
