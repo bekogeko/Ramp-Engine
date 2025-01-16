@@ -24,6 +24,11 @@ VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) 
     for (auto &layout: stack) {
         glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE, stack.getDimentionCount() * sizeof(float),
                               (void *) stack.getOffsetOfIndex(i));
+
+        if (layout.isInstanced())
+            glVertexAttribDivisor(i, 1); // Tell OpenGL this is an instanced vertex attribute.
+
+
         glEnableVertexAttribArray(i);
         i++;
     }

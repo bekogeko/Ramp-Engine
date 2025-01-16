@@ -111,8 +111,8 @@ void LowRenderer::DrawText(Text text) {
     auto objParsed = ObjectParser::LoadObject("square.obj");
 
     LayoutStack stack = {
-            VertexLayout(2), // Position
-            VertexLayout(2) // TexCoords
+            VertexLayout(2, true), // Position
+            VertexLayout(2, true) // TexCoords
     };
 
     auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
@@ -214,6 +214,7 @@ void LowRenderer::DrawText(Text text) {
         // TODO: maybe manage slotNumber
         fontTex->Bind(1);
         obj->UseShader("shaders/text.vert", "shaders/text.frag");
+        obj->isInstanced = true;
         obj->getShader()->Bind();
 
         obj->getShader()->SetUniform1i("textureID", fontTex->slot());

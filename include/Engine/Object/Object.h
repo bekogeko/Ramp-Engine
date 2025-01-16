@@ -47,6 +47,7 @@ public:
     glm::vec2 position{0, 0};
     glm::vec2 scale{1, 1};
     glm::vec4 color{0, 0, 0, 1};
+    bool isInstanced = false;
 
 
     // 'registered' event called by HighRenderer

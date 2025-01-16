@@ -12,11 +12,15 @@
 class VertexLayout {
 public:
     template<typename T = float>
-    explicit VertexLayout(int count) {
+    explicit VertexLayout(int count, bool isInstanced = false) {
         m_size = sizeof(T) * count;
         m_Dimension = count;
+        m_IsInstanced = isInstanced;
     }
 
+    bool isInstanced() const {
+        return m_IsInstanced;
+    }
 
     int getDimension() const {
         return m_Dimension;
@@ -30,6 +34,7 @@ private:
 
     int m_size; // size in bytes
     int m_Dimension;
+    bool m_IsInstanced;
 };
 
 class LayoutStack {
@@ -124,6 +129,13 @@ public:
         unsigned int indCount = m_indexSize / sizeof(unsigned int);
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
+
+    void DrawElementsInstanced(unsigned int instanceCount) const {
+        unsigned int count = m_size / sizeof(unsigned int);
+        unsigned int indCount = m_indexSize / sizeof(unsigned int);
+        glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instanceCount);
+    }
+
 
     void Delete() {
         glDeleteVertexArrays(1, &m_VAO);
