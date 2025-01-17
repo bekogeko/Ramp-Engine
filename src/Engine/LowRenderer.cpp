@@ -111,24 +111,134 @@ void LowRenderer::DrawText(Text text) {
     auto objParsed = ObjectParser::LoadObject("square.obj");
 
     LayoutStack stack = {
-            VertexLayout(2, true), // Position
-            VertexLayout(2, true) // TexCoords
+            VertexLayout(2, false), // Position
+            VertexLayout(2, false), // TexCoords
     };
 
-    auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
+
+
+//    auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
+    float vertices[] = {
+            // position   texcoord
+            // TODO change texCoords with glyph texCoords
+            0.5, 0.5, objParsed.texCoords[0].x, objParsed.texCoords[0].y,
+//            0.5, 0.5,
+
+            0.5, -0.5, objParsed.texCoords[1].x, objParsed.texCoords[1].y,
+//            0.5, -0.5,
+
+            -0.5, -0.5, objParsed.texCoords[2].x, objParsed.texCoords[2].y,
+//            -0.5, -0.5,
+
+            -0.5, 0.5, objParsed.texCoords[3].x, objParsed.texCoords[3].y
+//            -0.5, 0.5
+    };
+
+//    std::vector<float> verticesVector;
+//
+//    for (int i = 0; i < text.value.length(); ++i) {
+//
+//    }
+
     auto *indices = new unsigned int[objParsed.indices.size()];
 
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
+    auto vertexArray = std::make_unique<VertexArray>(vertices, 16 * sizeof(float), indices,
+                                                     objParsed.indices.size() * sizeof(unsigned int), stack);
+
+    vertexArray->Bind();
+
+    glm::vec2 cursorPos = {0, 0};
+
+    std::vector<glm::vec2> cursorPositions;
+
+    for (int i = 0; i < text.value.size(); ++i) {
 
 
-//    auto fontTex = ResourceManager::LoadFont("fonts/DefaultSansRegular.ttf", text.fontSize);
+        cursorPositions.push_back({cursorPos.x, cursorPos.y});
+        cursorPos.x += .1;
+
+    }
+
+
+    GLuint vbo_cursorPos;
+    glGenBuffers(1, &vbo_cursorPos);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * cursorPositions.size(), cursorPositions.data(), GL_STATIC_DRAW);
+
+    // Set up the vertex attribute pointer for the instance data
+    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
+    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+
+
+// Unbind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // set uColor
+
+
+    // position.x in [-hw,hw]
+    // position.y is [-hh,hh]
+    glm::vec2 position = {1, 1};
+    glm::vec2 scale = {1, 1};
+    float rotation = 0;
+
+
+    // create model matrix from
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    // TODO: scaling factor
+    model = glm::scale(model, glm::vec3(scale, 1.0f));
+
+
+
+    // get camera
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+
+    // get shader
+    auto shader = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
+
+    shader->Bind();
+
+    // set Camera Matrix
+    shader->SetUniformMat4("uProjection", &projMat[0][0]);
+    shader->SetUniformMat4("uView", &viewMat[0][0]);
+    shader->SetUniformMat4("uModel", &model[0][0]);
+    shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
+//
+//    GLuint vbo_cursorPos;
+//    glGenBuffers(1, &vbo_cursorPos);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * cursorPos.length(), &cursorPositions[0], GL_STATIC_DRAW);
+//
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+
+
     auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
-    glm::vec2 cursorPosition = {0, text.fontSize};
+    // setup font textureId
+    fontTex->Bind(0);
+    shader->SetUniform1i("textureID", fontTex->slot());
 
 
+    vertexArray->Bind();
+
+    vertexArray->DrawElementsInstanced(text.value.length());
+//    vertexArray->DrawElementsInstanced(1);
+
+    shader->Unbind();
+    vertexArray->Unbind();
+
+
+    delete[] indices;
 }
 
 float LowRenderer::getFPS() {

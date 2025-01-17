@@ -7,15 +7,17 @@
 
 #include <glad/glad.h>
 #include <vector>
+#include <string>
 
 
 class VertexLayout {
 public:
     template<typename T = float>
-    explicit VertexLayout(int count, bool isInstanced = false) {
+    VertexLayout(int count, bool isInstanced = false) {
         m_size = sizeof(T) * count;
         m_Dimension = count;
         m_IsInstanced = isInstanced;
+
     }
 
     bool isInstanced() const {
@@ -35,6 +37,7 @@ private:
     int m_size; // size in bytes
     int m_Dimension;
     bool m_IsInstanced;
+
 };
 
 class LayoutStack {
@@ -68,6 +71,14 @@ public:
         return offset;
     }
 
+    bool IsInstanced() const {
+        for (auto layout: m_layout) {
+            if (layout.isInstanced())
+                return true;
+        }
+        return false;
+    }
+
     // will be able to used in for loop (auto a : stack)
     std::vector<VertexLayout>::iterator begin() { return m_layout.begin(); }
 
@@ -97,7 +108,6 @@ public:
     //  with EBO Constructor
     VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack);
 
-
     ~VertexArray() {
         Delete();
     }
@@ -126,7 +136,6 @@ public:
 
     void DrawElements() const {
         unsigned int count = m_size / sizeof(unsigned int);
-        unsigned int indCount = m_indexSize / sizeof(unsigned int);
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 

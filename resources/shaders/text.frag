@@ -7,6 +7,6 @@ in vec2 TexCoord;
 uniform sampler2D textureID;
 
 void main() {
-    //    FragColor = uTextColor * uColor;
+    //    FragColor = uColor;
     FragColor = vec4(1, 1, 1, texture(textureID, TexCoord).r) * uColor;
 }

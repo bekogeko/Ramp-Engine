@@ -130,10 +130,10 @@ void UILayer::Draw() {
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
                 Text text;
-                text.color.r = renderCommand->config.textElementConfig->textColor.r;
-                text.color.g = renderCommand->config.textElementConfig->textColor.g;
-                text.color.b = renderCommand->config.textElementConfig->textColor.b;
-                text.color.a = renderCommand->config.textElementConfig->textColor.a;
+                text.color.r = renderCommand->config.textElementConfig->textColor.r / 255;
+                text.color.g = renderCommand->config.textElementConfig->textColor.g / 255;
+                text.color.b = renderCommand->config.textElementConfig->textColor.b / 255;
+                text.color.a = renderCommand->config.textElementConfig->textColor.a / 255;
 
                 text.value = renderCommand->text.chars;
 
