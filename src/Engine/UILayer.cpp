@@ -58,7 +58,9 @@ UILayer::UILayer(int index) : Layer(index) {
 
 void UILayer::Draw() {
 
-    std::string val = "hello world\n yanki gap\n wallahi billahi\n essalami salami";
+//    std::string val = "hello world\n yanki gap\n wallahi billahi\n essalami salami";
+    std::string val = "hello";
+
     Clay_BeginLayout();
 
     // An example of laying out a UI with a fixed width sidebar and flexible width main content
