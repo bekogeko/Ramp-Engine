@@ -24,7 +24,9 @@ public:
 
     void Bind(int slot = 0);
 
-    std::vector<glm::vec2> getTextureCoords(char c);
+    // returns
+    // min_s, min_t, max_s, max_t
+    glm::vec4 getTextureCoords(char c);
 
     Glyph getChar(char c);
 

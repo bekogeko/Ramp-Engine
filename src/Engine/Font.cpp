@@ -39,34 +39,19 @@ Font::Font(const std::string &pathName, int fontSize) : glyphs() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
-std::vector<glm::vec2> Font::getTextureCoords(char c) {
+glm::vec4 Font::getTextureCoords(char c) {
     std::vector<glm::vec2> texCoords;
 
     // calculates texture coords using stbtt
     stbtt_aligned_quad q;
     stbtt_GetBakedQuad(cdata, 512, 512, c - 32, &q.x0, &q.y0, &q, 1);
 
-    glm::vec2 v1(q.x0, q.y0);
-    glm::vec2 v2(q.x1, q.y0);
-    glm::vec2 v3(q.x1, q.y1);
-    glm::vec2 v4(q.x0, q.y1);
+
+//    std::cout << "\n\nmin_s: " << q.s0 << " min_t: " << q.t0 << std::endl;
+//    std::cout << "max_s: " << q.s1 << " max_t: " << q.t1 << std::endl;
 
 
-    texCoords.push_back(glm::vec2(q.s1, q.t0));
-    texCoords.push_back(glm::vec2(q.s1, q.t1));
-    texCoords.push_back(glm::vec2(q.s0, q.t1));
-    texCoords.push_back(glm::vec2(q.s0, q.t0));
-
-
-    // cout vertices
-//    std::cout << texCoords[0].x << "\t" << texCoords[0].y << std::endl;
-//    std::cout << texCoords[1].x << "\t" << texCoords[1].y << std::endl;
-//    std::cout << texCoords[2].x << "\t" << texCoords[2].y << std::endl;
-//    std::cout << texCoords[3].x << "\t" << texCoords[3].y << std::endl;
-
-
-//    return {v1, v2, v3, v4};
-    return texCoords;
+    return {q.s0, q.t0, q.s1, q.t1};
 }
 
 //glm::vec2 Font::getRectSize(char c) {
