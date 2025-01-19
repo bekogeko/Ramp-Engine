@@ -3,7 +3,6 @@
 //
 
 #include "Engine/World.h"
-#include "Engine/Object/ObjectParser.h"
 #include "Engine/Object/Object.h"
 #include "Engine/VertexArray.h"
 
@@ -50,7 +49,7 @@ unsigned int World::RegisterObject(std::string pathName) {
     // 3- register object
     // 4- return id
 
-    auto objParsed = ObjectParser::LoadObject(std::move(pathName));
+    auto objParsed = ResourceManager::LoadObject(std::move(pathName));
     LayoutStack stack = {
             VertexLayout(2)
     };

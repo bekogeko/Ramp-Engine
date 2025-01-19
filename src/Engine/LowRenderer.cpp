@@ -6,11 +6,9 @@
 #include "Engine/HighRenderer.h"
 #include "Engine/LowRenderer.h"
 #include "Engine/Object/Object.h"
-#include "Engine/Object/ObjectParser.h"
 #include "Engine/Window.h"
 
 #include "glad/glad.h"
-#include "stb_truetype/stb_truetype.h"
 #include "Engine/ResourceManager.h"
 #include <GLFW/glfw3.h>
 
@@ -24,7 +22,7 @@ float LowRenderer::getDeltaTime() {
 }
 
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
-    auto objParsed = ObjectParser::LoadObject("square.obj");
+    auto objParsed = ResourceManager::LoadObject("square.obj");
 
     assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
@@ -108,7 +106,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
 void LowRenderer::DrawText(Text text) {
-    auto objParsed = ObjectParser::LoadObject("square.obj");
+    auto objParsed = ResourceManager::LoadObject("square.obj");
 
     LayoutStack stack = {
             VertexLayout(2, false), // Position
@@ -138,48 +136,71 @@ void LowRenderer::DrawText(Text text) {
 
     glm::vec2 cursorPos = {0, 0};
 
-    std::vector<std::array<float, 6>> instanceDatas;
+    std::vector<std::array<float, 8>> instanceDatas;
     int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
         if (text.value[i] == ' ') {
-            cursorPos.x += 1;
+            // fixme: questionable api use/abuse?
+            auto glyph = fontTex->getChar(text.value[i]);
+            cursorPos.x += glyph.advance / text.fontSize;
             emptyChars++;
             continue;
         }
         if (text.value[i] == '\n') {
             emptyChars++;
-            cursorPos.y -= 1;
+
+            // TODO add optional parameter to configure lineHeight
+            float lineSpacing = 0;
+            cursorPos.y -= (lineSpacing / text.fontSize) + 1.5f; // default is 1.5 em space
             cursorPos.x = 0;
             continue;
         }
 
+
         // get min_s, min_t, max_s, max_t
+        auto glyph = fontTex->getChar(text.value[i]);
         auto texCoords = fontTex->getTextureCoords(text.value[i]);
 
-        cursorPos.x += 1;
-        instanceDatas.push_back({cursorPos.x, cursorPos.y, texCoords[0], texCoords[1], texCoords[2], texCoords[3]});
+        auto temp = cursorPos.y;
+        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
+
+        instanceDatas.push_back({
+                                        cursorPos.x, cursorPos.y,
+                                        texCoords[0], texCoords[1], texCoords[2], texCoords[3],
+                                        glyph.size.x / text.fontSize, glyph.size.y / text.fontSize
+                                });
+
+        cursorPos.y = temp;
+        cursorPos.x += (glyph.advance / text.fontSize);
+
+
     }
 
     GLuint vbo_cursorPos;
     glGenBuffers(1, &vbo_cursorPos);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
 
     // Set up the vertex attribute pointer for the instance data
     glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
 
     glEnableVertexAttribArray(3); // Assuming location 2 for instance data
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (sizeof(float) * 2));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
     glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
+    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+
 
 
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // set uColor
-    
+
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
@@ -228,8 +249,8 @@ void LowRenderer::DrawText(Text text) {
 
     vertexArray->Bind();
 
-    std::cout << "Empty Chars :" << emptyChars << std::endl;
-    std::cout << "Length Chars :" << text.value.length() << std::endl;
+//    std::cout << "Empty Chars :" << emptyChars << std::endl;
+//    std::cout << "Length Chars :" << text.value.length() << std::endl;
     vertexArray->DrawElementsInstanced(text.value.length() - emptyChars);
 
     shader->Unbind();
