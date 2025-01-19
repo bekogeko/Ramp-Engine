@@ -58,8 +58,8 @@ UILayer::UILayer(int index) : Layer(index) {
 
 void UILayer::Draw() {
 
-//    std::string val = "hello world\n yanki gap\n wallahi billahi\n essalami salami";
-    std::string val = "hello";
+    std::string val = "hello world\nyanki gap\nwallahi billahi\nessalami salami";
+//    std::string val = "hello";
 
     Clay_BeginLayout();
 
