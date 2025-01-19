@@ -142,7 +142,6 @@ void LowRenderer::DrawText(Text text) {
     int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
         if (text.value[i] == ' ') {
-
             cursorPos.x += 1;
             emptyChars++;
             continue;
@@ -159,7 +158,6 @@ void LowRenderer::DrawText(Text text) {
 
         cursorPos.x += 1;
         instanceDatas.push_back({cursorPos.x, cursorPos.y, texCoords[0], texCoords[1], texCoords[2], texCoords[3]});
-
     }
 
     GLuint vbo_cursorPos;
@@ -181,11 +179,7 @@ void LowRenderer::DrawText(Text text) {
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // set uColor
-
-
-    std::cout << "fontSize :" << text.fontSize << std::endl;
-    std::cout << "ratio :" << float(text.fontSize) / 64 << std::endl;
-
+    
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
@@ -197,7 +191,7 @@ void LowRenderer::DrawText(Text text) {
     glm::vec2 position = {-camSize.x + (size.x / 2) + (text.position.x / screen.x) * 2 * camSize.x - (size.x / 2),
                           camSize.y - (size.y / 2) - (text.position.y / screen.y) * 2 * camSize.y - (size.y / 2)};
 
-    glm::vec2 scale = size;
+    glm::vec2 scale = {size.x, size.y};
     float rotation = 0;
 
 
