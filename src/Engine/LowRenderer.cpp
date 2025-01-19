@@ -139,7 +139,20 @@ void LowRenderer::DrawText(Text text) {
     glm::vec2 cursorPos = {0, 0};
 
     std::vector<std::array<float, 6>> instanceDatas;
+    int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
+        if (text.value[i] == ' ') {
+
+            cursorPos.x += 1;
+            emptyChars++;
+            continue;
+        }
+        if (text.value[i] == '\n') {
+            emptyChars++;
+            cursorPos.y -= 1;
+            cursorPos.x = 0;
+            continue;
+        }
 
         // get min_s, min_t, max_s, max_t
         auto texCoords = fontTex->getTextureCoords(text.value[i]);
@@ -165,10 +178,13 @@ void LowRenderer::DrawText(Text text) {
     glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
 
 
-// Unbind the buffer
+    // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // set uColor
 
+
+    std::cout << "fontSize :" << text.fontSize << std::endl;
+    std::cout << "ratio :" << float(text.fontSize) / 64 << std::endl;
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -180,6 +196,7 @@ void LowRenderer::DrawText(Text text) {
     // position.y is [-hh,hh]
     glm::vec2 position = {-camSize.x + (size.x / 2) + (text.position.x / screen.x) * 2 * camSize.x - (size.x / 2),
                           camSize.y - (size.y / 2) - (text.position.y / screen.y) * 2 * camSize.y - (size.y / 2)};
+
     glm::vec2 scale = size;
     float rotation = 0;
 
@@ -217,7 +234,9 @@ void LowRenderer::DrawText(Text text) {
 
     vertexArray->Bind();
 
-    vertexArray->DrawElementsInstanced(text.value.length());
+    std::cout << "Empty Chars :" << emptyChars << std::endl;
+    std::cout << "Length Chars :" << text.value.length() << std::endl;
+    vertexArray->DrawElementsInstanced(text.value.length() - emptyChars);
 
     shader->Unbind();
     vertexArray->Unbind();
