@@ -134,7 +134,11 @@ void LowRenderer::DrawText(Text text) {
     vertexArray->Bind();
     auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
-    glm::vec2 cursorPos = {0, 0};
+
+    // warning: Fixme: this should not be the way
+    glm::vec2 initialCursor = {0.5, -0.5};
+    //activeCursor
+    glm::vec2 cursorPos = initialCursor;
 
     std::vector<std::array<float, 8>> instanceDatas;
     int emptyChars = 0;
@@ -142,27 +146,35 @@ void LowRenderer::DrawText(Text text) {
         if (text.value[i] == ' ') {
             // fixme: questionable api use/abuse?
             auto glyph = fontTex->getChar(text.value[i]);
+
             cursorPos.x += glyph.advance / text.fontSize;
             emptyChars++;
             continue;
         }
         if (text.value[i] == '\n') {
             emptyChars++;
+            auto glyph = fontTex->getChar(text.value[i]);
 
             // TODO add optional parameter to configure lineHeight
             float lineSpacing = 0;
             cursorPos.y -= (lineSpacing / text.fontSize) + 1.5f; // default is 1.5 em space
-            cursorPos.x = 0;
+            cursorPos.x = initialCursor.x;
             continue;
         }
+
+
 
 
         // get min_s, min_t, max_s, max_t
         auto glyph = fontTex->getChar(text.value[i]);
         auto texCoords = fontTex->getTextureCoords(text.value[i]);
 
+
         auto temp = cursorPos.y;
+//        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
         cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
+        cursorPos.y--;
+
 
         instanceDatas.push_back({
                                         cursorPos.x, cursorPos.y,
@@ -170,10 +182,8 @@ void LowRenderer::DrawText(Text text) {
                                         glyph.size.x / text.fontSize, glyph.size.y / text.fontSize
                                 });
 
-        cursorPos.y = temp;
         cursorPos.x += (glyph.advance / text.fontSize);
-
-
+        cursorPos.y = temp;
     }
 
     GLuint vbo_cursorPos;
@@ -209,9 +219,8 @@ void LowRenderer::DrawText(Text text) {
 
     // position.x in [-hw,hw]
     // position.y is [-hh,hh]
-    glm::vec2 position = {-camSize.x + (size.x / 2) + (text.position.x / screen.x) * 2 * camSize.x - (size.x / 2),
-                          camSize.y - (size.y / 2) - (text.position.y / screen.y) * 2 * camSize.y - (size.y / 2)};
-
+    glm::vec2 position = {-camSize.x + (size.x / 2.0f) + (text.position.x / screen.x) * 2 * camSize.x,
+                          camSize.y - (size.y / 2.0f) - (text.position.y / screen.y) * 2 * camSize.y};
     glm::vec2 scale = {size.x, size.y};
     float rotation = 0;
 
