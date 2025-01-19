@@ -170,10 +170,17 @@ void LowRenderer::DrawText(Text text) {
     // set uColor
 
 
+    auto camSize = HighRenderer::getCamera().getSize();
+    auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
+
+    auto size = glm::vec2((float(text.fontSize) * 2 * camSize.x) / (screen.x),
+                          (float(text.fontSize) * 2 * camSize.y) / (screen.y));
+
     // position.x in [-hw,hw]
     // position.y is [-hh,hh]
-    glm::vec2 position = {1, 1};
-    glm::vec2 scale = {1, 1};
+    glm::vec2 position = {-camSize.x + (size.x / 2) + (text.position.x / screen.x) * 2 * camSize.x - (size.x / 2),
+                          camSize.y - (size.y / 2) - (text.position.y / screen.y) * 2 * camSize.y - (size.y / 2)};
+    glm::vec2 scale = size;
     float rotation = 0;
 
 
