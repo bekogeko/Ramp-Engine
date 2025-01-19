@@ -6,11 +6,9 @@
 #include "Engine/HighRenderer.h"
 #include "Engine/LowRenderer.h"
 #include "Engine/Object/Object.h"
-#include "Engine/Object/ObjectParser.h"
 #include "Engine/Window.h"
 
 #include "glad/glad.h"
-#include "stb_truetype/stb_truetype.h"
 #include "Engine/ResourceManager.h"
 #include <GLFW/glfw3.h>
 
@@ -24,7 +22,7 @@ float LowRenderer::getDeltaTime() {
 }
 
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
-    auto objParsed = ObjectParser::LoadObject("square.obj");
+    auto objParsed = ResourceManager::LoadObject("square.obj");
 
     assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
@@ -84,11 +82,9 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     float sizeX = (rectangle.size.x / screenWidth) * camWidth;// half so use two times
     float sizeY = (rectangle.size.y / screenHeight) * camHeight; // half so use two times
 
-    float posX = (rectangle.position.x / screenWidth) * camWidth - camHalfWidth + (0.5f * sizeX);
-    float posY = camHalfHeight - (rectangle.position.y / screenHeight) * camHeight - (0.5f * sizeY);
 
-    obj->position.x = posX;
-    obj->position.y = posY;
+    obj->position.x = -camHalfWidth + (sizeX / 2) + (rectangle.position.x / screenWidth) * camWidth;
+    obj->position.y = camHalfHeight - (sizeY / 2) - (rectangle.position.y / screenHeight) * camHeight;
 
     obj->scale.x = sizeX;
     obj->scale.y = sizeY;
@@ -99,7 +95,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     obj->color.a = rectangle.color.a / 255;
 
 
-    obj->LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    obj->useShader("shaders/ui.vert", "shaders/ui.frag");
 
 #define GL_ERROR_SILENT
     obj->Draw();
@@ -110,101 +106,167 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
 void LowRenderer::DrawText(Text text) {
-    auto objParsed = ObjectParser::LoadObject("square.obj");
+    auto objParsed = ResourceManager::LoadObject("square.obj");
 
     LayoutStack stack = {
-            VertexLayout(2), // Position
-            VertexLayout(2) // TexCoords
+            VertexLayout(2, false), // Position
+            VertexLayout(2, false), // TexCoords
     };
 
-    auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
+
+    float vertices[] = {
+            // position   texcoord
+            // TODO change texCoords with glyph texCoords
+            0.5, 0.5, objParsed.texCoords[0].x, objParsed.texCoords[0].y,
+            0.5, -0.5, objParsed.texCoords[1].x, objParsed.texCoords[1].y,
+            -0.5, -0.5, objParsed.texCoords[2].x, objParsed.texCoords[2].y,
+            -0.5, 0.5, objParsed.texCoords[3].x, objParsed.texCoords[3].y
+    };
+
     auto *indices = new unsigned int[objParsed.indices.size()];
 
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
+    auto vertexArray = std::make_unique<VertexArray>(vertices, 16 * sizeof(float), indices,
+                                                     objParsed.indices.size() * sizeof(unsigned int), stack);
 
-//    auto fontTex = ResourceManager::LoadFont("fonts/DefaultSansRegular.ttf", text.fontSize);
-
+    vertexArray->Bind();
     auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
 
 
-    glm::vec2 pos = {0, 0};
-    for (int i = 0; i < text.value.length(); ++i) {
-        auto texCoords = fontTex->getTextureCoords(text.value[i]);
-        auto glyph = fontTex->getChar(text.value[i]);
+    // warning: Fixme: this should not be the way
+    glm::vec2 initialCursor = {0.5, -0.5};
+    //activeCursor
+    glm::vec2 cursorPos = initialCursor;
 
-        int vIndex = 0;
-        for (int j = 0; j < objParsed.vertices.size(); ++j) {
-            auto vert = objParsed.vertices[j];
+    std::vector<std::array<float, 8>> instanceDatas;
+    int emptyChars = 0;
+    for (int i = 0; i < text.value.size(); ++i) {
+        if (text.value[i] == ' ') {
+            // fixme: questionable api use/abuse?
+            auto glyph = fontTex->getChar(text.value[i]);
 
-            std::cout << text.value[i] << ":WH: " << glyph.size.x << "\t" << glyph.size.y << std::endl;
-
-            vertices[vIndex++] = vert.x * ((float) text.fontSize / 32.0f) * (glyph.size.x / glyph.size.y);
-            vertices[vIndex++] = vert.y * ((float) text.fontSize / 32.0f);
-
-            auto texCoord = texCoords[j];
-            vertices[vIndex++] = texCoord.x;
-            vertices[vIndex++] = texCoord.y;
-
+            cursorPos.x += glyph.advance / text.fontSize;
+            emptyChars++;
+            continue;
         }
-        // define sizeof vertices
-        unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * stack.getDimentionCount();
-        // define sizeof indices
-        unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
+        if (text.value[i] == '\n') {
+            emptyChars++;
+            auto glyph = fontTex->getChar(text.value[i]);
+
+            // TODO add optional parameter to configure lineHeight
+            float lineSpacing = 0;
+            cursorPos.y -= (lineSpacing / text.fontSize) + 1.5f; // default is 1.5 em space
+            cursorPos.x = initialCursor.x;
+            continue;
+        }
 
 
-        auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
-
-// Calculate pixel scaling based on the window's size and aspect ratio
-        auto screenWidth = static_cast<float>(Window::getWidth());
-        auto screenHeight = static_cast<float>(Window::getHeight());
-
-        // TODO maybe use aspectRatio
-        float aspectRatio = screenWidth / screenHeight;
-
-        float camHalfWidth = HighRenderer::getCamera().getSize().x;
-        float camWidth = camHalfWidth * 2;
-        float camHalfHeight = HighRenderer::getCamera().getSize().y;
-        float camHeight = camHalfHeight * 2;
-
-        int sizeX = 1;
-        int sizeY = 1;
-
-        float posX =
-                ((text.position.x + pos.x) / screenWidth) * camWidth - camHalfWidth +
-                (0.5f * sizeX);
-        float posY =
-                camHalfHeight -
-                ((text.position.y + ((float) glyph.bearing.y) / text.fontSize) / screenHeight) * camHeight -
-                (0.5f * sizeY);
-
-        obj->position.x = posX;
-        obj->position.y = posY;
-
-        obj->scale.x = sizeX * 0.5;
-        obj->scale.y = sizeY * 0.5;
 
 
-        obj->color.r = text.color.r / 255;
-        obj->color.g = text.color.g / 255;
-        obj->color.b = text.color.b / 255;
-        obj->color.a = text.color.a / 255;
+        // get min_s, min_t, max_s, max_t
+        auto glyph = fontTex->getChar(text.value[i]);
+        auto texCoords = fontTex->getTextureCoords(text.value[i]);
 
-        // TODO: maybe manage slotNumber
-        fontTex->Bind(1);
-        obj->LoadShader("shaders/text.vert", "shaders/text.frag");
-        obj->getShader()->Bind();
 
-        obj->getShader()->SetUniform1i("textureID", fontTex->slot());
-        obj->Draw();
+        auto temp = cursorPos.y;
+//        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
+        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
+        cursorPos.y--;
 
-        delete obj;
 
-        pos.x += (float) (glyph.size.x - glyph.advance) + (float) text.fontSize;
+        instanceDatas.push_back({
+                                        cursorPos.x, cursorPos.y,
+                                        texCoords[0], texCoords[1], texCoords[2], texCoords[3],
+                                        glyph.size.x / text.fontSize, glyph.size.y / text.fontSize
+                                });
+
+        cursorPos.x += (glyph.advance / text.fontSize);
+        cursorPos.y = temp;
     }
 
+    GLuint vbo_cursorPos;
+    glGenBuffers(1, &vbo_cursorPos);
 
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+
+    // Set up the vertex attribute pointer for the instance data
+    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
+    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
+    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+
+
+
+    // Unbind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // set uColor
+
+    auto camSize = HighRenderer::getCamera().getSize();
+    auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
+
+    auto size = glm::vec2((float(text.fontSize) * 2 * camSize.x) / (screen.x),
+                          (float(text.fontSize) * 2 * camSize.y) / (screen.y));
+
+    // position.x in [-hw,hw]
+    // position.y is [-hh,hh]
+    glm::vec2 position = {-camSize.x + (size.x / 2.0f) + (text.position.x / screen.x) * 2 * camSize.x,
+                          camSize.y - (size.y / 2.0f) - (text.position.y / screen.y) * 2 * camSize.y};
+    glm::vec2 scale = {size.x, size.y};
+    float rotation = 0;
+
+
+    // create model matrix from
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    // TODO: scaling factor
+    model = glm::scale(model, glm::vec3(scale, 1.0f));
+
+
+
+    // get camera
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+
+    // get shader
+    auto shader = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
+
+    shader->Bind();
+
+    // set Camera Matrix
+    shader->SetUniformMat4("uProjection", &projMat[0][0]);
+    shader->SetUniformMat4("uView", &viewMat[0][0]);
+    shader->SetUniformMat4("uModel", &model[0][0]);
+    shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
+
+
+
+    // setup font textureId
+    fontTex->Bind(0);
+    shader->SetUniform1i("textureID", fontTex->slot());
+
+
+    vertexArray->Bind();
+
+//    std::cout << "Empty Chars :" << emptyChars << std::endl;
+//    std::cout << "Length Chars :" << text.value.length() << std::endl;
+    vertexArray->DrawElementsInstanced(text.value.length() - emptyChars);
+
+    shader->Unbind();
+    vertexArray->Unbind();
+
+
+    delete[] indices;
 }
 
 float LowRenderer::getFPS() {

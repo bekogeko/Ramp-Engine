@@ -22,6 +22,10 @@ public:
 
     void Unbind() const;
 
+    int getAttribLocation(const std::string &name) {
+        return glGetAttribLocation(programID, name.c_str());
+    }
+
 
     void SetUniform4f(const std::string &name, float x, float y, float z, float w);
 

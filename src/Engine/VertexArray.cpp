@@ -19,11 +19,23 @@ VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
     // Copy vertices to buffer
+
+//    if (stack.IsInstanced()) {
+//        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
+//    } else {
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+//    }
+
     int i = 0;
     for (auto &layout: stack) {
         glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE, stack.getDimentionCount() * sizeof(float),
                               (void *) stack.getOffsetOfIndex(i));
+
+        if (layout.isInstanced())
+            glVertexAttribDivisor(i, 1); // Tell OpenGL this is an attribute per instance.
+        else
+            glVertexAttribDivisor(i, 0); // Tell OpenGL this is an attribute per vertex.
+
         glEnableVertexAttribArray(i);
         i++;
     }
@@ -69,9 +81,16 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
 
     int i = 0;
     for (auto &layout: stack) {
-        glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE, stack.getDimentionCount() * sizeof(float),
+        glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
+                              stack.getDimentionCount() * sizeof(float),
                               (void *) stack.getOffsetOfIndex(i));
         glEnableVertexAttribArray(i);
+
+        if (layout.isInstanced())
+            glVertexAttribDivisor(i, 1);
+        else
+            glVertexAttribDivisor(i, 0);
+
         i++;
     }
 

@@ -37,6 +37,7 @@ public:
     float zoom = 1.0f;
     glm::vec2 position{0, 0};
 private:
+    // in half size // [-x,x] , [-y,y]
     glm::vec2 m_size;
 
 };

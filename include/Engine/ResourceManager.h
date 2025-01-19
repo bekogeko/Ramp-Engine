@@ -12,6 +12,12 @@
 #include <memory>
 #include <map>
 
+struct ParsedObject {
+    std::vector<unsigned int> indices;
+    std::vector<glm::vec2> vertices;
+    std::vector<glm::vec2> texCoords;
+    bool isTextured = false;
+};
 
 class ResourceManager {
 
@@ -20,10 +26,15 @@ public:
 
     static std::shared_ptr<Texture> LoadTexture(const std::string &path);
 
+    static ParsedObject &LoadObject(const std::string &path);
+
     static std::shared_ptr<Font> LoadFont(const std::string &path, int fontSize);
 
 
 private:
+
+    static ParsedObject ParseObjectFromFile(const std::string &pathName);
+
 
     static std::map<std::string, std::shared_ptr<Texture>> m_Textures;
 
@@ -33,6 +44,8 @@ private:
     // map of shaderPrograms and their sources
     static std::map<std::string, std::shared_ptr<ShaderProgram>> m_Programs;
 
+    // map of Objects
+    static std::map<std::string, std::shared_ptr<ParsedObject>> m_Objects;
 
     // map of shaderPrograms and their sources
     static std::map<std::string, std::shared_ptr<Font>> m_Fonts;

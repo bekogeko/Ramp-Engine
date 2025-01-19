@@ -8,6 +8,8 @@
 #include "Engine/ResourceManager.h"
 
 Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack) {
+
+    m_isInstanced = false;
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize, stack);
 
     m_shader = std::move(ResourceManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
@@ -78,13 +80,12 @@ void Object::Draw() {
 
     m_vertexArray->Bind();
 
-    m_vertexArray->DrawElements();
+    if (this->isInstanced())
+        m_vertexArray->DrawElementsInstanced(1);
+    else
+        m_vertexArray->DrawElements();
 
     m_shader->Unbind();
     m_vertexArray->Unbind();
 
-}
-
-void Object::LoadShader(const std::string &vertexPath, const std::string &fragmentPath) {
-    m_shader = ResourceManager::LoadShader(vertexPath.c_str(), fragmentPath.c_str());
 }

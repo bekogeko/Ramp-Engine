@@ -7,16 +7,22 @@
 
 #include <glad/glad.h>
 #include <vector>
+#include <string>
 
 
 class VertexLayout {
 public:
     template<typename T = float>
-    explicit VertexLayout(int count) {
+    VertexLayout(int count, bool isInstanced = false) {
         m_size = sizeof(T) * count;
         m_Dimension = count;
+        m_IsInstanced = isInstanced;
+
     }
 
+    bool isInstanced() const {
+        return m_IsInstanced;
+    }
 
     int getDimension() const {
         return m_Dimension;
@@ -30,6 +36,8 @@ private:
 
     int m_size; // size in bytes
     int m_Dimension;
+    bool m_IsInstanced;
+
 };
 
 class LayoutStack {
@@ -37,6 +45,7 @@ public:
     // list constructor
     LayoutStack(std::initializer_list<VertexLayout> layouts) : m_layout(layouts) {}
 
+    /// Returns total dimentsion count
     int getDimentionCount() {
         int totalDimension = 0;
         for (auto layout: *this) {
@@ -60,6 +69,14 @@ public:
             offset += m_layout[i].size();
         }
         return offset;
+    }
+
+    bool IsInstanced() const {
+        for (auto layout: m_layout) {
+            if (layout.isInstanced())
+                return true;
+        }
+        return false;
     }
 
     // will be able to used in for loop (auto a : stack)
@@ -91,7 +108,6 @@ public:
     //  with EBO Constructor
     VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack);
 
-
     ~VertexArray() {
         Delete();
     }
@@ -120,9 +136,15 @@ public:
 
     void DrawElements() const {
         unsigned int count = m_size / sizeof(unsigned int);
-        unsigned int indCount = m_indexSize / sizeof(unsigned int);
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
+
+    void DrawElementsInstanced(unsigned int instanceCount) const {
+        unsigned int count = m_size / sizeof(unsigned int);
+        unsigned int indCount = m_indexSize / sizeof(unsigned int);
+        glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instanceCount);
+    }
+
 
     void Delete() {
         glDeleteVertexArrays(1, &m_VAO);
