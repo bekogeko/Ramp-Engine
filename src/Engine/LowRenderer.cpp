@@ -86,7 +86,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
     obj->position.x = -camHalfWidth + (sizeX / 2) + (rectangle.position.x / screenWidth) * camWidth;
-    obj->position.y = camHalfHeight - (sizeY / 2) - (rectangle.position.y / screenWidth) * camHeight;
+    obj->position.y = camHalfHeight - (sizeY / 2) - (rectangle.position.y / screenHeight) * camHeight;
 
     obj->scale.x = sizeX;
     obj->scale.y = sizeY;
