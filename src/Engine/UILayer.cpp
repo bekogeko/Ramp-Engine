@@ -58,7 +58,9 @@ UILayer::UILayer(int index) : Layer(index) {
 
 void UILayer::Draw() {
 
-    std::string val = "hello world\n yanki gap\n wallahi billahi\n essalami salami";
+    std::string val = "hello world\nyanki gap\nwallahi billahi\nessalami salami";
+//    std::string val = "hello";
+
     Clay_BeginLayout();
 
     // An example of laying out a UI with a fixed width sidebar and flexible width main content
@@ -130,10 +132,10 @@ void UILayer::Draw() {
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
                 Text text;
-                text.color.r = renderCommand->config.textElementConfig->textColor.r;
-                text.color.g = renderCommand->config.textElementConfig->textColor.g;
-                text.color.b = renderCommand->config.textElementConfig->textColor.b;
-                text.color.a = renderCommand->config.textElementConfig->textColor.a;
+                text.color.r = renderCommand->config.textElementConfig->textColor.r / 255;
+                text.color.g = renderCommand->config.textElementConfig->textColor.g / 255;
+                text.color.b = renderCommand->config.textElementConfig->textColor.b / 255;
+                text.color.a = renderCommand->config.textElementConfig->textColor.a / 255;
 
                 text.value = renderCommand->text.chars;
 

@@ -87,13 +87,14 @@ ParsedObject ObjectParser::LoadObject(std::string pathName) {
         }
 
         // TODO: add support for colors
-        // TODO: add support for texture Coordinates
+
+        // support for texture Coordinates
         if (strcmp(line.substr(0, 2).c_str(), "-t") == 0) {
             obj.isTextured = true;
             // read the next 2 floats
             // separated by a comma
 
-            // remove -i from the line
+            // remove -t from the line
             line = line.substr(2);
 
             std::string f1, f2;
@@ -103,11 +104,6 @@ ParsedObject ObjectParser::LoadObject(std::string pathName) {
             std::getline(iss, f2);
 
             obj.texCoords.emplace_back(std::stof(f1), std::stof(f2));
-
-            // add face
-//            obj.indices.push_back(std::stoi(i1));
-//            obj.indices.push_back(std::stoi(i2));
-//            obj.indices.push_back(std::stoi(i3));
 
             continue;
         }
