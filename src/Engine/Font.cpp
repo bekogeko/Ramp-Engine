@@ -70,11 +70,20 @@ glm::vec4 Font::getTextureCoords(char c) {
 //}
 
 Glyph Font::getChar(char c) {
+    // if glyph exists return it
+    if (glyphs.find(c) != glyphs.end()) {
+        return glyphs[c];
+    }
+
     Glyph glyph;
 
     glyph.size = glm::vec2(cdata[c - 32].x1 - cdata[c - 32].x0, cdata[c - 32].y1 - cdata[c - 32].y0);
     glyph.bearing = glm::vec2(cdata[c - 32].xoff, cdata[c - 32].yoff);
     glyph.advance = cdata[c - 32].xadvance;
+
+
+    // set to memoize in cache
+    glyphs[c] = glyph;
 
     return glyph;
 }
