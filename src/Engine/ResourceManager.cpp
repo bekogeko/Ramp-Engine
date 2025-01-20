@@ -229,9 +229,8 @@ ParsedObject &ResourceManager::LoadObject(const std::string &path) {
 }
 
 std::shared_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
-    if (m_FontIdToCacheId.find(fontId) == m_FontIdToCacheId.end()) {
-        assert(0);
-    }
+
+    assert(m_FontIdToCacheId.find(fontId) != m_FontIdToCacheId.end());
 
     return m_Fonts[m_FontIdToCacheId[fontId]];
 }
