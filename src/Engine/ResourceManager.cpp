@@ -12,6 +12,8 @@ std::map<std::string, std::shared_ptr<ShaderSource>> ResourceManager::m_Shaders;
 std::map<std::string, std::shared_ptr<Texture>> ResourceManager::m_Textures;
 std::map<std::string, std::shared_ptr<ShaderProgram>> ResourceManager::m_Programs;
 std::map<std::string, std::shared_ptr<Font>> ResourceManager::m_Fonts;
+std::hash<std::string> ResourceManager::hash;
+std::map<unsigned short, std::string> ResourceManager::m_FontIdToCacheId;
 
 ParsedObject ResourceManager::ParseObjectFromFile(const std::string &pathName) {
 
@@ -178,20 +180,37 @@ ResourceManager::LoadTextureFromBytes(const std::string &cacheId, const unsigned
     }
 
     auto texture = std::make_shared<Texture>(data, w, h);
+
     m_Textures[cacheId] = texture;
+
     return texture;
 
 }
 
 
-std::shared_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
-    if (m_Fonts.find(path) != m_Fonts.end()) {
-        return m_Fonts[path];
+unsigned char ResourceManager::GetFontId(const std::string &path, int fontSize) {
+    if (m_Fonts.find(path + "-" + std::to_string(fontSize)) != m_Fonts.end()) {
+        return m_Fonts[path + "-" + std::to_string(fontSize)]->getHashId();
     }
+    unsigned char hashId = hash(path + "-" + std::to_string(fontSize));
+    auto font = std::make_shared<Font>(path, fontSize, hashId);
 
-    auto font = std::make_shared<Font>(path, fontSize);
+    m_Fonts[path + "-" + std::to_string(fontSize)] = font;
 
-    m_Fonts[path] = font;
+    m_FontIdToCacheId[hashId] = path + "-" + std::to_string(fontSize);
+
+
+    return (unsigned char) hashId;
+}
+
+std::shared_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
+    if (m_Fonts.find(path + "-" + std::to_string(fontSize)) != m_Fonts.end()) {
+        return m_Fonts[path + "-" + std::to_string(fontSize)];
+    }
+    auto hashId = hash(path + "-" + std::to_string(fontSize));
+    auto font = std::make_shared<Font>(path, fontSize, hashId);
+
+    m_Fonts[path + "-" + std::to_string(fontSize)] = font;
     return font;
 }
 
@@ -207,4 +226,12 @@ ParsedObject &ResourceManager::LoadObject(const std::string &path) {
 
     std::cout << "new Object read: " << path << "\n";
     return *objParsed;
+}
+
+std::shared_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
+    if (m_FontIdToCacheId.find(fontId) == m_FontIdToCacheId.end()) {
+        assert(0);
+    }
+
+    return m_Fonts[m_FontIdToCacheId[fontId]];
 }

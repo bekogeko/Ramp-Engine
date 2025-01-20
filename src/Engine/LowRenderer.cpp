@@ -125,7 +125,9 @@ void LowRenderer::DrawText(Text text) {
                                                      objParsed.indices.size() * sizeof(unsigned int), stack);
 
     vertexArray->Bind();
-    auto fontTex = ResourceManager::LoadFont("fonts/JetBrainsMono-Regular.ttf", text.fontSize);
+    //fixme
+    auto fontTex = ResourceManager::LoadFontById(text.fontId);
+    assert(fontTex->getHashId() != 0);
 
 
     // warning: Fixme: this should not be the way

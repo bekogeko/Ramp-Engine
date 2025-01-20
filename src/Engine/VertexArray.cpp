@@ -63,8 +63,10 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
 
     // Unbind VBO
+    int i = 0;
     for (auto &m_VBO: m_VBOs) {
-        m_VBO.Enable(0);
+        m_VBO.Enable(i);
+        i++;
         // Unbind VBO
         VertexBuffer::Unbind();
     }

@@ -20,7 +20,7 @@ struct Glyph {
 
 class Font {
 public:
-    Font(const std::string &fontPath, int fontSize);
+    Font(const std::string &fontPath, int fontSize, unsigned char hashId);
 
 
     void Bind(int slot = 0);
@@ -36,8 +36,13 @@ public:
         return m_ftex->slot();
     }
 
+    [[nodiscard]] unsigned char getHashId() const {
+        return m_hashId;
+    }
+
 private:
     std::shared_ptr<Texture> m_ftex;
+    unsigned char m_hashId;
 
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
     stbtt_fontinfo fontInfo;
