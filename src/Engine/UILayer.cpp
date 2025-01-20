@@ -111,6 +111,9 @@ void UILayer::Draw() {
         Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
 
         switch (renderCommand->commandType) {
+            default:
+                std::cerr << "Unhandled Command " << renderCommand->commandType << "\n";
+                break;
             case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
                 Rectangle rect;
 
