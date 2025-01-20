@@ -27,13 +27,14 @@ void HighRenderer::Update(float deltaTime) {
 }
 
 void HighRenderer::Init() {
-    int index = layers.size() + 1;
-    Layer *worldLayer = new World(index);
+    int nextIndex = layers.size() + 1;
+
+    Layer *worldLayer = new World(nextIndex);
     layers.push_back(std::unique_ptr<Layer>(worldLayer));
 
 
-    index = layers.size() + 1;
-    Layer *uiLayer = new UILayer(index);
+    nextIndex = layers.size() + 1;
+    Layer *uiLayer = new UILayer(nextIndex);
     layers.push_back(std::unique_ptr<Layer>(uiLayer));
 }
 

@@ -92,8 +92,8 @@ void UILayer::Draw() {
                      CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(32), CLAY_SIZING_FIXED(32)}, .padding={16, 16}}),
                      CLAY_RECTANGLE({.color={255, 120, 12, 255}})) {
                     CLAY_TEXT(CLAY_STRING("a"),
-                              CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId={ResourceManager::GetFontId(
-                                      "fonts/JetBrainsMono-Regular.ttf", 16)}, .fontSize = 16}));
+                              CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
+                                      "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16}));
                 }
             }
         }

@@ -34,6 +34,7 @@ Texture::Texture(const std::string &path) {
     unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
     if (data) {
         GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+        // warning suspicious conversion
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
