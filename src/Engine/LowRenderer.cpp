@@ -88,8 +88,8 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     shader->SetUniformMat4("uProjection", &projMat[0][0]);
     shader->SetUniformMat4("uView", &viewMat[0][0]);
     shader->SetUniformMat4("uModel", &model[0][0]);
-    shader->SetUniform4f("uColor", rectangle.color.r / 255, rectangle.color.g / 255, rectangle.color.b / 255,
-                         rectangle.color.a / 255);
+    shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b,
+                         rectangle.color.a);
 
     vertexArray->Bind();
     vertexArray->DrawElements();

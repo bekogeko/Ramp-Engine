@@ -8,7 +8,6 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <stb_truetype/stb_truetype.h>
-#include <unordered_map>
 
 #include "Engine/Texture.h"
 
@@ -38,9 +37,8 @@ public:
     }
 
 private:
-    std::unordered_map<char, Glyph> glyphs;
     std::shared_ptr<Texture> m_ftex;
-    
+
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
     stbtt_fontinfo fontInfo;
 };
