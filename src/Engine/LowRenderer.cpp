@@ -145,7 +145,7 @@ void LowRenderer::DrawText(Text text) {
             // fixme: questionable api use/abuse?
             auto glyph = fontTex->getChar(text.value[i]);
 
-            cursorPos.x += (glyph.advance / text.fontSize) + (text.letterSpacing / text.fontSize);
+            cursorPos.x += (glyph.advance / float(text.fontSize)) + (float(text.letterSpacing) / float(text.fontSize));
             emptyChars++;
             continue;
         }
