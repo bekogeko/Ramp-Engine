@@ -21,6 +21,7 @@ static void error_callback(int error, const char *description) {
 }
 
 int main() {
+    system("export MallocStackLogging=1;");
     std::cout << "Starting application...\n";
 
     glfwSetErrorCallback(error_callback);
@@ -131,6 +132,7 @@ int main() {
     std::cout << "Cleaning up...\n";
 
     std::cout << "Application terminated successfully\n";
+    system("leaks Ray-Game --list");
 
     return 0;
 }
