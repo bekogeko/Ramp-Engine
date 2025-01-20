@@ -23,90 +23,140 @@ float LowRenderer::getDeltaTime() {
 
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
     auto objParsed = ResourceManager::LoadObject("square.obj");
-
     assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
-            VertexLayout(2),
-            VertexLayout(2)
+            VertexLayout(2), // Position
+//            VertexLayout(2, false), // TexCoords
     };
 
-    auto *vertices = new float[objParsed.vertices.size() * stack.getDimentionCount()];
+
+    float vertices[] = {
+            // position
+            0.5, 0.5,
+            0.5, -0.5,
+            -0.5, -0.5,
+            -0.5, 0.5
+    };
+
     auto *indices = new unsigned int[objParsed.indices.size()];
 
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
-    int i = 0;
-    for (int j = 0; j < objParsed.vertices.size(); ++j) {
-        auto vert = objParsed.vertices[j];
+    auto vertexArray = std::make_unique<VertexArray>(vertices, (objParsed.vertices.size() * 2) * sizeof(float), indices,
+                                                     objParsed.indices.size() * sizeof(unsigned int), stack);
 
-        vertices[i++] = vert.x;
-        vertices[i++] = vert.y;
+    vertexArray->Bind();
 
 
-        auto nextVert = objParsed.texCoords[j];
-        vertices[i++] = nextVert.x;
-        vertices[i++] = nextVert.y;
 
-    }
+//    std::vector<std::array<float, 2>> instanceDatas;
 
-    // define sizeof vertices
-    unsigned int sizeofVertices = objParsed.vertices.size() * sizeof(float) * stack.getDimentionCount();
-    // define sizeof indices
-    unsigned int indicesSize = objParsed.indices.size() * sizeof(unsigned int);
+    // TODO add instance data
 
 
-    auto *obj = new Object(vertices, sizeofVertices, indices, indicesSize, stack);
+//    GLuint vbo_cursorPos;
+//    glGenBuffers(1, &vbo_cursorPos);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+
+    // Set up the vertex attribute pointer for the instance data
+//    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
+//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
+//    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+
+//    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
+//    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
+//    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+
+//    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
+//    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
+//    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+
+
+
+    // Unbind the buffer
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+    auto camSize = HighRenderer::getCamera().getSize();
+    auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
+
+
+    // position.x in [-hw,hw]
+    // position.y is [-hh,hh]
+    glm::vec2 size = {(rectangle.size.x * 2 * camSize.x) / screen.x,
+                      (rectangle.size.y * 2 * camSize.y) / screen.y};
+    glm::vec2 position = {-camSize.x + (size.x / 2) + ((rectangle.position.x * 2 * camSize.x) / screen.x),
+                          camSize.y - (size.y / 2) - ((rectangle.position.y * 2 * camSize.y) / screen.y)};
+
+    float rotation = 0;
+
+
+    // create model matrix from
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    // TODO: scaling factor
+    model = glm::scale(model, glm::vec3(size, 1.0f));
+
+
+
+    // get camera
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+
+
+    // get shader
+    auto shader = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    shader->Bind();
+
+    // set Camera Matrix
+    shader->SetUniformMat4("uProjection", &projMat[0][0]);
+    shader->SetUniformMat4("uView", &viewMat[0][0]);
+    shader->SetUniformMat4("uModel", &model[0][0]);
+    shader->SetUniform4f("uColor", rectangle.color.r / 255, rectangle.color.g / 255, rectangle.color.b / 255,
+                         rectangle.color.a / 255);
+//    shader->SetUniform4f("uColor", 1, 1, 1, 1);
+
+
+    vertexArray->Bind();
+
+    // TODO instanced
+    vertexArray->DrawElements();
+    shader->Unbind();
+    vertexArray->Unbind();
 
 //    std::cout << "R: " << rectangle.color.r << "\t G: " << rectangle.color.g << "\t B:" << rectangle.color.b
 //              << std::endl;
 //    std::cout << "X Pos   : " << rectangle.position.x << "\t\t Y Pos: " << rectangle.position.y << std::endl;
 //    std::cout << "Width   : " << rectangle.size.x << "\t Height: " << rectangle.size.y << std::endl;
 //    std::cout << "screen W: " << Window::getWidth() << "\t\t H: " << Window::getHeight() << std::endl;
-
-
-    // Calculate pixel scaling based on the window's size and aspect ratio
-    auto screenWidth = static_cast<float>(Window::getWidth());
-    auto screenHeight = static_cast<float>(Window::getHeight());
-
-    // TODO maybe use aspectRatio
-    float aspectRatio = screenWidth / screenHeight;
-
-    float camHalfWidth = HighRenderer::getCamera().getSize().x;
-    float camWidth = camHalfWidth * 2;
-    float camHalfHeight = HighRenderer::getCamera().getSize().y;
-    float camHeight = camHalfHeight * 2;
-
-
-    float sizeX = (rectangle.size.x / screenWidth) * camWidth;// half so use two times
-    float sizeY = (rectangle.size.y / screenHeight) * camHeight; // half so use two times
-
-
-    obj->position.x = -camHalfWidth + (sizeX / 2) + (rectangle.position.x / screenWidth) * camWidth;
-    obj->position.y = camHalfHeight - (sizeY / 2) - (rectangle.position.y / screenHeight) * camHeight;
-
-    obj->scale.x = sizeX;
-    obj->scale.y = sizeY;
-
-    obj->color.r = rectangle.color.r / 255;
-    obj->color.g = rectangle.color.g / 255;
-    obj->color.b = rectangle.color.b / 255;
-    obj->color.a = rectangle.color.a / 255;
-
-
-    obj->useShader("shaders/ui.vert", "shaders/ui.frag");
-
-#define GL_ERROR_SILENT
-    obj->Draw();
-#undef GL_ERROR_SILENT
-
-    delete obj;
+//
+//
+//    // Calculate pixel scaling based on the window's size and aspect ratio
+//    auto screenWidth = static_cast<float>(Window::getWidth());
+//    auto screenHeight = static_cast<float>(Window::getHeight());
+//
+//    // TODO maybe use aspectRatio
+//    float aspectRatio = screenWidth / screenHeight;
+//
+//    float camHalfWidth = HighRenderer::getCamera().getSize().x;
+//    float camWidth = camHalfWidth * 2;
+//    float camHalfHeight = HighRenderer::getCamera().getSize().y;
+//    float camHeight = camHalfHeight * 2;
+//
+//
+//    float sizeX = (rectangle.size.x / screenWidth) * camWidth;// half so use two times
+//    float sizeY = (rectangle.size.y / screenHeight) * camHeight; // half so use two times
 }
 
 
 void LowRenderer::DrawText(Text text) {
     auto objParsed = ResourceManager::LoadObject("square.obj");
+    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
             VertexLayout(2, false), // Position
@@ -116,7 +166,6 @@ void LowRenderer::DrawText(Text text) {
 
     float vertices[] = {
             // position   texcoord
-            // TODO change texCoords with glyph texCoords
             0.5, 0.5, objParsed.texCoords[0].x, objParsed.texCoords[0].y,
             0.5, -0.5, objParsed.texCoords[1].x, objParsed.texCoords[1].y,
             -0.5, -0.5, objParsed.texCoords[2].x, objParsed.texCoords[2].y,
