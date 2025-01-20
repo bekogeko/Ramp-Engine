@@ -14,12 +14,23 @@ class LowRenderer {
 private:
     static double lastTime;
     static double currentTime;
+    static std::vector<Rectangle> m_rectBatch;
+    static std::vector<Text> m_textBatch;
 public:
     static float getDeltaTime();
 
     static float getFPS();
 
+
+    static void AddRectangle(Rectangle rectangle);
+
     static void DrawRectangle(Rectangle rectangle);
+
+    static void DrawRectangleBatched();
+
+    static void AddText(Text text);
+
+    static void DrawTextBatched();
 
     static void DrawText(Text text);
 
