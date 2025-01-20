@@ -122,12 +122,12 @@ void UILayer::Draw() {
                 rect.size.y = renderCommand->boundingBox.height;
 
 
-                rect.color.r = renderCommand->config.rectangleElementConfig->color.r;
-                rect.color.g = renderCommand->config.rectangleElementConfig->color.g;
-                rect.color.b = renderCommand->config.rectangleElementConfig->color.b;
-                rect.color.a = renderCommand->config.rectangleElementConfig->color.a;
+                rect.color.r = renderCommand->config.rectangleElementConfig->color.r / 255;
+                rect.color.g = renderCommand->config.rectangleElementConfig->color.g / 255;
+                rect.color.b = renderCommand->config.rectangleElementConfig->color.b / 255;
+                rect.color.a = renderCommand->config.rectangleElementConfig->color.a / 255;
 
-                LowRenderer::DrawRectangle(rect);
+                LowRenderer::AddRectangle(rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
@@ -147,11 +147,14 @@ void UILayer::Draw() {
 
                 text.fontSize = renderCommand->config.textElementConfig->fontSize;
 
-                LowRenderer::DrawText(text);
+                LowRenderer::AddText(text);
                 break;
         }
 
     }
+
+    LowRenderer::DrawRectangleBatched();
+    LowRenderer::DrawTextBatched();
 }
 
 
