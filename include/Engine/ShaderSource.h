@@ -15,7 +15,7 @@ public:
         FRAGMENT = GL_FRAGMENT_SHADER
     };
 
-    ShaderSource(std::string shaderPath, Type type);
+    ShaderSource(const std::string &shaderPath, Type type);
 
     ~ShaderSource();
 

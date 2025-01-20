@@ -42,14 +42,14 @@ World::RegisterObject(float *vertices, unsigned int size, unsigned int *indices,
 }
 
 
-unsigned int World::RegisterObject(std::string pathName) {
+unsigned int World::RegisterObject(const std::string &pathName) {
 
     // 1- read file
     // 2- create object
     // 3- register object
     // 4- return id
 
-    auto objParsed = ResourceManager::LoadObject(std::move(pathName));
+    auto objParsed = ResourceManager::LoadObject(pathName);
     LayoutStack stack = {
             VertexLayout(2)
     };

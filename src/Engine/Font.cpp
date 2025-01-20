@@ -19,14 +19,12 @@ Font::Font(const std::string &pathName, int fontSize) : glyphs() {
     std::string fullPath = RESOURCES_PATH + pathName;
 #endif
 
-    stbtt_fontinfo font;
-    unsigned char *bitmap;
-
     fread(ttf_buffer, 1, 1 << 20, fopen(fullPath.c_str(), "rb"));
 
     stbtt_InitFont(&fontInfo, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0));
 
-    stbtt_BakeFontBitmap(ttf_buffer, 0, 32.0, temp_bitmap, 512, 512, 32, 96, cdata); // no guarantee this fits!
+    // FIXME fontsize was assume to be fontSize*2
+    stbtt_BakeFontBitmap(ttf_buffer, 0, fontSize * 2, temp_bitmap, 512, 512, 32, 96, cdata); // no guarantee this fits!
 
     // TODO Use Texture class
 

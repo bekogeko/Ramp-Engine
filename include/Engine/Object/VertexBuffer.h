@@ -6,11 +6,13 @@
 #define RAY_GAME_VERTEXBUFFER_H
 
 #include <glad/glad.h>
+
+#include <utility>
 #include "Engine/Object/LayoutStack.h"
 
 class VertexBuffer {
 public:
-    VertexBuffer(LayoutStack stack) : m_stack(stack) {
+    explicit VertexBuffer(LayoutStack stack) : m_stack(std::move(stack)) {
         glGenBuffers(1, &m_vboId);
         glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
@@ -37,13 +39,13 @@ public:
     }
 
     void Enable(int startLocation) {
-        int i = 0;
+        int i = startLocation;
         for (auto &layout: m_stack) {
             glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
                                   m_stack.getDimentionCount() * sizeof(float),
                                   (void *) m_stack.getOffsetOfIndex(i));
 
-            if (layout.isInstanced())
+            if (layout.IsInstanced())
                 glVertexAttribDivisor(i, 1); // Tell OpenGL this is an attribute per instance.
             else
                 glVertexAttribDivisor(i, 0); // Tell OpenGL this is an attribute per vertex.

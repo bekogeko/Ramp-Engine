@@ -7,7 +7,7 @@
 #include <stb_image/stb_image.h>
 #include <iostream>
 
-Texture::Texture(std::string path) {
+Texture::Texture(const std::string &path) {
 
     glGenTextures(1, &m_textureId);
     glBindTexture(GL_TEXTURE_2D, m_textureId);

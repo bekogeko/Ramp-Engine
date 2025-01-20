@@ -17,11 +17,11 @@ protected:
 
 
 public:
-    std::shared_ptr<ShaderProgram> getShader() const {
+    [[nodiscard]] std::shared_ptr<ShaderProgram> getShader() const {
         return m_shader;
     }
 
-    bool isInstanced() const { return m_isInstanced; }
+    [[nodiscard]] bool isInstanced() const { return m_isInstanced; }
 
 
     // TODO: we should be able to reAttachShader

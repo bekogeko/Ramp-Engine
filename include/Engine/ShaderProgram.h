@@ -14,26 +14,27 @@ private:
 
 public:
 
-    explicit ShaderProgram(std::shared_ptr<ShaderSource> vertSource, std::shared_ptr<ShaderSource> fragSource);
+    explicit ShaderProgram(const std::shared_ptr<ShaderSource> &vertSource,
+                           const std::shared_ptr<ShaderSource> &fragSource);
 
     ~ShaderProgram();
 
     void Bind() const;
 
-    void Unbind() const;
+    static void Unbind();
 
-    int getAttribLocation(const std::string &name) {
+    [[nodiscard]] int getAttribLocation(const std::string &name) const {
         return glGetAttribLocation(programID, name.c_str());
     }
 
 
-    void SetUniform4f(const std::string &name, float x, float y, float z, float w);
+    void SetUniform4f(const std::string &name, float x, float y, float z, float w) const;
 
-    void SetUniform3f(const std::string &name, float x, float y, float z);
+    void SetUniform3f(const std::string &name, float x, float y, float z) const;
 
-    void SetUniform2f(const std::string &name, float x, float y);
+    void SetUniform2f(const std::string &name, float x, float y) const;
 
-    void SetUniform1i(const std::string &name, int x);
+    void SetUniform1i(const std::string &name, int x) const;
 
     void SetUniformMat4(const std::string &name, const float *matrix) const;
 

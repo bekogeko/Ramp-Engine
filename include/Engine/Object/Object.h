@@ -66,7 +66,7 @@ public:
 
     // with EBO
     explicit Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
-                    LayoutStack stack);
+                    const LayoutStack &stack);
 
 
     ~Object();

@@ -97,7 +97,7 @@ void UILayer::Draw() {
                  CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
                  CLAY_RECTANGLE({.color={255, 255, 255, 40}})) {
                 CLAY_TEXT(CLAY_STRING(val.c_str()),
-                          CLAY_TEXT_CONFIG({.fontId=0, .fontSize=16, .textColor={125, 255, 125, 255}}));
+                          CLAY_TEXT_CONFIG({.textColor={125, 255, 125, 255}, .fontId=0, .fontSize = 16}));
 
 
             }

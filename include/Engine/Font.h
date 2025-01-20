@@ -31,7 +31,7 @@ public:
     Glyph getChar(char c);
 
 
-    int slot() {
+    [[nodiscard]] int slot() const {
         return m_slot;
     }
 

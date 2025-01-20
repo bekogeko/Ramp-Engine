@@ -7,7 +7,8 @@
 #include "Engine/World.h"
 #include "Engine/ResourceManager.h"
 
-Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack) {
+Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+               const LayoutStack &stack) {
 
     m_isInstanced = false;
     m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize, stack);

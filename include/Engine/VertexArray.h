@@ -23,10 +23,11 @@ private:
 
 public:
     // without EBO Constructor
-    VertexArray(float *vertices, unsigned int size, LayoutStack stack);
+    VertexArray(float *vertices, unsigned int size, const LayoutStack &stack);
 
     //  with EBO Constructor
-    VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize, LayoutStack stack);
+    VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+                const LayoutStack &stack);
 
     ~VertexArray() {
         Delete();
@@ -45,7 +46,7 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     }
 
-    void Unbind() {
+    static void Unbind() {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
@@ -63,7 +64,6 @@ public:
 
     void DrawElementsInstanced(unsigned int instanceCount) const {
         unsigned int count = m_size / sizeof(unsigned int);
-        unsigned int indCount = m_indexSize / sizeof(unsigned int);
         glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instanceCount);
     }
 

@@ -11,22 +11,22 @@
 class VertexLayout {
 public:
     template<typename T = float>
-    VertexLayout(int count, bool isInstanced = false) {
+    explicit VertexLayout(int count, bool isInstanced = false) {
         m_size = sizeof(T) * count;
         m_Dimension = count;
         m_IsInstanced = isInstanced;
 
     }
 
-    bool isInstanced() const {
+    [[nodiscard]] bool IsInstanced() const {
         return m_IsInstanced;
     }
 
-    int getDimension() const {
+    [[nodiscard]] int getDimension() const {
         return m_Dimension;
     }
 
-    int size() const {
+    [[nodiscard]] int size() const {
         return m_size;
     }
 
@@ -69,12 +69,10 @@ public:
         return offset;
     }
 
-    bool IsInstanced() const {
-        for (auto layout: m_layout) {
-            if (layout.isInstanced())
-                return true;
-        }
-        return false;
+    [[nodiscard]] bool IsInstanced() const {
+        return std::any_of(m_layout.begin(), m_layout.end(), [](const VertexLayout &layout) {
+            return layout.IsInstanced();
+        });
     }
 
     // will be able to used in for loop (auto a : stack)

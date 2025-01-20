@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 #include <iostream>
 
-void ShaderProgram::SetUniform3f(const std::string &name, float x, float y, float z) {
+void ShaderProgram::SetUniform3f(const std::string &name, float x, float y, float z) const {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
 #ifdef GL_ERROR_SILENTa
@@ -16,7 +16,7 @@ void ShaderProgram::SetUniform3f(const std::string &name, float x, float y, floa
     }
 }
 
-void ShaderProgram::SetUniform2f(const std::string &name, float x, float y) {
+void ShaderProgram::SetUniform2f(const std::string &name, float x, float y) const {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
 #ifdef GL_ERROR_SILENT
@@ -38,7 +38,8 @@ void ShaderProgram::SetUniformMat4(const std::string &name, const float *matrix)
     }
 }
 
-ShaderProgram::ShaderProgram(std::shared_ptr<ShaderSource> vertSource, std::shared_ptr<ShaderSource> fragSource) {
+ShaderProgram::ShaderProgram(const std::shared_ptr<ShaderSource> &vertSource,
+                             const std::shared_ptr<ShaderSource> &fragSource) {
 
     programID = glCreateProgram();
 
@@ -64,7 +65,7 @@ void ShaderProgram::Bind() const {
     glUseProgram(programID);
 }
 
-void ShaderProgram::Unbind() const {
+void ShaderProgram::Unbind() {
     glUseProgram(0);
 }
 
@@ -77,7 +78,7 @@ ShaderProgram::~ShaderProgram() {
 //    std::cout << "Shader Program deleted with id " << programID << std::endl;
 }
 
-void ShaderProgram::SetUniform4f(const std::string &name, float x, float y, float z, float w) {
+void ShaderProgram::SetUniform4f(const std::string &name, float x, float y, float z, float w) const {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
 #ifdef GL_ERROR_SILENT
@@ -89,7 +90,7 @@ void ShaderProgram::SetUniform4f(const std::string &name, float x, float y, floa
 }
 
 
-void ShaderProgram::SetUniform1i(const std::string &name, int x) {
+void ShaderProgram::SetUniform1i(const std::string &name, int x) const {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {
 #ifdef GL_ERROR_SILENT

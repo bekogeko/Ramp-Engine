@@ -9,7 +9,7 @@
 #include <glad/glad.h>
 
 
-ShaderSource::ShaderSource(std::string path, ShaderSource::Type type) {
+ShaderSource::ShaderSource(const std::string &path, ShaderSource::Type type) {
 
 #if PRODUCTION_BUILD == 1
     // solve for relative path
@@ -34,7 +34,7 @@ ShaderSource::ShaderSource(std::string path, ShaderSource::Type type) {
     // close file
     shaderFile.close();
 
-    m_source = shaderSource.c_str();
+    m_source = shaderSource;
 
     // set type
     m_type = type;

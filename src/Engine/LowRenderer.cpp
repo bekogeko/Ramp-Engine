@@ -194,7 +194,7 @@ void LowRenderer::DrawText(Text text) {
 
     // Set up the vertex attribute pointer for the instance data
     glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
     glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
 
     glEnableVertexAttribArray(3); // Assuming location 2 for instance data

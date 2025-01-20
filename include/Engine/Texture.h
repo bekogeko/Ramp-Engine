@@ -9,11 +9,11 @@
 
 class Texture {
 public:
-    Texture(std::string path);
+    explicit Texture(const std::string &path);
 
     void Bind(int slot = 0);
 
-    int slot() {
+    [[nodiscard]] int slot() const {
         return m_slot;
     }
 
