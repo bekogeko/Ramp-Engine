@@ -46,3 +46,9 @@ After you add a file, the changes should be automatically added but if you want 
 
 
   Also, if you read the CMAKE, even if you don't know CMAKE you should understand what happens with the comments there and you can add libraries and also remove the console from there if you need to! (there is a commented line for that!)
+# FOR RELEASE BUILD
+  - Copy resources folder
+  - Build it with "-DPRODUCTION_BUILD=ON"
+# FOR DEBUG BUILD
+  - Copy resources folder
+  - Build it with "-DPRODUCTION_BUILD=OFF"

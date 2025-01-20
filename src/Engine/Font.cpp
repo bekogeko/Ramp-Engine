@@ -6,6 +6,9 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <vector>
+#if PRODUCTION_BUILD == 1
+#include <filesystem>
+#endif
 
 
 

@@ -6,7 +6,9 @@
 #include <glad/glad.h>
 #include <stb_image/stb_image.h>
 #include <iostream>
-
+#if PRODUCTION_BUILD == 1
+#include <filesystem>
+#endif
 Texture::Texture(const std::string &path) {
 
     glGenTextures(1, &m_textureId);
