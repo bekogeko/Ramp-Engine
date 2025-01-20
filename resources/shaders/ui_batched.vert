@@ -13,7 +13,7 @@ out vec4 Color;
 
 void main() {
 
-    vec2 pos = (aPos + aCursorPos) * aSize;
+    vec2 pos = (aPos * aSize) + aCursorPos;
     gl_Position = uProjection * vec4(pos, 0.0, 1.0);
     Color = aColor;
 }
