@@ -111,6 +111,8 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
     // keep this related with m_Id and groundId;
     m_Objects[m_Id] = bodyId;
 
+    delete[] vertices;
+
     return bodyId;
 }
 

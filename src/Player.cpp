@@ -21,7 +21,9 @@ void Player::Draw() {
     float dt = ImGui::GetIO().DeltaTime;
     ImGui::Text("FPS IO: %.1f", fpsIO);
     ImGui::Text("FPS LR: %.1f", fpsLR);
+    ImGui::Text("Font size IO: %.1f", ImGui::GetFontSize());
 
+    ImGui::GetFontSize();
     ImGui::Text("dT: %.6f", dt);
     ImGui::Text("Cam Position: (%.1f, %.1f)", cam.position.x, cam.position.y);
     ImGui::Text("Cam zoom: (%.3f)", cam.zoom);

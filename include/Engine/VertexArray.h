@@ -76,6 +76,8 @@ public:
         }
 
         glDeleteBuffers(1, &m_EBO);
+
+        delete[] m_indices;
     }
 
 };

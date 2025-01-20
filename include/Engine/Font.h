@@ -8,7 +8,8 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <stb_truetype/stb_truetype.h>
-#include <unordered_map>
+
+#include "Engine/Texture.h"
 
 struct Glyph {
     glm::vec2 size;        // Size of the glyph in pixels
@@ -19,7 +20,7 @@ struct Glyph {
 
 class Font {
 public:
-    Font(const std::string &fontPath, int fontSize);
+    Font(const std::string &fontPath, int fontSize, unsigned char hashId);
 
 
     void Bind(int slot = 0);
@@ -32,19 +33,18 @@ public:
 
 
     [[nodiscard]] int slot() const {
-        return m_slot;
+        return m_ftex->slot();
+    }
+
+    [[nodiscard]] unsigned char getHashId() const {
+        return m_hashId;
     }
 
 private:
-    std::unordered_map<char, Glyph> glyphs;
-
-    unsigned char ttf_buffer[1 << 20];
-    unsigned char temp_bitmap[512 * 512];
-
+    std::shared_ptr<Texture> m_ftex;
+    unsigned char m_hashId;
 
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
-    unsigned int ftex;
-    unsigned int m_slot;
     stbtt_fontinfo fontInfo;
 };
 
