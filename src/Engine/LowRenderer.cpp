@@ -404,10 +404,13 @@ void LowRenderer::DrawRectangleBatched() {
     shader->SetUniformMat4("uModel", &model[0][0]);
 
     vertexArray->Bind();
-
     vertexArray->DrawElementsInstanced(m_rectBatch.size());
+
     shader->Unbind();
     vertexArray->Unbind();
+
+    // free memory
+    delete[] indices;
 
 
     m_rectBatch.clear();

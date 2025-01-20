@@ -84,7 +84,10 @@ unsigned int World::RegisterObject(const std::string &pathName) {
     // 3- register object
     newObj->registerObject();
 
+
     m_objects[newObj->getId()] = newObj;
+    delete[] indicesArray;
+    delete[] verticesArray;
 
     return newObj->getId();
 }
