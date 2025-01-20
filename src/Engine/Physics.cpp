@@ -67,7 +67,7 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
 
     // get Objects Position
     auto obj = World::getById(m_Id);
-    int vertexCount = obj->getVertexCount();
+    auto vertexCount = obj->getVertexCount();
 
     // Create HULL
     auto *vertices = new b2Vec2[vertexCount];

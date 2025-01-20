@@ -11,9 +11,9 @@
 
 class VertexArray {
 private:
-    unsigned int m_VAO;
+    unsigned int m_VAO = 0;
     std::vector<VertexBuffer> m_VBOs;
-    unsigned int m_EBO;
+    unsigned int m_EBO = 0;
 
     // size
     unsigned int m_size;
