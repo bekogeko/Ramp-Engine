@@ -169,6 +169,21 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(const std::string &path) {
 
 }
 
+
+std::shared_ptr<Texture>
+ResourceManager::LoadTextureFromBytes(const std::string &cacheId, const unsigned char *data, int w, int h) {
+    // check if string exists in the map
+    if (m_Textures.find(cacheId) != m_Textures.end()) {
+        return m_Textures[cacheId];
+    }
+
+    auto texture = std::make_shared<Texture>(data, w, h);
+    m_Textures[cacheId] = texture;
+    return texture;
+
+}
+
+
 std::shared_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
     if (m_Fonts.find(path) != m_Fonts.end()) {
         return m_Fonts[path];

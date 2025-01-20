@@ -11,7 +11,11 @@ class Texture {
 public:
     explicit Texture(const std::string &path);
 
+    explicit Texture(const unsigned char *data, int w, int h, int channelCount = 1);
+
     void Bind(int slot = 0);
+
+    static void Unbind();
 
     [[nodiscard]] int slot() const {
         return m_slot;

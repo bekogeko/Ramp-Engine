@@ -10,6 +10,8 @@
 #include <stb_truetype/stb_truetype.h>
 #include <unordered_map>
 
+#include "Engine/Texture.h"
+
 struct Glyph {
     glm::vec2 size;        // Size of the glyph in pixels
     glm::vec2 bearing;     // Offset from baseline to top-left of the glyph
@@ -32,19 +34,14 @@ public:
 
 
     [[nodiscard]] int slot() const {
-        return m_slot;
+        return m_ftex->slot();
     }
 
 private:
     std::unordered_map<char, Glyph> glyphs;
-
-    unsigned char ttf_buffer[1 << 20];
-    unsigned char temp_bitmap[512 * 512];
-
-
+    std::shared_ptr<Texture> m_ftex;
+    
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
-    unsigned int ftex;
-    unsigned int m_slot;
     stbtt_fontinfo fontInfo;
 };
 

@@ -2,18 +2,20 @@
 // Created by Bekir Gulestan on 1/15/25.
 //
 #include "Engine/Font.h"
+#include "Engine/ResourceManager.h"
 #include <stb_truetype/stb_truetype.h>
 #include <iostream>
 #include <glad/glad.h>
 #include <vector>
+
 #if PRODUCTION_BUILD == 1
 #include <filesystem>
 #endif
 
 
-
 Font::Font(const std::string &pathName, int fontSize) : glyphs() {
-
+    unsigned char ttf_buffer[1 << 20];
+    unsigned char temp_bitmap[512 * 512];
 
 #if PRODUCTION_BUILD == 1
     // solve for relative path
@@ -31,14 +33,17 @@ Font::Font(const std::string &pathName, int fontSize) : glyphs() {
     // FIXME fontsize was assume to be fontSize*2
     stbtt_BakeFontBitmap(ttf_buffer, 0, fontSize * 2, temp_bitmap, 512, 512, 32, 96, cdata); // no guarantee this fits!
 
-    // TODO Use Texture class
 
-    // can free ttf_buffer at this point
-    glGenTextures(1, &ftex);
-    glBindTexture(GL_TEXTURE_2D, ftex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, temp_bitmap);
-    // can free temp_bitmap at this point
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // TODO Use Texture class
+    auto texture = ResourceManager::LoadTextureFromBytes(
+            pathName + "-" + std::to_string(fontSize),
+            temp_bitmap,
+            512, 512
+    );
+
+    m_ftex = texture;
+
+
 }
 
 glm::vec4 Font::getTextureCoords(char c) {
@@ -75,7 +80,5 @@ Glyph Font::getChar(char c) {
 }
 
 void Font::Bind(int slot) {
-    m_slot = slot;
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, ftex);
+    m_ftex->Bind(slot);
 }

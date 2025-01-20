@@ -26,6 +26,9 @@ public:
 
     static std::shared_ptr<Texture> LoadTexture(const std::string &path);
 
+    static std::shared_ptr<Texture>
+    LoadTextureFromBytes(const std::string &cacheId, const unsigned char *data, int w, int h);
+
     static ParsedObject &LoadObject(const std::string &path);
 
     static std::shared_ptr<Font> LoadFont(const std::string &path, int fontSize);

@@ -42,8 +42,35 @@ Texture::Texture(const std::string &path) {
     stbi_image_free(data);
 }
 
+
+Texture::Texture(const unsigned char *data, int w, int h, int channelCount) {
+
+    // TODO: add support for channelCount GL_RED etc // format
+
+    glGenTextures(1, &m_textureId);
+    glBindTexture(GL_TEXTURE_2D, m_textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // can free temp_bitmap at this point
+
+
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+}
+
 void Texture::Bind(int slot) {
+    // warning unbinding a texture might be a bad idea
+    Unbind();
     m_slot = slot;
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
+}
+
+void Texture::Unbind() {
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
