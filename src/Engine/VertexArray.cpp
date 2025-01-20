@@ -15,9 +15,7 @@ VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) 
     glBindVertexArray(m_VAO);
 
     // Generate VBO
-    glGenBuffers(1, &m_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-
+    m_VBOs.emplace_back(stack);
     // Copy vertices to buffer
 
 //    if (stack.IsInstanced()) {
@@ -41,7 +39,9 @@ VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) 
     }
 
     // Unbind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    for (auto &m_VBO: m_VBOs) {
+        m_VBO.Unbind();
+    }
 }
 
 /// \brief
@@ -65,8 +65,7 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
     glBindVertexArray(m_VAO);
 
     // Generate VBO
-    glGenBuffers(1, &m_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    m_VBOs.emplace_back(stack);
 
     // Copy vertices to buffer
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
@@ -95,7 +94,9 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
     }
 
     // Unbind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    for (int j = 0; j < m_VBOs.size(); ++j) {
+        m_VBOs[j].Unbind();
+    }
 
     // Unbind VAO
     glBindVertexArray(0);

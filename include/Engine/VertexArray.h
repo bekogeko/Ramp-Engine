@@ -7,11 +7,12 @@
 
 #include <glad/glad.h>
 #include "Engine/Object/LayoutStack.h"
+#include "Engine/Object/VertexBuffer.h"
 
 class VertexArray {
 private:
     unsigned int m_VAO;
-    unsigned int m_VBO;
+    std::vector<VertexBuffer> m_VBOs;
     unsigned int m_EBO;
 
     // size
@@ -37,7 +38,9 @@ public:
         // then bind and set vertex buffer(s), and then configure vertex attributes(s).
         glBindVertexArray(m_VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+        for (auto &m_VBO: m_VBOs) {
+            m_VBO.Bind();
+        }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     }
@@ -67,7 +70,11 @@ public:
 
     void Delete() {
         glDeleteVertexArrays(1, &m_VAO);
-        glDeleteBuffers(1, &m_VBO);
+
+        for (auto &m_VBO: m_VBOs) {
+            m_VBO.Delete();
+        }
+
         glDeleteBuffers(1, &m_EBO);
     }
 

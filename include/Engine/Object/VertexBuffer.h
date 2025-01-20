@@ -9,7 +9,7 @@
 #include "Engine/Object/LayoutStack.h"
 
 class VertexBuffer {
-private:
+public:
     VertexBuffer(LayoutStack stack) {
         glGenBuffers(1, &m_vboId);
         glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
@@ -22,11 +22,20 @@ private:
         //      - location, layoutDimension, offset, stackDimension
         //  - glVertexAttribDivisor
         //  - glEnableVertexAttribArray()
-
-        // TODO: Unbind
     }
 
-public:
+    void Bind() const {
+        glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+    }
+
+    void Unbind() {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void Delete() {
+        glDeleteBuffers(1, &m_vboId);
+    }
+private:
     unsigned int m_vboId;
 };
 
