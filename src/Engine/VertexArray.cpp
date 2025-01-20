@@ -5,10 +5,8 @@
 #include "Engine/VertexArray.h"
 #include <algorithm>
 
-VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) {
+VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) : m_size(size) {
 
-    // size
-    m_size = size;
 
     // Generate VAO
     glGenVertexArrays(1, &m_VAO);
@@ -24,22 +22,9 @@ VertexArray::VertexArray(float *vertices, unsigned int size, LayoutStack stack) 
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 //    }
 
-    int i = 0;
-    for (auto &layout: stack) {
-        glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE, stack.getDimentionCount() * sizeof(float),
-                              (void *) stack.getOffsetOfIndex(i));
-
-        if (layout.isInstanced())
-            glVertexAttribDivisor(i, 1); // Tell OpenGL this is an attribute per instance.
-        else
-            glVertexAttribDivisor(i, 0); // Tell OpenGL this is an attribute per vertex.
-
-        glEnableVertexAttribArray(i);
-        i++;
-    }
-
-    // Unbind VBO
     for (auto &m_VBO: m_VBOs) {
+        m_VBO.Enable(0);
+        // Unbind VBO
         m_VBO.Unbind();
     }
 }
@@ -77,25 +62,11 @@ VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indic
     // Copy indices to buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
 
-
-    int i = 0;
-    for (auto &layout: stack) {
-        glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
-                              stack.getDimentionCount() * sizeof(float),
-                              (void *) stack.getOffsetOfIndex(i));
-        glEnableVertexAttribArray(i);
-
-        if (layout.isInstanced())
-            glVertexAttribDivisor(i, 1);
-        else
-            glVertexAttribDivisor(i, 0);
-
-        i++;
-    }
-
     // Unbind VBO
-    for (int j = 0; j < m_VBOs.size(); ++j) {
-        m_VBOs[j].Unbind();
+    for (auto &m_VBO: m_VBOs) {
+        m_VBO.Enable(0);
+        // Unbind VBO
+        VertexBuffer::Unbind();
     }
 
     // Unbind VAO
