@@ -3,7 +3,6 @@
 //
 #include "Engine/Font.h"
 #include <stb_truetype/stb_truetype.h>
-#include <glm/glm.hpp>
 #include <iostream>
 #include <glad/glad.h>
 

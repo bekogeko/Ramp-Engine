@@ -3,11 +3,7 @@
 //
 #include "Engine/ShaderProgram.h"
 #include <glad/glad.h>
-
 #include <iostream>
-#include <fstream>
-#include <sstream>
-
 
 void ShaderProgram::SetUniform3f(const std::string &name, float x, float y, float z) {
     int location = glGetUniformLocation(programID, name.c_str());
