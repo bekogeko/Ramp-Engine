@@ -17,9 +17,6 @@ private:
 
     // size
     unsigned int m_size;
-    unsigned int m_indexSize;
-    unsigned int *m_indices;
-
 
 public:
     // without EBO Constructor
@@ -76,8 +73,6 @@ public:
         }
 
         glDeleteBuffers(1, &m_EBO);
-
-        delete[] m_indices;
     }
 
 };

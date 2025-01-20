@@ -143,10 +143,7 @@ void UILayer::Draw() {
                 LowRenderer::AddRectangle(rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
-
-//                std::cout << "textTime " << callTime << "\n";
-//                callTime++;
-
+                
                 Text text;
                 text.color.r = renderCommand->config.textElementConfig->textColor.r / 255;
                 text.color.g = renderCommand->config.textElementConfig->textColor.g / 255;
@@ -177,8 +174,6 @@ void UILayer::Draw() {
 
     LowRenderer::DrawRectangleBatched();
     LowRenderer::DrawTextBatched();
-//
-//    callTime = 1;
 }
 
 
