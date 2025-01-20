@@ -100,7 +100,7 @@ void UILayer::Draw() {
              CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
                                    CLAY_SIZING_FIXED(80)}})) {
             CLAY(CLAY_ID("Content2"),
-                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
+                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}}),
                  CLAY_RECTANGLE({.color={255, 255, 255, 255}})) {
                 CLAY_TEXT(CLAY_STRING(val.c_str()),
                           CLAY_TEXT_CONFIG({.textColor={12, 120, 255, 255}, .fontId=0, .fontSize = 16}));
@@ -148,6 +148,7 @@ void UILayer::Draw() {
 
                 text.value = renderCommand->text.chars;
 
+
                 text.position.x = renderCommand->boundingBox.x;
                 text.position.y = renderCommand->boundingBox.y;
 
@@ -155,6 +156,8 @@ void UILayer::Draw() {
                 text.size.y = renderCommand->boundingBox.height;
 
                 text.fontSize = renderCommand->config.textElementConfig->fontSize;
+                text.lineHeight = renderCommand->config.textElementConfig->lineHeight;
+                text.letterSpacing = renderCommand->config.textElementConfig->letterSpacing;
 
                 LowRenderer::AddText(text);
                 break;

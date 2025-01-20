@@ -14,6 +14,8 @@ public:
     glm::vec4 color;
     std::string value;
     unsigned int fontSize = 16;
+    unsigned int lineHeight = 16;
+    unsigned int letterSpacing = 16;
 
     glm::vec2 position;
     glm::vec2 size;

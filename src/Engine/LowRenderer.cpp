@@ -129,10 +129,13 @@ void LowRenderer::DrawText(Text text) {
 
 
     // warning: Fixme: this should not be the way
-    glm::vec2 initialCursor = {0.5, -0.5};
+    glm::vec2 initialCursor = {0, 0};
     //activeCursor
     glm::vec2 cursorPos = initialCursor;
 
+    // cursorPos,   vec2
+    // texCoord,    vec4
+    // size,        vec2
     std::vector<std::array<float, 8>> instanceDatas;
     int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
@@ -140,17 +143,14 @@ void LowRenderer::DrawText(Text text) {
             // fixme: questionable api use/abuse?
             auto glyph = fontTex->getChar(text.value[i]);
 
-            cursorPos.x += glyph.advance / text.fontSize;
+            cursorPos.x += (glyph.advance / text.fontSize) + (text.letterSpacing / text.fontSize);
             emptyChars++;
             continue;
         }
         if (text.value[i] == '\n') {
             emptyChars++;
             auto glyph = fontTex->getChar(text.value[i]);
-
-            // TODO add optional parameter to configure lineHeight
-            float lineSpacing = 0;
-            cursorPos.y -= (lineSpacing / text.fontSize) + 1.5f; // default is 1.5 em space
+            cursorPos.y -= float(text.lineHeight / text.fontSize) + 1.5f; // default is 1.5 em space
             cursorPos.x = initialCursor.x;
             continue;
         }
@@ -212,8 +212,8 @@ void LowRenderer::DrawText(Text text) {
 
     // position.x in [-hw,hw]
     // position.y is [-hh,hh]
-    glm::vec2 position = {-camSize.x + (size.x / 2.0f) + (text.position.x / screen.x) * 2 * camSize.x,
-                          camSize.y - (size.y / 2.0f) - (text.position.y / screen.y) * 2 * camSize.y};
+    glm::vec2 position = {-camSize.x + (size.x / 2.0f) + (text.position.x * 2 * camSize.x) / screen.x,
+                          camSize.y - (size.y / 2.0f) - (text.position.y * 2 * camSize.y) / screen.y};
     glm::vec2 scale = {size.x, size.y};
     float rotation = 0;
 
