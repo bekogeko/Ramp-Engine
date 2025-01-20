@@ -8,7 +8,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <stb_truetype/stb_truetype.h>
-
+#include <unordered_map>
 
 struct Glyph {
     glm::vec2 size;        // Size of the glyph in pixels

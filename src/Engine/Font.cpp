@@ -5,6 +5,8 @@
 #include <stb_truetype/stb_truetype.h>
 #include <iostream>
 #include <glad/glad.h>
+#include <vector>
+
 
 
 Font::Font(const std::string &pathName, int fontSize) : glyphs() {
