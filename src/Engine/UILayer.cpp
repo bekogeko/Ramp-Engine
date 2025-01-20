@@ -76,28 +76,34 @@ void UILayer::Draw() {
                              .layoutDirection = CLAY_LEFT_TO_RIGHT,
 
                      }),
-         CLAY_RECTANGLE({.color={255, 0, 50, 40}})
-//         CLAY_RECTANGLE({.color={0, 0, 0, 0}})
+//         CLAY_RECTANGLE({.color={255, 0, 50, 40}})
+         CLAY_RECTANGLE({.color={0, 0, 0, 255}})
     ) {
 
 
-        CLAY(CLAY_ID("Sidebar"),
-             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
-                                   CLAY_SIZING_FIXED(80)}})) {
+        CLAY(CLAY_ID("ContentBox"),
+             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(82),
+                                   CLAY_SIZING_FIXED(82)}})) {
             CLAY(CLAY_ID("Content"),
-                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
-                 CLAY_RECTANGLE({.color={25, 255, 5, 40}})) {
+                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}},),
+                 CLAY_RECTANGLE({.color={0, 255, 0, 255}})) {
 
+                CLAY(CLAY_ID("lilCube"),
+                     CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(32), CLAY_SIZING_FIXED(32)}, .padding={16, 16}}),
+                     CLAY_RECTANGLE({.color={255, 120, 12, 255}})) {
+                    CLAY_TEXT(CLAY_STRING("a"),
+                              CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId=0, .fontSize = 16}));
+                }
             }
         }
-        CLAY(CLAY_ID("Sidebar2"),
+        CLAY(CLAY_ID("ContentBox2"),
              CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
                                    CLAY_SIZING_FIXED(80)}})) {
             CLAY(CLAY_ID("Content2"),
                  CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
-                 CLAY_RECTANGLE({.color={255, 255, 255, 40}})) {
+                 CLAY_RECTANGLE({.color={255, 255, 255, 255}})) {
                 CLAY_TEXT(CLAY_STRING(val.c_str()),
-                          CLAY_TEXT_CONFIG({.textColor={125, 255, 125, 255}, .fontId=0, .fontSize = 16}));
+                          CLAY_TEXT_CONFIG({.textColor={12, 120, 255, 255}, .fontId=0, .fontSize = 16}));
 
 
             }
