@@ -61,13 +61,6 @@ glm::vec4 Font::getTextureCoords(char c) {
     return {q.s0, q.t0, q.s1, q.t1};
 }
 
-//glm::vec2 Font::getRectSize(char c) {
-//    // get codepoint width and height ratios
-//    // assume height is 1
-//    // width ratio = width/height;
-//    float width = cdata[c - 32].x1 - cdata[c - 32].x0;
-//    return glm::vec2(width / 32, 1.0f);
-//}
 
 Glyph Font::getChar(char c) {
 
