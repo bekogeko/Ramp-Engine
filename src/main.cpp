@@ -17,7 +17,7 @@
 #include "Engine/World.h"
 
 static void error_callback(int error, const char *description) {
-    std::cout << "Error: " << description << "\n";
+    std::cerr << "Error: " << description << "\n";
 }
 
 int main() {
