@@ -65,7 +65,7 @@ int main() {
     playerobj->color.r = 1;
 
     playerobj->attachComponent<Player>();
-    objId->attachComponent<PhysicsComponent>();
+    playerobj->attachComponent<PhysicsComponent>();
 
     auto id = World::RegisterObject("square.obj");
     auto obj = World::getById(id);
