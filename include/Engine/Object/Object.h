@@ -76,16 +76,7 @@ public:
     // attachComponent
     //  - Each Component type is only attachable once
     template<class T>
-    void attachComponent() {
-
-        // do a static assertion
-        static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
-
-
-        std::unique_ptr<Component> comp = std::make_unique<T>();
-        comp->attach(m_Id);
-        m_components.push_back(std::move(comp));
-    }
+    void attachComponent();
 
     // getComponent
     //  - returns the first and only component of type T
