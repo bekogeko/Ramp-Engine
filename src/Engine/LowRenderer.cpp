@@ -151,7 +151,7 @@ void LowRenderer::DrawText(Text text) {
         }
         if (text.value[i] == '\n') {
             emptyChars++;
-//            auto glyph = fontTex->getChar(text.value[i]);
+            auto glyph = fontTex->getChar(text.value[i]);
             cursorPos.y -= float(text.lineHeight / text.fontSize) + 1.5f; // default is 1.5 em space
             cursorPos.x = initialCursor.x;
             continue;
