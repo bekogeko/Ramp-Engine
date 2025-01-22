@@ -418,7 +418,7 @@ void LowRenderer::DrawRectangleBatched() {
 
 void LowRenderer::DrawTextBatched() {
 
-    for (auto text: m_textBatch) {
+    for (const auto &text: m_textBatch) {
         DrawText(text);
     }
 

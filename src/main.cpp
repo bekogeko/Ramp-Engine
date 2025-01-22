@@ -58,13 +58,13 @@ int main() {
 
 
     // register object transfer to high renderer
-    auto objId_int = World::RegisterObject("man.obj");
-    auto objId = World::getById(objId_int);
+    auto playerobj_id = World::RegisterObject("man.obj");
+    auto playerobj = World::getById(playerobj_id);
 
-    objId->position.x -= 0.5;
-    objId->color.r = 1;
+    playerobj->position.x -= 0.5;
+    playerobj->color.r = 1;
 
-    objId->attachComponent<Player>();
+    playerobj->attachComponent<Player>();
     objId->attachComponent<PhysicsComponent>();
 
     auto id = World::RegisterObject("square.obj");
@@ -130,6 +130,7 @@ int main() {
 
     //clean up
     std::cout << "Cleaning up...\n";
+    HighRenderer::Destroy();
 
     std::cout << "Application terminated successfully\n";
     system("leaks Ray-Game --list");

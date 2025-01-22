@@ -38,4 +38,9 @@ void HighRenderer::Init() {
     layers.push_back(std::unique_ptr<Layer>(uiLayer));
 }
 
+void HighRenderer::Destroy() {
+    std::cout << "High Renderer: Destroyed\n";
+    layers.clear();
+}
+
 
