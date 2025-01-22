@@ -5,6 +5,7 @@
 #include "Engine/HighRenderer.h"
 #include "Engine/UILayer.h"
 #include "Engine/World.h"
+#include "Engine/LowRenderer.h"
 #include <sstream>
 
 OrthoCamera HighRenderer::m_Camera(4, 3);

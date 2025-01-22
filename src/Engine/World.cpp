@@ -91,3 +91,13 @@ unsigned int World::RegisterObject(const std::string &pathName) {
 
     return newObj->getId();
 }
+
+World::World(int index) : Layer(index) {
+
+}
+
+void World::Draw() {
+    for (auto [i, object]: m_objects) {
+        object->Draw();
+    }
+}
