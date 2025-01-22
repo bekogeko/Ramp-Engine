@@ -37,6 +37,8 @@ public:
 
     static unsigned char GetFontId(const std::string &cacheId, int fontSize);
 
+    static void Destroy();
+
 private:
 
     static ParsedObject ParseObjectFromFile(const std::string &pathName);
