@@ -6,6 +6,7 @@
 #define RAY_GAME_COMPONENT_H
 
 #include <memory>
+#include <assert.h>
 
 class Object;
 
@@ -29,6 +30,7 @@ public:
     void attach(unsigned int objId) {
         if (isAttached)
             return;
+        assert(objId != 0);
         isAttached = true;
         m_ObjectId = objId;
         onAttached();
