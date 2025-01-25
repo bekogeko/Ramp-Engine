@@ -95,6 +95,8 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     vertexArray->DrawElements();
     shader->Unbind();
     vertexArray->Unbind();
+
+    delete[] indices;
 }
 
 
