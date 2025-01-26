@@ -98,7 +98,8 @@ public:
         if (m_components.count(std::type_index(typeid(T))) != 0) {
             return std::static_pointer_cast<T>(m_components[index]);
         } else {
-            assert(("Component not found! ", false));
+            std::cerr << "Component not found! \n";
+            assert(false);
         }
 
     }

@@ -5,29 +5,29 @@
 #include "Engine/VertexArray.h"
 #include <algorithm>
 
-VertexArray::VertexArray(const float *vertices, unsigned int size, const LayoutStack &stack) : m_size(size) {
-
-
-    // Generate VAO
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
-
-    // Generate VBO
-    m_VBOs.emplace_back(stack);
-    // Copy vertices to buffer
-
-//    if (stack.IsInstanced()) {
-//        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
-//    } else {
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+//VertexArray::VertexArray(const float *vertices, const unsigned int size, const LayoutStack &stack) : m_size(size) {
+//
+//    printf("VertexArray w/o EBO \n");
+//    // Generate VAO
+//    glGenVertexArrays(1, &m_VAO);
+//    glBindVertexArray(m_VAO);
+//
+//    // Generate VBO
+//    m_VBOs.emplace_back(vertices, size, stack);
+//    // Copy vertices to buffer
+//
+////    if (stack.IsInstanced()) {
+////        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
+////    } else {
+////    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+////    }
+//
+//    for (auto &m_VBO: m_VBOs) {
+//        m_VBO.Enable(0);
+//        // Unbind VBO
+//        VertexBuffer::Unbind();
 //    }
-
-    for (auto &m_VBO: m_VBOs) {
-        m_VBO.Enable(0);
-        // Unbind VBO
-        VertexBuffer::Unbind();
-    }
-}
+//}
 
 /// \brief
 /// Constructor with EBO
@@ -35,22 +35,18 @@ VertexArray::VertexArray(const float *vertices, unsigned int size, const LayoutS
 /// \param size
 /// \param indices
 /// \param indicesSize
-VertexArray::VertexArray(const float *vertices, unsigned int size, const unsigned int *indices,
-                         unsigned int indicesSize,
-                         const LayoutStack &stack) {
+VertexArray::VertexArray(const unsigned int size, const unsigned int *indices,
+                         unsigned int indicesSize) {
+//    static int ebo_Call = 0;
+//    printf("VertexArray w/ EBO %d\n", ebo_Call++);
 
     // size
+    // warning get this later
     m_size = size;
 
     // Generate VAO
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
-
-    // Generate VBO
-    m_VBOs.emplace_back(stack);
-
-    // Copy vertices to buffer
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
     // Generate EBO
     glGenBuffers(1, &m_EBO);
@@ -58,19 +54,18 @@ VertexArray::VertexArray(const float *vertices, unsigned int size, const unsigne
 
     // Copy indices to buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+    VertexArray::Unbind();
+}
 
-    // Unbind VBO
-    int i = 0;
-    for (auto &m_VBO: m_VBOs) {
-        m_VBO.Enable(i);
-        i++;
-        // Unbind VBO
-        VertexBuffer::Unbind();
-    }
+void VertexArray::AddBuffer(const float *data, const unsigned int size, const LayoutStack &stack) {
 
-    // Unbind VAO
+
+//    void VertexArray::AddBuffer(const float *data, const unsigned int size, const LayoutStack &stack) {
+    m_VBOs.emplace_back(std::make_unique<VertexBuffer>(data, size, stack));
+    glBindVertexArray(m_VAO);
+    m_VBOs.back()->Bind();
+// FIXME maybe better options
+    m_VBOs.back()->Enable(m_VBOs.size() - 1);
+    VertexBuffer::Unbind();
     glBindVertexArray(0);
-
-    // Unbind EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

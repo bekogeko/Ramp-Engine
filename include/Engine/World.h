@@ -30,7 +30,7 @@ public:
     static unsigned int RegisterObject(const std::string &pathName);
 
 
-    static std::shared_ptr<Object> getById(unsigned int id);
+    static std::weak_ptr<Object> getById(unsigned int id);
 
     static int GetNextId() {
         static int id = 1;

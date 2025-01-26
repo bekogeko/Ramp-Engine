@@ -33,7 +33,7 @@ public:
 
 
     [[nodiscard]] int slot() const {
-        return m_ftex->slot();
+        return m_ftex.lock()->slot();
     }
 
     [[nodiscard]] unsigned char getHashId() const {
@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    std::shared_ptr<Texture> m_ftex;
+    std::weak_ptr<Texture> m_ftex;
     unsigned char m_hashId;
 
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs

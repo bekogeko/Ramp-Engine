@@ -35,14 +35,14 @@ void Player::Draw() {
     }
 
 
-    ImGui::DragFloat("Rotation of obj", &getObject()->rotation, 0, 0, 360);
+    ImGui::DragFloat("Rotation of obj", &getObject().lock()->rotation, 0, 0, 360);
 
     ImGui::End();
 
 }
 
 void Player::Update(float deltaTime) {
-    auto myPhys = getObject()->getComponent<PhysicsComponent>();
+    auto myPhys = getObject().lock()->getComponent<PhysicsComponent>();
 
     // if physics component exists and shift is not pressed
     if (myPhys && !Input::getKeyPress(GLFW_KEY_LEFT_SHIFT)) {

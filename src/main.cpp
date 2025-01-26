@@ -53,34 +53,39 @@ int main() {
     std::cout << "ImGui initialized successfully\n";
 #endif
     Physics::Init();
+
     HighRenderer::Init();
+    {
 
 
+        {// register object transfer to high renderer
+            auto playerobj_id = World::RegisterObject("man.obj");
+            auto playerobj = World::getById(playerobj_id);
+            if (auto player = playerobj.lock()) {
+                player->position.x -= 0.5;
+                player->color.r = 1;
 
-    // register object transfer to high renderer
-    auto playerobj_id = World::RegisterObject("man.obj");
-    auto playerobj = World::getById(playerobj_id);
+                player->attachComponent<Player>();
+                player->attachComponent<PhysicsComponent>();
+            }
+        }
+        {
+            auto id = World::RegisterObject("square.obj");
+            auto obj = World::getById(id).lock();
 
-    playerobj->position.x -= 0.5;
-    playerobj->color.r = 1;
-
-    playerobj->attachComponent<Player>();
-    playerobj->attachComponent<PhysicsComponent>();
-
-    auto id = World::RegisterObject("square.obj");
-    auto obj = World::getById(id);
-
-    obj->attachComponent<PhysicsComponent>();
-
-    // create obj2 with different color and position
-    auto id2 = World::RegisterObject("square.obj");
-    auto obj2 = World::getById(id2);
+            obj->attachComponent<PhysicsComponent>();
+        }
+        // create obj2 with different color and position
+        {
+            auto id2 = World::RegisterObject("square.obj");
+            auto obj2 = World::getById(id2).lock();
 
 
-    obj2->position = {1, 1};
-    obj2->color = {1.0, 0.55, 0.2, 1};
-    obj2->attachComponent<PhysicsComponent>();
-
+            obj2->position = {1, 1};
+            obj2->color = {1.0, 0.55, 0.2, 1};
+            obj2->attachComponent<PhysicsComponent>();
+        }
+    }
 
     // enable alpha blending
     // 0 means opaque

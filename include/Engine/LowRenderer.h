@@ -28,7 +28,7 @@ public:
 
     static void DrawRectangleBatched();
 
-    static void AddText(Text text);
+    static void AddText(const Text &text);
 
     static void DrawTextBatched();
 

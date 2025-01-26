@@ -50,9 +50,10 @@ unsigned int World::RegisterObject(const std::string &pathName) {
     // 3- register object
     // 4- return id
 
-    auto objParsed = ResourceManager::LoadObject(pathName);
+    // warning hmm...
+    auto objParsed = *ResourceManager::LoadObject(pathName).lock();
     LayoutStack stack = {
-            VertexLayout(2)
+            VertexLayout(2, false)
     };
     // 2.1- create object
     auto *verticesArray = new float[objParsed.vertices.size() * 2];
