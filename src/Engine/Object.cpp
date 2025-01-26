@@ -40,8 +40,9 @@ void Object::Draw() {
     /// Update Stage
     ///
     float deltaTime = LowRenderer::getDeltaTime();
-    for (auto &component: m_components) {
-        component->Update(deltaTime);
+    for (auto &[typeInfo, comp]: m_components) {
+        assert(comp);
+        comp->Update(deltaTime);
     }
 
 
@@ -49,9 +50,10 @@ void Object::Draw() {
     ///
     /// Render Stage
     ///
-    for (auto &component: m_components) {
+    for (auto &[typeInfo, comp]: m_components) {
         // get first component
-        component->Draw();
+        assert(comp);
+        comp->Draw();
     }
 
     m_shader->Bind();
@@ -88,20 +90,5 @@ void Object::Draw() {
 
     m_shader->Unbind();
     m_vertexArray->Unbind();
-
-}
-
-template<class T>
-void Object::attachComponent() {
-
-
-    // do a static assertion
-    static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
-
-
-    std::unique_ptr<Component> comp = std::make_unique<T>();
-    comp->attach(m_Id);
-    m_components.push_back(std::move(comp));
-
 
 }
