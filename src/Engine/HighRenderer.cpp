@@ -41,6 +41,9 @@ void HighRenderer::Init() {
 
 void HighRenderer::Destroy() {
     std::cout << "High Renderer: Destroyed\n";
+    for (auto &layer: layers) {
+        layer.reset();
+    }
     layers.clear();
 }
 
