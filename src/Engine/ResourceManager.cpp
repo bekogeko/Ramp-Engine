@@ -121,7 +121,7 @@ ParsedObject ResourceManager::ParseObjectFromFile(const std::string &pathName) {
 }
 
 
-std::shared_ptr<ShaderProgram> ResourceManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
+std::weak_ptr<ShaderProgram> ResourceManager::LoadShader(const char *vertexPath, const char *fragmentPath) {
 
 
     //create id from paths
@@ -159,7 +159,7 @@ std::shared_ptr<ShaderProgram> ResourceManager::LoadShader(const char *vertexPat
     return program;
 }
 
-std::shared_ptr<Texture> ResourceManager::LoadTexture(const std::string &path) {
+std::weak_ptr<Texture> ResourceManager::LoadTexture(const std::string &path) {
     // check if string exists in the map
     if (m_Textures.find(path) != m_Textures.end()) {
         return m_Textures[path];
@@ -172,7 +172,7 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(const std::string &path) {
 }
 
 
-std::shared_ptr<Texture>
+std::weak_ptr<Texture>
 ResourceManager::LoadTextureFromBytes(const std::string &cacheId, const unsigned char *data, int w, int h) {
     // check if string exists in the map
     if (m_Textures.find(cacheId) != m_Textures.end()) {
@@ -203,7 +203,7 @@ unsigned char ResourceManager::GetFontId(const std::string &path, int fontSize) 
     return (unsigned char) hashId;
 }
 
-std::shared_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
+std::weak_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
     if (m_Fonts.find(path + "-" + std::to_string(fontSize)) != m_Fonts.end()) {
         return m_Fonts[path + "-" + std::to_string(fontSize)];
     }
@@ -214,10 +214,10 @@ std::shared_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fon
     return font;
 }
 
-ParsedObject &ResourceManager::LoadObject(const std::string &path) {
+std::weak_ptr<ParsedObject> ResourceManager::LoadObject(const std::string &path) {
     if (m_Objects.find(path) != m_Objects.end()) {
         // return a copy of m_object[path]
-        return *m_Objects[path];
+        return m_Objects[path];
     }
 
 
@@ -225,10 +225,10 @@ ParsedObject &ResourceManager::LoadObject(const std::string &path) {
     m_Objects[path] = objParsed;
 
     std::cout << "new Object read: " << path << "\n";
-    return *objParsed;
+    return objParsed;
 }
 
-std::shared_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
+std::weak_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
 
     assert(m_FontIdToCacheId.find(fontId) != m_FontIdToCacheId.end());
 
@@ -236,10 +236,58 @@ std::shared_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
 }
 
 void ResourceManager::Destroy() {
-    m_Fonts.clear();
-    m_Textures.clear();
-    m_Shaders.clear();
-    m_Objects.clear();
-    m_Programs.clear();
 
+
+    for (auto &[objId, objPtr]: m_Objects) {
+        if (objPtr.use_count() != 1) {
+            std::cerr << "Object id(" << objId << ") is used " << objPtr.use_count() << " times."
+                      << std::endl;
+        }
+        assert(objPtr.use_count() == 1);
+        objPtr.reset();
+    }
+    m_Objects.clear();
+
+
+    for (auto &[fontId, fontPtr]: m_Fonts) {
+
+        if (fontPtr.use_count() != 1) {
+            std::cerr << "Font id(" << fontId << ") is used " << fontPtr.use_count() << " times." << std::endl;
+        }
+        assert(fontPtr.use_count() == 1);
+        fontPtr.reset();
+    }
+    m_Fonts.clear();
+
+
+    for (auto &[textId, textPtr]: m_Textures) {
+        if (textPtr.use_count() != 1) {
+            std::cerr << "Texture id(" << textId << ") is used " << textPtr.use_count() << " times." << std::endl;
+        }
+        assert(textPtr.use_count() == 1);
+        textPtr.reset();
+    }
+    m_Textures.clear();
+
+
+    for (auto &[shaderId, shaderPtr]: m_Shaders) {
+        if (shaderPtr.use_count() != 1) {
+            std::cerr << "ShaderSource id(" << shaderId << ") is used " << shaderPtr.use_count() << " times."
+                      << std::endl;
+        }
+        assert(shaderPtr.use_count() == 1);
+        shaderPtr.reset();
+    }
+    m_Shaders.clear();
+
+
+    for (auto &[programId, progPtr]: m_Programs) {
+        if (progPtr.use_count() != 1) {
+            std::cerr << "ShaderProgram id(" << programId << ") is used " << progPtr.use_count() << " times."
+                      << std::endl;
+        }
+        assert(progPtr.use_count() == 1);
+        progPtr.reset();
+    }
+    m_Programs.clear();
 }

@@ -131,6 +131,8 @@ int main() {
     //clean up
     std::cout << "Cleaning up...\n";
     HighRenderer::Destroy();
+    ResourceManager::Destroy();
+
 
     std::cout << "Application terminated successfully\n";
 //    system("leaks Ray-Game --list");

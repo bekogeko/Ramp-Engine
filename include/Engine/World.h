@@ -21,11 +21,11 @@ public:
         m_objects.clear();
     }
 
-    static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
-
-    static unsigned int
-    RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
-                   const LayoutStack &stack);
+//    static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
+//
+//    static unsigned int
+//    RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+//                   const LayoutStack &stack);
 
     static unsigned int RegisterObject(const std::string &pathName);
 

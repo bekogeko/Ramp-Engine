@@ -22,18 +22,18 @@ struct ParsedObject {
 class ResourceManager {
 
 public:
-    static std::shared_ptr<ShaderProgram> LoadShader(const char *vertexPath, const char *fragmentPath);
+    static std::weak_ptr<ShaderProgram> LoadShader(const char *vertexPath, const char *fragmentPath);
 
-    static std::shared_ptr<Texture> LoadTexture(const std::string &path);
+    static std::weak_ptr<Texture> LoadTexture(const std::string &path);
 
-    static std::shared_ptr<Texture>
+    static std::weak_ptr<Texture>
     LoadTextureFromBytes(const std::string &cacheId, const unsigned char *data, int w, int h);
 
-    static ParsedObject &LoadObject(const std::string &path);
+    static std::weak_ptr<ParsedObject> LoadObject(const std::string &path);
 
-    static std::shared_ptr<Font> LoadFont(const std::string &path, int fontSize);
+    static std::weak_ptr<Font> LoadFont(const std::string &path, int fontSize);
 
-    static std::shared_ptr<Font> LoadFontById(unsigned short fontId);
+    static std::weak_ptr<Font> LoadFontById(unsigned short fontId);
 
     static unsigned char GetFontId(const std::string &cacheId, int fontSize);
 
