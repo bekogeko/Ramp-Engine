@@ -25,6 +25,7 @@ void Physics::Init() {
 
     //TODO: add a ground object to the renderer
 
+    std::cout << "Physics Initialized successfully" << std::endl;
 }
 
 
