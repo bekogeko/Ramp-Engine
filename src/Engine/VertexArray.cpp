@@ -5,7 +5,7 @@
 #include "Engine/VertexArray.h"
 #include <algorithm>
 
-VertexArray::VertexArray(float *vertices, unsigned int size, const LayoutStack &stack) : m_size(size) {
+VertexArray::VertexArray(const float *vertices, unsigned int size, const LayoutStack &stack) : m_size(size) {
 
 
     // Generate VAO
@@ -35,7 +35,8 @@ VertexArray::VertexArray(float *vertices, unsigned int size, const LayoutStack &
 /// \param size
 /// \param indices
 /// \param indicesSize
-VertexArray::VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+VertexArray::VertexArray(const float *vertices, unsigned int size, const unsigned int *indices,
+                         unsigned int indicesSize,
                          const LayoutStack &stack) {
 
     // size

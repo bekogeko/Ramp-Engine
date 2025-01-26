@@ -20,10 +20,10 @@ private:
 
 public:
     // without EBO Constructor
-    VertexArray(float *vertices, unsigned int size, const LayoutStack &stack);
+    VertexArray(const float *vertices, unsigned int size, const LayoutStack &stack);
 
     //  with EBO Constructor
-    VertexArray(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+    VertexArray(const float *vertices, unsigned int size, const unsigned int *indices, unsigned int indicesSize,
                 const LayoutStack &stack);
 
     ~VertexArray() {
