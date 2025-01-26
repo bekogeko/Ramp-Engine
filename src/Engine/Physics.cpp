@@ -25,6 +25,7 @@ void Physics::Init() {
 
     //TODO: add a ground object to the renderer
 
+    std::cout << "Physics Initialized successfully" << std::endl;
 }
 
 
@@ -70,7 +71,7 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
     auto vertexCount = obj->getVertexCount();
 
     // Create HULL
-    auto *vertices = new b2Vec2[vertexCount];
+    auto *vertices = new glm::vec2[vertexCount];
     int deleted_vertexes = 0;
     for (int i = 0; i < vertexCount; ++i) {
         auto vert = obj->getVertices()[i];
@@ -83,7 +84,7 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
     }
 
 
-    b2Hull hull = b2ComputeHull(vertices, vertexCount - deleted_vertexes);
+    b2Hull hull = b2ComputeHull(reinterpret_cast<const b2Vec2 *>(vertices), vertexCount - deleted_vertexes);
 
     b2BodyDef bodyDef = b2DefaultBodyDef();
 

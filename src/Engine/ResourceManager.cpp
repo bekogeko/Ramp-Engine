@@ -234,3 +234,12 @@ std::shared_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
 
     return m_Fonts[m_FontIdToCacheId[fontId]];
 }
+
+void ResourceManager::Destroy() {
+    m_Fonts.clear();
+    m_Textures.clear();
+    m_Shaders.clear();
+    m_Objects.clear();
+    m_Programs.clear();
+
+}

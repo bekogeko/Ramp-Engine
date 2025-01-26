@@ -11,6 +11,13 @@
 int Window::s_width = 0;
 int Window::s_height = 0;
 
+
+void Window::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+    Window::s_width = width;
+    Window::s_height = height;
+    glViewport(0, 0, width, height);
+}
+
 Window::Window(int width, int height, const char *title) {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
@@ -46,6 +53,9 @@ Window::Window(int width, int height, const char *title) {
         return;
     }
     std::cout << "GLAD initialized successfully\n";
+
+    // Set the framebuffer size callback
+    glfwSetFramebufferSizeCallback(p_window, framebuffer_size_callback);
 
 
     // Init Input system

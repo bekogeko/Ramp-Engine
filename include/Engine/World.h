@@ -15,9 +15,7 @@
 
 class World : public Layer {
 public:
-    explicit World(int index) : Layer(index) {
-
-    }
+    explicit World(int index);
 
     ~World() {
         m_objects.clear();
@@ -41,11 +39,7 @@ public:
 
     void Update(float deltaTime) override;
 
-    void Draw() override {
-        for (auto [i, object]: m_objects) {
-            object->Draw();
-        }
-    }
+    void Draw() override;
 
 
 private:

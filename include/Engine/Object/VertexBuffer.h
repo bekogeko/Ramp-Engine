@@ -43,7 +43,7 @@ public:
         for (auto &layout: m_stack) {
             glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
                                   m_stack.getDimentionCount() * sizeof(float),
-                                  (void *) m_stack.getOffsetOfIndex(i));
+                                  reinterpret_cast<const void *>(m_stack.getOffsetOfIndex(i)));
 
             if (layout.IsInstanced())
                 glVertexAttribDivisor(i, 1); // Tell OpenGL this is an attribute per instance.

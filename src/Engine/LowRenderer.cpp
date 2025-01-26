@@ -95,6 +95,8 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     vertexArray->DrawElements();
     shader->Unbind();
     vertexArray->Unbind();
+
+    delete[] indices;
 }
 
 
@@ -151,7 +153,7 @@ void LowRenderer::DrawText(Text text) {
         }
         if (text.value[i] == '\n') {
             emptyChars++;
-            auto glyph = fontTex->getChar(text.value[i]);
+//            auto glyph = fontTex->getChar(text.value[i]);
             cursorPos.y -= float(text.lineHeight / text.fontSize) + 1.5f; // default is 1.5 em space
             cursorPos.x = initialCursor.x;
             continue;
@@ -418,7 +420,7 @@ void LowRenderer::DrawRectangleBatched() {
 
 void LowRenderer::DrawTextBatched() {
 
-    for (auto text: m_textBatch) {
+    for (const auto &text: m_textBatch) {
         DrawText(text);
     }
 

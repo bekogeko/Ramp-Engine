@@ -21,6 +21,7 @@ PhysicsComponent::~PhysicsComponent() {
 
 void PhysicsComponent::onAttached() {
 
+    assert(m_ObjectId != 0);
     // warning
     m_BodyId = Physics::AddObject(m_ObjectId);
 }

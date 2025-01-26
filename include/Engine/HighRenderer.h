@@ -28,6 +28,8 @@ public:
 
     static void Draw();
 
+    static void Destroy();
+
 
 };
 

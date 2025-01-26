@@ -40,8 +40,9 @@ void Object::Draw() {
     /// Update Stage
     ///
     float deltaTime = LowRenderer::getDeltaTime();
-    for (auto &component: m_components) {
-        component->Update(deltaTime);
+    for (auto &[typeInfo, comp]: m_components) {
+        assert(comp);
+        comp->Update(deltaTime);
     }
 
 
@@ -49,9 +50,10 @@ void Object::Draw() {
     ///
     /// Render Stage
     ///
-    for (auto &component: m_components) {
+    for (auto &[typeInfo, comp]: m_components) {
         // get first component
-        component->Draw();
+        assert(comp);
+        comp->Draw();
     }
 
     m_shader->Bind();

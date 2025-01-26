@@ -5,6 +5,7 @@
 #include "Engine/HighRenderer.h"
 #include "Engine/UILayer.h"
 #include "Engine/World.h"
+#include "Engine/LowRenderer.h"
 #include <sstream>
 
 OrthoCamera HighRenderer::m_Camera(4, 3);
@@ -36,6 +37,11 @@ void HighRenderer::Init() {
     nextIndex = layers.size() + 1;
     Layer *uiLayer = new UILayer(nextIndex);
     layers.push_back(std::unique_ptr<Layer>(uiLayer));
+}
+
+void HighRenderer::Destroy() {
+    std::cout << "High Renderer: Destroyed\n";
+    layers.clear();
 }
 
 
