@@ -14,7 +14,8 @@ VertexBuffer::VertexBuffer(const float *data, const unsigned int size, const Lay
     //  -  GL_DRAW_METHOD
 
     glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(float) * m_stack.getDimentionCount() * size,
+//                 sizeof(float) * m_stack.getDimensionCount() * size,
+                 size,
                  data,
                  GL_STATIC_DRAW);
 }
@@ -29,8 +30,6 @@ void VertexBuffer::Unbind() {
 
 void VertexBuffer::Delete() {
     glDeleteBuffers(1, &m_vboId);
-
-
 }
 
 void VertexBuffer::Enable(int startLocation) {
@@ -39,7 +38,7 @@ void VertexBuffer::Enable(int startLocation) {
     for (auto &layout: m_stack) {
         glEnableVertexAttribArray(i);
         glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
-                              m_stack.getDimentionCount() * sizeof(float),
+                              m_stack.getDimensionCount() * sizeof(float),
                               reinterpret_cast<const void *>(m_stack.getOffsetOfIndex(i)));
 
         if (layout.IsInstanced())
