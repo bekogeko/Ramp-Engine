@@ -74,5 +74,5 @@ Glyph Font::getChar(char c) {
 }
 
 void Font::Bind(int slot) {
-    m_ftex->Bind(slot);
+    m_ftex.lock()->Bind(slot);
 }
