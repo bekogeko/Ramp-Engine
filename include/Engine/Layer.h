@@ -21,8 +21,9 @@ public:
 
     virtual void Draw() = 0;
 
-
     virtual ~Layer() = default;
+
+
 };
 
 #endif //RAY_GAME_LAYER_H

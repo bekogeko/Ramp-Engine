@@ -16,14 +16,14 @@ private:
     unsigned int m_EBO = 0;
 
     // size
-    unsigned int m_size;
+    unsigned int m_size = 0;
 
 public:
     // without EBO Constructor
 //    VertexArray(const float *vertices, unsigned int size, const LayoutStack &stack);
 
     //  with EBO Constructor
-    VertexArray(unsigned int size, const unsigned int *indices, unsigned int indicesSize);
+    VertexArray(const unsigned int *indices, unsigned int indicesSize);
 
     //    VertexArray(const float *vertices, unsigned int size, const unsigned int *indices, unsigned int indicesSize,
     //                const LayoutStack &stack);
@@ -96,27 +96,12 @@ public:
 
 
     ~VertexArray() {
-        [[maybe_unused]] static int deleteCall = 0;
+        static int deleteCall = 0;
         printf("Vertex Array Deleted %d\n", deleteCall++);
         Delete();
     }
 
-    void Bind() const {
-
-        // bind the Vertex Array Object first,
-        // then bind and set vertex buffer(s), and then configure vertex attributes(s).
-        glBindVertexArray(m_VAO);
-
-        int i = 0;
-        for (auto &m_VBO: m_VBOs) {
-            m_VBO->Bind();
-            m_VBO->Enable(i);
-            VertexBuffer::Unbind();
-            i++;
-        }
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    }
+    void Bind() const;
 
     static void Unbind() {
         glBindBuffer(GL_ARRAY_BUFFER, 0);

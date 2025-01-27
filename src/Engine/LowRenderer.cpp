@@ -25,8 +25,6 @@ float LowRenderer::getDeltaTime() {
 }
 
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
-    auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
-    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
             VertexLayout(2, false), // Position
@@ -42,15 +40,23 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
             -0.5, 0.5
     };
 
-    auto *indices = new unsigned int[objParsed.indices.size()];
+    int vertSize = 0;
+    int indicesSize = 0;
+    unsigned int *indices = nullptr;
+    {
+        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
+        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
-    // move vertices and indices
-    std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        indices = new unsigned int[objParsed.indices.size()];
 
-    auto vertexArray = std::make_unique<VertexArray>(objParsed.vertices.size() * 2 * sizeof(float), indices,
-                                                     objParsed.indices.size() * sizeof(unsigned int));
-    vertexArray->AddBuffer(vertices, (objParsed.vertices.size() * 2) * sizeof(float), stack);
+        // move vertices and indices
+        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        vertSize = objParsed.vertices.size();
+        indicesSize = objParsed.indices.size();
+    }
 
+    VertexArray vertexArray(indices, indicesSize * sizeof(unsigned int));
+    vertexArray.AddBuffer(vertices, (vertSize * 2) * sizeof(float), stack);
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -81,26 +87,31 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
     // get shader
-    auto shader = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag").lock();
-    shader->Bind();
+    auto shader_ptr = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
 
-    // set Camera Matrix
-    shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    shader->SetUniformMat4("uView", &viewMat[0][0]);
-    shader->SetUniformMat4("uModel", &model[0][0]);
-    shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b,
-                         rectangle.color.a);
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b,
+                             rectangle.color.a);
+    }
 
-    vertexArray->Bind();
-    vertexArray->DrawElements();
-    shader->Unbind();
-    vertexArray->Unbind();
+    vertexArray.Bind();
+    vertexArray.DrawElements();
+    ShaderProgram::Unbind();
+    VertexArray::Unbind();
 
     delete[] indices;
 }
 
 
 void LowRenderer::DrawText(Text text) {
+
+    // warning maybe focus more on objParsed's lifetime
     auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
     assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
@@ -108,7 +119,6 @@ void LowRenderer::DrawText(Text text) {
             VertexLayout(2, false), // Position
             VertexLayout(2, false), // TexCoords
     };
-
 
     float vertices[] = {
             // position   texcoord
@@ -123,10 +133,9 @@ void LowRenderer::DrawText(Text text) {
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
-//    VertexArray vertexArray(vertices, 16 * sizeof(float), indices,
-//                            objParsed.indices.size() * sizeof(unsigned int), stack);
-    VertexArray vertexArray(16 * sizeof(float), indices, objParsed.indices.size() * sizeof(unsigned int));
-//    VertexBuffer vboVertex(vertices, 16 * sizeof(float), stack);
+    VertexArray vertexArray(
+            indices,
+            objParsed.indices.size() * sizeof(unsigned int));
     vertexArray.AddBuffer(vertices, 16 * sizeof(float), stack);
 
     //fixme
@@ -190,7 +199,7 @@ void LowRenderer::DrawText(Text text) {
     LayoutStack vboCursorStack = {
             VertexLayout(2, true), // Position
             VertexLayout(4, true), // TexCoords
-            VertexLayout(2, true), // size
+            VertexLayout(2, true) // size
     };
 
     std::vector<float> flattenedInstanceData;
@@ -255,22 +264,23 @@ void LowRenderer::DrawText(Text text) {
     auto viewMat = HighRenderer::getCamera().getViewMatrix();
     auto projMat = HighRenderer::getCamera().getProjectionMatrix();
 
-    // get shader
-    auto shader = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag").lock();
+    // get shaders
+    auto shader_ptr = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
 
-    shader->Bind();
-
-    // set Camera Matrix
-    shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    shader->SetUniformMat4("uView", &viewMat[0][0]);
-    shader->SetUniformMat4("uModel", &model[0][0]);
-    shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
 
 
-
-    // setup font textureId
-    fontTex->Bind(0);
-    shader->SetUniform1i("textureID", fontTex->slot());
+        // setup font textureId
+        fontTex->Bind(0);
+        shader->SetUniform1i("textureID", fontTex->slot());
+    }
 
 
     vertexArray.Bind();
@@ -279,7 +289,7 @@ void LowRenderer::DrawText(Text text) {
 //    std::cout << "Length Chars :" << text.value.length() << std::endl;
     vertexArray.DrawElementsInstanced(text.value.length() - emptyChars);
 
-    shader->Unbind();
+    ShaderProgram::Unbind();
     VertexArray::Unbind();
 
 
@@ -305,11 +315,12 @@ void LowRenderer::updateTime() {
 
 }
 
-void LowRenderer::AddRectangle(Rectangle rectangle) {
+void LowRenderer::AddRectangle(const Rectangle &rectangle) {
     m_rectBatch.push_back(rectangle);
 }
 
 void LowRenderer::DrawRectangleBatched() {
+
     LayoutStack stack = {
             VertexLayout(2, false), // Position
     };
@@ -322,15 +333,12 @@ void LowRenderer::DrawRectangleBatched() {
             -0.5, -0.5,
             -0.5, 0.5
     };
-
-
-    size_t vertSize = 0;
-    size_t indicesSize = 0;
+    int vertSize = 0;
+    int indicesSize = 0;
     unsigned int *indices = nullptr;
     {
         auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
         assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
-
         indices = new unsigned int[objParsed.indices.size()];
 
         // move vertices and indices
@@ -338,65 +346,68 @@ void LowRenderer::DrawRectangleBatched() {
         vertSize = objParsed.vertices.size();
         indicesSize = objParsed.indices.size();
     }
-    VertexArray vertexArray(vertSize * 2 * sizeof(float), indices, indicesSize * sizeof(unsigned int));
+
+    VertexArray vertexArray(
+            indices,
+            indicesSize * sizeof(unsigned int)
+    );
     vertexArray.AddBuffer(vertices, vertSize * 2 * sizeof(float), stack);
+    vertexArray.Bind();
 
     // position vec2
     // size     vec2
     // color    vec4
     std::vector<std::array<float, 8>> instanceData;
-    {
-        for (auto rectangle: m_rectBatch) {
-            auto camSize = HighRenderer::getCamera().getSize();
-            auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
-            // position.x in [-hw,hw]
-            // position.y is [-hh,hh]
-            glm::vec2 size = {(rectangle.size.x * 2 * camSize.x) / screen.x,
-                              (rectangle.size.y * 2 * camSize.y) / screen.y};
-            glm::vec2 position = {-camSize.x + (size.x / 2) + ((rectangle.position.x * 2 * camSize.x) / screen.x),
-                                  camSize.y - (size.y / 2) - ((rectangle.position.y * 2 * camSize.y) / screen.y)};
 
-            glm::vec4 color = {
-                    rectangle.color.r,
-                    rectangle.color.g,
-                    rectangle.color.b,
-                    rectangle.color.a,
-            };
+    for (auto rectangle: m_rectBatch) {
+        auto camSize = HighRenderer::getCamera().getSize();
+        auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
-            instanceData.push_back({
-                                           position.x, position.y,
-                                           size.x, size.y,
-                                           color.r, color.g, color.b, color.a
-                                   });
-        }
+        // position.x in [-hw,hw]
+        // position.y is [-hh,hh]
+        glm::vec2 size = {(rectangle.size.x * 2 * camSize.x) / screen.x,
+                          (rectangle.size.y * 2 * camSize.y) / screen.y};
+        glm::vec2 position = {-camSize.x + (size.x / 2) + ((rectangle.position.x * 2 * camSize.x) / screen.x),
+                              camSize.y - (size.y / 2) - ((rectangle.position.y * 2 * camSize.y) / screen.y)};
 
-        LayoutStack instanceStack = {
-                VertexLayout(2, true),
-                VertexLayout(2, true),
-                VertexLayout(4, true),
+        glm::vec4 color = {
+                rectangle.color.r,
+                rectangle.color.g,
+                rectangle.color.b,
+                rectangle.color.a,
         };
 
-        std::vector<float> flattenedInstanceData;
-        for (const auto &instance: instanceData) {
-            flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
-        }
-        vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float),
-                              instanceStack);
+        instanceData.push_back({
+                                       position.x, position.y,
+                                       size.x, size.y,
+                                       color.r, color.g, color.b, color.a
+                               });
+
+
     }
+
+    LayoutStack instanceStack = {
+            VertexLayout(2, true),
+            VertexLayout(2, true),
+            VertexLayout(4, true),
+    };
+
+    std::vector<float> flattenedInstanceData;
+    for (const auto &instance: instanceData) {
+        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
+    }
+    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float),
+                          instanceStack);
+
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
-
-// FIXME: add explanations to this
     float rotation = 0;
-    glm::vec2 size = {1,
-                      1};
-
+    glm::vec2 size = {1, 1};
     glm::vec2 position = {-camSize.x + (size.x / 2),
                           camSize.y - (size.y / 2)};
-
-
+    
     // create model matrix from
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
@@ -412,20 +423,22 @@ void LowRenderer::DrawRectangleBatched() {
 
 
     // get shader
-    auto shader = ResourceManager::LoadShader("shaders/ui_batched.vert", "shaders/ui_batched.frag").lock();
-    shader->Bind();
+    auto shader_ptr = ResourceManager::LoadShader("shaders/ui_batched.vert", "shaders/ui_batched.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
 
-    // set Camera Matrix
-    shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    shader->SetUniformMat4("uView", &viewMat[0][0]);
-    shader->SetUniformMat4("uModel", &model[0][0]);
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+    }
 
     vertexArray.Bind();
     vertexArray.DrawElementsInstanced(m_rectBatch.size());
 
-    shader->Unbind();
+    ShaderProgram::Unbind();
     VertexArray::Unbind();
-
     // free memory
     delete[] indices;
 

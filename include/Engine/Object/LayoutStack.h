@@ -43,25 +43,31 @@ public:
     // list constructor
     LayoutStack(std::initializer_list<VertexLayout> layouts) : m_layout(layouts) {}
 
-    /// Returns total dimentsion count
-    int getDimentionCount() {
+    /// Returns total dimension count
+    /// in other words how many floats are in the vertex
+    int getDimensionCount() const {
         int totalDimension = 0;
-        for (auto layout: *this) {
+        for (auto layout: m_layout) {
             totalDimension += layout.getDimension();
         }
         return totalDimension;
     }
 
-    int getSize() {
+    int getLayoutCount() const {
+        return m_layout.size();
+    }
+
+    /// Returns total size in bytes
+    int getSize() const {
         int totalSize = 0;
-        for (auto layout: *this) {
+        for (auto layout: m_layout) {
             totalSize += layout.size();
         }
         return totalSize;
     }
 
 
-    int getOffsetOfIndex(int index) {
+    int getOffsetOfIndex(int index) const {
         int offset = 0;
         for (int i = 0; i < index; ++i) {
             offset += m_layout[i].size();

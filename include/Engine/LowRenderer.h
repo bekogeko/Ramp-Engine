@@ -22,7 +22,7 @@ public:
     static float getFPS();
 
 
-    static void AddRectangle(Rectangle rectangle);
+    static void AddRectangle(const Rectangle &rectangle);
 
     static void DrawRectangle(Rectangle rectangle);
 

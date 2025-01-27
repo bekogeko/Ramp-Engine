@@ -11,7 +11,7 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
                const LayoutStack &stack) {
 
     m_isInstanced = false;
-    m_vertexArray = std::make_unique<VertexArray>(size, indices, indicesSize);
+    m_vertexArray = std::make_unique<VertexArray>(indices, indicesSize);
 
     m_vertexArray->AddBuffer(vertices, size, stack);
 
@@ -58,8 +58,8 @@ void Object::Draw() {
         assert(comp);
         comp->Draw();
     }
-
-    if (auto shader = m_shader.lock()) {
+    {
+        auto shader = m_shader.lock();
         shader->Bind();
 
         // set uColor
@@ -83,18 +83,18 @@ void Object::Draw() {
 
 
         shader->SetUniformMat4("uModel", &model[0][0]);
-
-
-        m_vertexArray->Bind();
-
-        if (this->isInstanced())
-            // FIXME: instance Count 1 (one) constant ??
-            m_vertexArray->DrawElementsInstanced(1);
-        else
-            m_vertexArray->DrawElements();
-
-        shader->Unbind();
-        m_vertexArray->Unbind();
     }
+
+
+    m_vertexArray->Bind();
+
+    if (this->isInstanced())
+        // FIXME: instance Count 1 (one) constant ??
+        m_vertexArray->DrawElementsInstanced(1);
+    else
+        m_vertexArray->DrawElements();
+
+    ShaderProgram::Unbind();
+    m_vertexArray->Unbind();
 
 }
