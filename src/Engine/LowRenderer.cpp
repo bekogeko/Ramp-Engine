@@ -25,8 +25,6 @@ float LowRenderer::getDeltaTime() {
 }
 
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
-    auto objParsed = ResourceManager::LoadObject("square.obj");
-    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
             VertexLayout(2), // Position
@@ -42,13 +40,25 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
             -0.5, 0.5
     };
 
-    auto *indices = new unsigned int[objParsed.indices.size()];
+    int vertSize = 0;
+    int indicesSize = 0;
+    unsigned int *indices = nullptr;
+    {
+        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
+        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
-    // move vertices and indices
-    std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        indices = new unsigned int[objParsed.indices.size()];
 
-    auto vertexArray = std::make_unique<VertexArray>(vertices, (objParsed.vertices.size() * 2) * sizeof(float), indices,
-                                                     objParsed.indices.size() * sizeof(unsigned int), stack);
+        // move vertices and indices
+        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        vertSize = objParsed.vertices.size();
+        indicesSize = objParsed.indices.size();
+    }
+    auto vertexArray = std::make_unique<VertexArray>(
+            vertices,
+            (vertSize * 2) * sizeof(float),
+            indices,
+            indicesSize * sizeof(unsigned int), stack);
 
     vertexArray->Bind();
 
@@ -81,15 +91,18 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
     // get shader
-    auto shader = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag");
-    shader->Bind();
+    auto shader_ptr = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
 
-    // set Camera Matrix
-    shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    shader->SetUniformMat4("uView", &viewMat[0][0]);
-    shader->SetUniformMat4("uModel", &model[0][0]);
-    shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b,
-                         rectangle.color.a);
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b,
+                             rectangle.color.a);
+    }
 
     vertexArray->Bind();
     vertexArray->DrawElements();
@@ -101,14 +114,15 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
 void LowRenderer::DrawText(Text text) {
-    auto objParsed = ResourceManager::LoadObject("square.obj");
+
+// warning maybe focus more on objParsed's lifetime
+    auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
     assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
             VertexLayout(2, false), // Position
             VertexLayout(2, false), // TexCoords
     };
-
 
     float vertices[] = {
             // position   texcoord
@@ -128,7 +142,7 @@ void LowRenderer::DrawText(Text text) {
 
     vertexArray->Bind();
     //fixme
-    auto fontTex = ResourceManager::LoadFontById(text.fontId);
+    auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
     assert(fontTex->getHashId() != 0);
 
 
@@ -236,21 +250,23 @@ void LowRenderer::DrawText(Text text) {
     auto projMat = HighRenderer::getCamera().getProjectionMatrix();
 
     // get shader
-    auto shader = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
+    auto shader_ptr = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
+    {
+        auto shader = shader_ptr.lock();
 
-    shader->Bind();
-
-    // set Camera Matrix
-    shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    shader->SetUniformMat4("uView", &viewMat[0][0]);
-    shader->SetUniformMat4("uModel", &model[0][0]);
-    shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
-
+        shader->Bind();
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
 
 
-    // setup font textureId
-    fontTex->Bind(0);
-    shader->SetUniform1i("textureID", fontTex->slot());
+
+        // setup font textureId
+        fontTex->Bind(0);
+        shader->SetUniform1i("textureID", fontTex->slot());
+    }
 
 
     vertexArray->Bind();
@@ -260,7 +276,7 @@ void LowRenderer::DrawText(Text text) {
     vertexArray->DrawElementsInstanced(text.value.length() - emptyChars);
 
     ShaderProgram::Unbind();
-    vertexArray->Unbind();
+    VertexArray::Unbind();
 
 
     delete[] indices;
@@ -290,8 +306,6 @@ void LowRenderer::AddRectangle(Rectangle rectangle) {
 }
 
 void LowRenderer::DrawRectangleBatched() {
-    auto objParsed = ResourceManager::LoadObject("square.obj");
-    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
             VertexLayout(2), // Position
@@ -305,14 +319,27 @@ void LowRenderer::DrawRectangleBatched() {
             -0.5, -0.5,
             -0.5, 0.5
     };
+    int vertSize = 0;
+    int indicesSize = 0;
+    unsigned int *indices = nullptr;
+    {
+        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
+        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
+        indices = new unsigned int[objParsed.indices.size()];
 
-    auto *indices = new unsigned int[objParsed.indices.size()];
+        // move vertices and indices
+        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        vertSize = objParsed.vertices.size();
+        indicesSize = objParsed.indices.size();
+    }
 
-    // move vertices and indices
-    std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+    auto vertexArray = std::make_unique<VertexArray>(
+            vertices,
+            (vertSize * 2) * sizeof(float),
+            indices,
+            indicesSize * sizeof(unsigned int),
+            stack);
 
-    auto vertexArray = std::make_unique<VertexArray>(vertices, (objParsed.vertices.size() * 2) * sizeof(float), indices,
-                                                     objParsed.indices.size() * sizeof(unsigned int), stack);
     vertexArray->Bind();
 
 
@@ -397,13 +424,16 @@ void LowRenderer::DrawRectangleBatched() {
 
 
     // get shader
-    auto shader = ResourceManager::LoadShader("shaders/ui_batched.vert", "shaders/ui_batched.frag");
-    shader->Bind();
+    auto shader_ptr = ResourceManager::LoadShader("shaders/ui_batched.vert", "shaders/ui_batched.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
 
-    // set Camera Matrix
-    shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    shader->SetUniformMat4("uView", &viewMat[0][0]);
-    shader->SetUniformMat4("uModel", &model[0][0]);
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+    }
 
     vertexArray->Bind();
     vertexArray->DrawElementsInstanced(m_rectBatch.size());
