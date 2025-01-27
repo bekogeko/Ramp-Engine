@@ -5,7 +5,8 @@
 #include "Engine/Object/VertexBuffer.h"
 
 
-VertexBuffer::VertexBuffer(const float *data, const unsigned int size, LayoutStack stack) : m_stack(std::move(stack)) {
+VertexBuffer::VertexBuffer(const float *data, const unsigned int size, const LayoutStack &stack) : m_stack(
+        std::move(stack)) {
     glGenBuffers(1, &m_vboId);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
