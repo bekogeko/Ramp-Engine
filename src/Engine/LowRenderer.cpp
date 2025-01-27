@@ -54,13 +54,13 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
         vertSize = objParsed.vertices.size();
         indicesSize = objParsed.indices.size();
     }
-    auto vertexArray = std::make_unique<VertexArray>(
+    VertexArray vertexArray(
             vertices,
             (vertSize * 2) * sizeof(float),
             indices,
             indicesSize * sizeof(unsigned int), stack);
 
-    vertexArray->Bind();
+    vertexArray.Bind();
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -104,10 +104,10 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
                              rectangle.color.a);
     }
 
-    vertexArray->Bind();
-    vertexArray->DrawElements();
+    vertexArray.Bind();
+    vertexArray.DrawElements();
     ShaderProgram::Unbind();
-    vertexArray->Unbind();
+    vertexArray.Unbind();
 
     delete[] indices;
 }
@@ -137,10 +137,10 @@ void LowRenderer::DrawText(Text text) {
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
-    auto vertexArray = std::make_unique<VertexArray>(vertices, 16 * sizeof(float), indices,
-                                                     objParsed.indices.size() * sizeof(unsigned int), stack);
+    VertexArray vertexArray(vertices, 16 * sizeof(float), indices,
+                            objParsed.indices.size() * sizeof(unsigned int), stack);
 
-    vertexArray->Bind();
+    vertexArray.Bind();
     //fixme
     auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
     assert(fontTex->getHashId() != 0);
@@ -269,11 +269,11 @@ void LowRenderer::DrawText(Text text) {
     }
 
 
-    vertexArray->Bind();
+    vertexArray.Bind();
 
 //    std::cout << "Empty Chars :" << emptyChars << std::endl;
 //    std::cout << "Length Chars :" << text.value.length() << std::endl;
-    vertexArray->DrawElementsInstanced(text.value.length() - emptyChars);
+    vertexArray.DrawElementsInstanced(text.value.length() - emptyChars);
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
@@ -333,14 +333,14 @@ void LowRenderer::DrawRectangleBatched() {
         indicesSize = objParsed.indices.size();
     }
 
-    auto vertexArray = std::make_unique<VertexArray>(
+    VertexArray vertexArray(
             vertices,
             (vertSize * 2) * sizeof(float),
             indices,
             indicesSize * sizeof(unsigned int),
             stack);
 
-    vertexArray->Bind();
+    vertexArray.Bind();
 
 
     // position vec2
@@ -435,11 +435,11 @@ void LowRenderer::DrawRectangleBatched() {
         shader->SetUniformMat4("uModel", &model[0][0]);
     }
 
-    vertexArray->Bind();
-    vertexArray->DrawElementsInstanced(m_rectBatch.size());
+    vertexArray.Bind();
+    vertexArray.DrawElementsInstanced(m_rectBatch.size());
 
     ShaderProgram::Unbind();
-    vertexArray->Unbind();
+    VertexArray::Unbind();
 
     // free memory
     delete[] indices;
