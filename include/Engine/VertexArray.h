@@ -16,14 +16,14 @@ private:
     unsigned int m_EBO = 0;
 
     // size
-    unsigned int m_size;
+    unsigned int m_size = 0;
 
 public:
     // without EBO Constructor
 //    VertexArray(const float *vertices, unsigned int size, const LayoutStack &stack);
 
     //  with EBO Constructor
-    VertexArray(unsigned int size, const unsigned int *indices, unsigned int indicesSize);
+    VertexArray(const unsigned int *indices, unsigned int indicesSize);
 
     //    VertexArray(const float *vertices, unsigned int size, const unsigned int *indices, unsigned int indicesSize,
     //                const LayoutStack &stack);
@@ -96,7 +96,7 @@ public:
 
 
     ~VertexArray() {
-        [[maybe_unused]] static int deleteCall = 0;
+        static int deleteCall = 0;
         printf("Vertex Array Deleted %d\n", deleteCall++);
         Delete();
     }

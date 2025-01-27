@@ -11,7 +11,7 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
                const LayoutStack &stack) {
 
     m_isInstanced = false;
-    m_vertexArray = std::make_unique<VertexArray>(size, indices, indicesSize);
+    m_vertexArray = std::make_unique<VertexArray>(indices, indicesSize);
 
     m_vertexArray->AddBuffer(vertices, size, stack);
 
@@ -88,11 +88,11 @@ void Object::Draw() {
 
     m_vertexArray->Bind();
 
-        if (this->isInstanced())
-            // FIXME: instance Count 1 (one) constant ??
-            m_vertexArray->DrawElementsInstanced(1);
-        else
-            m_vertexArray->DrawElements();
+    if (this->isInstanced())
+        // FIXME: instance Count 1 (one) constant ??
+        m_vertexArray->DrawElementsInstanced(1);
+    else
+        m_vertexArray->DrawElements();
 
     ShaderProgram::Unbind();
     m_vertexArray->Unbind();

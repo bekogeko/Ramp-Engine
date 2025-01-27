@@ -12,7 +12,7 @@
 
 class VertexBuffer {
 public:
-    explicit VertexBuffer(const float *data, unsigned int size, LayoutStack stack);
+    explicit VertexBuffer(const float *data, unsigned int size, const LayoutStack &stack);
 
     void Bind() const;
 
@@ -21,11 +21,15 @@ public:
     void Delete();
 
     void Enable(int startLocation);
-    
 
-    int getLayoutCount() const {
-        return m_stack.getDimentionCount();
+    LayoutStack getStack() {
+        return m_stack;
     }
+
+    bool IsInstanced() const {
+        return m_stack.IsInstanced();
+    }
+
 private:
     unsigned int m_vboId;
     LayoutStack m_stack;

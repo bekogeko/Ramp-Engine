@@ -33,8 +33,10 @@ void VertexBuffer::Delete() {
 }
 
 void VertexBuffer::Enable(int startLocation) {
+    printf("Enable Vertex Buffer (start:%d)\n", startLocation);
     int i = startLocation;
     for (auto &layout: m_stack) {
+        glEnableVertexAttribArray(i);
         glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
                               m_stack.getDimentionCount() * sizeof(float),
                               reinterpret_cast<const void *>(m_stack.getOffsetOfIndex(i)));
@@ -44,7 +46,8 @@ void VertexBuffer::Enable(int startLocation) {
         else
             glVertexAttribDivisor(i, 0); // Tell OpenGL this is an attribute per vertex.
 
-        glEnableVertexAttribArray(i);
+        printf("Enabled Vertex Attrib Array (loc=%d) vec%d ins:%d\n", i, layout.getDimension(), layout.IsInstanced());
+
         i++;
     }
 

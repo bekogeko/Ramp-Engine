@@ -43,8 +43,9 @@ public:
     // list constructor
     LayoutStack(std::initializer_list<VertexLayout> layouts) : m_layout(layouts) {}
 
-    /// Returns total dimentsion count
-    int getDimentionCount() const {
+    /// Returns total dimension count
+    /// in other words how many floats are in the vertex
+    int getDimensionCount() const {
         int totalDimension = 0;
         for (auto layout: m_layout) {
             totalDimension += layout.getDimension();
@@ -52,6 +53,11 @@ public:
         return totalDimension;
     }
 
+    int getLayoutCount() const {
+        return m_layout.size();
+    }
+
+    /// Returns total size in bytes
     int getSize() const {
         int totalSize = 0;
         for (auto layout: m_layout) {
