@@ -65,3 +65,20 @@ VertexArray::VertexArray(const float *vertices, unsigned int size, const unsigne
     // Unbind EBO
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
+void VertexArray::Bind() const {
+
+    // bind the Vertex Array Object first,
+    // then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(m_VAO);
+
+    int i = 0;
+    for (auto m_VBO: m_VBOs) {
+        m_VBO.Bind();
+        m_VBO.Enable(i);
+
+        i += m_VBO.getLayoutCount();
+    }
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+}

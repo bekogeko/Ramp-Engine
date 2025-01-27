@@ -42,6 +42,10 @@ public:
 
     void Enable(int startLocation);
 
+    int getLayoutCount() const {
+        return m_stack.getDimentionCount();
+    }
+
 private:
     unsigned int m_vboId;
     LayoutStack m_stack;
