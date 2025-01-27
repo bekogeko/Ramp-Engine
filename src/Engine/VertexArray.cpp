@@ -49,7 +49,8 @@ VertexArray::VertexArray(const unsigned int size, const unsigned int *indices,
     glBindVertexArray(m_VAO);
 
     // Generate VBO
-    m_VBOs.emplace_back(vertices, size, stack);
+//    m_VBOs.emplace_back(vertices, size, stack);
+
 
     // Generate EBO
     glGenBuffers(1, &m_EBO);
@@ -80,11 +81,11 @@ void VertexArray::Bind() const {
     glBindVertexArray(m_VAO);
 
     int i = 0;
-    for (auto m_VBO: m_VBOs) {
-        m_VBO.Bind();
-        m_VBO.Enable(i);
+    for (auto &m_VBO: m_VBOs) {
+        m_VBO->Bind();
+        m_VBO->Enable(i);
 
-        i += m_VBO.getLayoutCount();
+        i += m_VBO->getLayoutCount();
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
