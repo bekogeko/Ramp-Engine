@@ -56,30 +56,31 @@ int main() {
     HighRenderer::Init();
 
 
+    {
+        // register object transfer to high renderer
+        auto playerobj_id = World::RegisterObject("man.obj");
+        auto playerobj = World::getById(playerobj_id).lock();
 
-    // register object transfer to high renderer
-    auto playerobj_id = World::RegisterObject("man.obj");
-    auto playerobj = World::getById(playerobj_id);
+        playerobj->position.x -= 0.5;
+        playerobj->color.r = 1;
 
-    playerobj->position.x -= 0.5;
-    playerobj->color.r = 1;
+        playerobj->attachComponent<Player>();
+        playerobj->attachComponent<PhysicsComponent>();
 
-    playerobj->attachComponent<Player>();
-    playerobj->attachComponent<PhysicsComponent>();
+        auto id = World::RegisterObject("square.obj");
+        auto obj = World::getById(id).lock();
 
-    auto id = World::RegisterObject("square.obj");
-    auto obj = World::getById(id);
+        obj->attachComponent<PhysicsComponent>();
 
-    obj->attachComponent<PhysicsComponent>();
-
-    // create obj2 with different color and position
-    auto id2 = World::RegisterObject("square.obj");
-    auto obj2 = World::getById(id2);
+        // create obj2 with different color and position
+        auto id2 = World::RegisterObject("square.obj");
+        auto obj2 = World::getById(id2).lock();
 
 
-    obj2->position = {1, 1};
-    obj2->color = {1.0, 0.55, 0.2, 1};
-    obj2->attachComponent<PhysicsComponent>();
+        obj2->position = {1, 1};
+        obj2->color = {1.0, 0.55, 0.2, 1};
+        obj2->attachComponent<PhysicsComponent>();
+    }
 
 
     // enable alpha blending
