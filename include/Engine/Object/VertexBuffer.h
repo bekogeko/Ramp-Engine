@@ -12,43 +12,24 @@
 
 class VertexBuffer {
 public:
-    // TODO
-    //  - add draw type (GL_STATIC_DRAW etc)
-    explicit VertexBuffer(const float *vertices, unsigned int size, LayoutStack stack) : m_stack(std::move(stack)) {
-        glGenBuffers(1, &m_vboId);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
-
-        // TODO: glBufferData
-        //  - size , vertices, GL_DRAW_METHOD
-        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-
-
-        // TODO: VertexAttribs
-        //  - glVertexAttrib
-        //      - location, layoutDimension, offset, stackDimension
-        //  - glVertexAttribDivisor
-        //  - glEnableVertexAttribArray()
-    }
+    explicit VertexBuffer(const float *data, unsigned int size, LayoutStack stack);
 
     void Bind() const;
 
-    static void Unbind() {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
+    static void Unbind();
 
-    void Delete() {
-        glDeleteBuffers(1, &m_vboId);
-    }
+    void Delete();
 
     void Enable(int startLocation);
+    
 
     int getLayoutCount() const {
         return m_stack.getDimentionCount();
     }
-
 private:
     unsigned int m_vboId;
     LayoutStack m_stack;
 };
+
 
 #endif //RAY_GAME_VERTEXBUFFER_H

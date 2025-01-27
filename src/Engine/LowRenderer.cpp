@@ -27,7 +27,7 @@ float LowRenderer::getDeltaTime() {
 void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
     LayoutStack stack = {
-            VertexLayout(2), // Position
+            VertexLayout(2, false), // Position
 //            VertexLayout(2, false), // TexCoords
     };
 
@@ -49,6 +49,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
         indices = new unsigned int[objParsed.indices.size()];
 
+<<<<<<<
         // move vertices and indices
         std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
         vertSize = objParsed.vertices.size();
@@ -59,8 +60,17 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
             (vertSize * 2) * sizeof(float),
             indices,
             indicesSize * sizeof(unsigned int), stack);
+=======
+    auto vertexArray = std::make_unique<VertexArray>(objParsed.vertices.size() * 2 * sizeof(float), indices,
+                                                     objParsed.indices.size() * sizeof(unsigned int));
+    vertexArray->AddBuffer(vertices, (objParsed.vertices.size() * 2) * sizeof(float), stack);
+>>>>>>>
 
+<<<<<<<
     vertexArray.Bind();
+=======
+
+>>>>>>>
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -137,8 +147,16 @@ void LowRenderer::DrawText(Text text) {
     // move vertices and indices
     std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
 
+<<<<<<<
     VertexArray vertexArray(vertices, 16 * sizeof(float), indices,
                             objParsed.indices.size() * sizeof(unsigned int), stack);
+=======
+//    VertexArray vertexArray(vertices, 16 * sizeof(float), indices,
+//                            objParsed.indices.size() * sizeof(unsigned int), stack);
+    VertexArray vertexArray(16 * sizeof(float), indices, objParsed.indices.size() * sizeof(unsigned int));
+//    VertexBuffer vboVertex(vertices, 16 * sizeof(float), stack);
+    vertexArray.AddBuffer(vertices, 16 * sizeof(float), stack);
+>>>>>>>
 
     vertexArray.Bind();
     //fixme
@@ -197,30 +215,48 @@ void LowRenderer::DrawText(Text text) {
         cursorPos.y = temp;
     }
 
-    GLuint vbo_cursorPos;
-    glGenBuffers(1, &vbo_cursorPos);
+    // warning VBO api should be used
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+    LayoutStack vboCursorStack = {
+            VertexLayout(2, true), // Position
+            VertexLayout(4, true), // TexCoords
+            VertexLayout(2, true), // size
+    };
 
-    // Set up the vertex attribute pointer for the instance data
-    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
-    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+    std::vector<float> flattenedInstanceData;
+    for (const auto &instance: instanceDatas) {
+        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
+    }
 
-    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float), stack);
 
-    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
-    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
-    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+//    VertexBuffer vboCursorPos;
+//    GLuint vbo_cursorPos;
+//    glGenBuffers(1, &vbo_cursorPos);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
 
-
-
-    // Unbind the buffer
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+//
+//    // Set up the vertex attribute pointer for the instance data
+//    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
+//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
+//    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+//
+//    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
+//    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
+//    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+//
+//    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
+//    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
+//    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+//
+//
+//
+//    // Unbind the buffer
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
     // set uColor
+    VertexArray::Unbind();
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -250,9 +286,13 @@ void LowRenderer::DrawText(Text text) {
     auto projMat = HighRenderer::getCamera().getProjectionMatrix();
 
     // get shader
+<<<<<<<
     auto shader_ptr = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
     {
         auto shader = shader_ptr.lock();
+=======
+    auto shader = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag").lock();
+>>>>>>>
 
         shader->Bind();
         // set Camera Matrix
@@ -271,12 +311,23 @@ void LowRenderer::DrawText(Text text) {
 
     vertexArray.Bind();
 
+<<<<<<<
+
+=======
+    vertexArray.Bind();
+
+>>>>>>>
 //    std::cout << "Empty Chars :" << emptyChars << std::endl;
 //    std::cout << "Length Chars :" << text.value.length() << std::endl;
     vertexArray.DrawElementsInstanced(text.value.length() - emptyChars);
 
+<<<<<<<
     ShaderProgram::Unbind();
     VertexArray::Unbind();
+=======
+    shader->Unbind();
+    VertexArray::Unbind();
+>>>>>>>
 
 
     delete[] indices;
@@ -306,9 +357,13 @@ void LowRenderer::AddRectangle(const Rectangle &rectangle) {
 }
 
 void LowRenderer::DrawRectangleBatched() {
+<<<<<<<
 
+=======
+
+>>>>>>>
     LayoutStack stack = {
-            VertexLayout(2), // Position
+            VertexLayout(2, false), // Position
     };
 
 
@@ -327,26 +382,50 @@ void LowRenderer::DrawRectangleBatched() {
         assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
         indices = new unsigned int[objParsed.indices.size()];
 
+<<<<<<<
         // move vertices and indices
         std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
         vertSize = objParsed.vertices.size();
         indicesSize = objParsed.indices.size();
     }
+=======
 
+>>>>>>>
+
+<<<<<<<
     VertexArray vertexArray(
             vertices,
             (vertSize * 2) * sizeof(float),
             indices,
             indicesSize * sizeof(unsigned int),
             stack);
+=======
+    size_t vertSize = 0;
+    size_t indicesSize = 0;
+    unsigned int *indices = nullptr;
+    {
+        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
+        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
+>>>>>>>
 
+<<<<<<<
     vertexArray.Bind();
+=======
+        indices = new unsigned int[objParsed.indices.size()];
+>>>>>>>
 
+        // move vertices and indices
+        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        vertSize = objParsed.vertices.size();
+        indicesSize = objParsed.indices.size();
+    }
+    VertexArray vertexArray(vertSize * 2 * sizeof(float), indices, indicesSize * sizeof(unsigned int));
+    vertexArray.AddBuffer(vertices, vertSize * 2 * sizeof(float), stack);
 
     // position vec2
     // size     vec2
     // color    vec4
-    std::vector<std::array<float, 8>> instanceDatas;
+    std::vector<std::array<float, 8>> instanceData;
     {
         for (auto rectangle: m_rectBatch) {
             auto camSize = HighRenderer::getCamera().getSize();
@@ -365,42 +444,32 @@ void LowRenderer::DrawRectangleBatched() {
                     rectangle.color.a,
             };
 
-            instanceDatas.push_back({
-                                            position.x, position.y,
-                                            size.x, size.y,
-                                            color.r, color.g, color.b, color.a
-                                    });
+            instanceData.push_back({
+                                           position.x, position.y,
+                                           size.x, size.y,
+                                           color.r, color.g, color.b, color.a
+                                   });
         }
 
+        LayoutStack instanceStack = {
+                VertexLayout(2, true),
+                VertexLayout(2, true),
+                VertexLayout(4, true),
+        };
 
-        GLuint vbo_cursorPos;
-        glGenBuffers(1, &vbo_cursorPos);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
-
-        // Set up the vertex attribute pointer for the instance data
-        glEnableVertexAttribArray(1); // Assuming location 2 for instance data
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
-        glVertexAttribDivisor(1, 1); // Tell OpenGL this is an attribute per instance
-
-        glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-        glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
-
-        glEnableVertexAttribArray(3); // Assuming location 2 for instance data
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-        glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        std::vector<float> flattenedInstanceData;
+        for (const auto &instance: instanceData) {
+            flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
+        }
+        vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float),
+                              instanceStack);
     }
-
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
 
-// FIXME: add eplanations to this
+// FIXME: add explanations to this
     float rotation = 0;
     glm::vec2 size = {1,
                       1};
@@ -424,10 +493,15 @@ void LowRenderer::DrawRectangleBatched() {
 
 
     // get shader
+<<<<<<<
     auto shader_ptr = ResourceManager::LoadShader("shaders/ui_batched.vert", "shaders/ui_batched.frag");
     {
         auto shader = shader_ptr.lock();
         shader->Bind();
+=======
+    auto shader = ResourceManager::LoadShader("shaders/ui_batched.vert", "shaders/ui_batched.frag").lock();
+    shader->Bind();
+>>>>>>>
 
         // set Camera Matrix
         shader->SetUniformMat4("uProjection", &projMat[0][0]);
@@ -438,8 +512,13 @@ void LowRenderer::DrawRectangleBatched() {
     vertexArray.Bind();
     vertexArray.DrawElementsInstanced(m_rectBatch.size());
 
+<<<<<<<
     ShaderProgram::Unbind();
     VertexArray::Unbind();
+=======
+    shader->Unbind();
+    VertexArray::Unbind();
+>>>>>>>
 
     // free memory
     delete[] indices;

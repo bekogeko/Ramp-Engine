@@ -11,12 +11,15 @@ Object::Object(float *vertices, unsigned int size, unsigned int *indices, unsign
                const LayoutStack &stack) {
 
     m_isInstanced = false;
-    m_vertexArray = std::make_unique<VertexArray>(vertices, size, indices, indicesSize, stack);
+    m_vertexArray = std::make_unique<VertexArray>(size, indices, indicesSize);
+
+    m_vertexArray->AddBuffer(vertices, size, stack);
 
     m_shader = std::move(ResourceManager::LoadShader("shaders/default.vert", "shaders/default.frag"));
     m_Id = World::GetNextId();
 
     // for later use
+    // FIXME questionable choice
     m_indices = std::vector<unsigned int>(indices, indices + (indicesSize / sizeof(unsigned int)));
     for (int i = 0; i < size / sizeof(float); i += 2) {
         m_vertices.emplace_back(vertices[i], vertices[i + 1]);
@@ -85,10 +88,11 @@ void Object::Draw() {
 
     m_vertexArray->Bind();
 
-    if (this->isInstanced())
-        m_vertexArray->DrawElementsInstanced(1);
-    else
-        m_vertexArray->DrawElements();
+        if (this->isInstanced())
+            // FIXME: instance Count 1 (one) constant ??
+            m_vertexArray->DrawElementsInstanced(1);
+        else
+            m_vertexArray->DrawElements();
 
     ShaderProgram::Unbind();
     m_vertexArray->Unbind();
