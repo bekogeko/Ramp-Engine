@@ -50,7 +50,7 @@ unsigned int World::RegisterObject(const std::string &pathName) {
     // 3- register object
     // 4- return id
 
-    auto objParsed = ResourceManager::LoadObject(pathName);
+    auto objParsed = *ResourceManager::LoadObject(pathName).lock();
     LayoutStack stack = {
             VertexLayout(2)
     };
