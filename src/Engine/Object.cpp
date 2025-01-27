@@ -55,30 +55,32 @@ void Object::Draw() {
         assert(comp);
         comp->Draw();
     }
+    {
+        auto shader = m_shader.lock();
+        shader->Bind();
 
-    m_shader->Bind();
+        // set uColor
+        shader->SetUniform4f("uColor", color.r, color.g, color.b, color.a);
 
-    // set uColor
-    m_shader->SetUniform4f("uColor", color.r, color.g, color.b, color.a);
-
-    // get camera
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
-    // set Camera Matrix
-    m_shader->SetUniformMat4("uProjection", &projMat[0][0]);
-    m_shader->SetUniformMat4("uView", &viewMat[0][0]);
-
-
-    // create model matrix from
-    glm::mat4 model = glm::mat4(1.0f);
-
-    model = glm::translate(model, glm::vec3(position, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-    // TODO: scaling factor
-    model = glm::scale(model, glm::vec3(scale, 1.0f));
+        // get camera
+        auto viewMat = HighRenderer::getCamera().getViewMatrix();
+        auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
 
 
-    m_shader->SetUniformMat4("uModel", &model[0][0]);
+        // create model matrix from
+        glm::mat4 model = glm::mat4(1.0f);
+
+        model = glm::translate(model, glm::vec3(position, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        // TODO: scaling factor
+        model = glm::scale(model, glm::vec3(scale, 1.0f));
+
+
+        shader->SetUniformMat4("uModel", &model[0][0]);
+    }
 
 
     m_vertexArray->Bind();
