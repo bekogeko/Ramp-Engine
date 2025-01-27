@@ -93,7 +93,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
     vertexArray->Bind();
     vertexArray->DrawElements();
-    shader->Unbind();
+    ShaderProgram::Unbind();
     vertexArray->Unbind();
 
     delete[] indices;
@@ -259,7 +259,7 @@ void LowRenderer::DrawText(Text text) {
 //    std::cout << "Length Chars :" << text.value.length() << std::endl;
     vertexArray->DrawElementsInstanced(text.value.length() - emptyChars);
 
-    shader->Unbind();
+    ShaderProgram::Unbind();
     vertexArray->Unbind();
 
 
@@ -408,7 +408,7 @@ void LowRenderer::DrawRectangleBatched() {
     vertexArray->Bind();
     vertexArray->DrawElementsInstanced(m_rectBatch.size());
 
-    shader->Unbind();
+    ShaderProgram::Unbind();
     vertexArray->Unbind();
 
     // free memory

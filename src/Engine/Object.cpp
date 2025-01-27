@@ -88,7 +88,7 @@ void Object::Draw() {
     else
         m_vertexArray->DrawElements();
 
-    m_shader->Unbind();
+    ShaderProgram::Unbind();
     m_vertexArray->Unbind();
 
 }
