@@ -22,13 +22,13 @@ public:
     static float getFPS();
 
 
-    static void AddRectangle(Rectangle rectangle);
+    static void AddRectangle(const Rectangle &rectangle);
 
     static void DrawRectangle(Rectangle rectangle);
 
     static void DrawRectangleBatched();
 
-    static void AddText(Text text);
+    static void AddText(const Text &text);
 
     static void DrawTextBatched();
 

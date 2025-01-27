@@ -21,6 +21,8 @@ public:
 
     virtual void Draw() = 0;
 
+    virtual ~Layer() = default;
+
 
 };
 

@@ -282,7 +282,7 @@ void LowRenderer::DrawText(Text text) {
     delete[] indices;
 }
 
-void LowRenderer::AddText(Text text) {
+void LowRenderer::AddText(const Text &text) {
     m_textBatch.push_back(text);
 }
 
@@ -301,7 +301,7 @@ void LowRenderer::updateTime() {
 
 }
 
-void LowRenderer::AddRectangle(Rectangle rectangle) {
+void LowRenderer::AddRectangle(const Rectangle &rectangle) {
     m_rectBatch.push_back(rectangle);
 }
 
