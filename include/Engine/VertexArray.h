@@ -36,8 +36,10 @@ public:
         // then bind and set vertex buffer(s), and then configure vertex attributes(s).
         glBindVertexArray(m_VAO);
 
-        for (auto &m_VBO: m_VBOs) {
+        int i = 0;
+        for (auto m_VBO: m_VBOs) {
             m_VBO.Bind();
+            m_VBO.Enable(i);
         }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);

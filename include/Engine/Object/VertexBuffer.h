@@ -12,12 +12,16 @@
 
 class VertexBuffer {
 public:
-    explicit VertexBuffer(LayoutStack stack) : m_stack(std::move(stack)) {
+    // TODO
+    //  - add draw type (GL_STATIC_DRAW etc)
+    explicit VertexBuffer(const float *vertices, unsigned int size, LayoutStack stack) : m_stack(std::move(stack)) {
         glGenBuffers(1, &m_vboId);
         glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
         // TODO: glBufferData
         //  - size , vertices, GL_DRAW_METHOD
+        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+
 
         // TODO: VertexAttribs
         //  - glVertexAttrib

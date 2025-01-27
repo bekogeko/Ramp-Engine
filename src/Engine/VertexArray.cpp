@@ -13,14 +13,8 @@ VertexArray::VertexArray(const float *vertices, unsigned int size, const LayoutS
     glBindVertexArray(m_VAO);
 
     // Generate VBO
-    m_VBOs.emplace_back(stack);
-    // Copy vertices to buffer
+    m_VBOs.emplace_back(vertices, size, stack);
 
-//    if (stack.IsInstanced()) {
-//        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
-//    } else {
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-//    }
 
     for (auto &m_VBO: m_VBOs) {
         m_VBO.Enable(0);
@@ -47,10 +41,7 @@ VertexArray::VertexArray(const float *vertices, unsigned int size, const unsigne
     glBindVertexArray(m_VAO);
 
     // Generate VBO
-    m_VBOs.emplace_back(stack);
-
-    // Copy vertices to buffer
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    m_VBOs.emplace_back(vertices, size, stack);
 
     // Generate EBO
     glGenBuffers(1, &m_EBO);
