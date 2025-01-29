@@ -195,46 +195,46 @@ void LowRenderer::DrawText(Text text) {
     }
 
     // warning VBO api should be used
-
-    LayoutStack vboCursorStack = {
-            VertexLayout(2, true), // Position
-            VertexLayout(4, true), // TexCoords
-            VertexLayout(2, true) // size
-    };
-
-    std::vector<float> flattenedInstanceData;
-    for (const auto &instance: instanceDatas) {
-        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
-    }
-
-    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float), stack);
+//
+//    LayoutStack vboCursorStack = {
+//            VertexLayout(2, true), // Position
+//            VertexLayout(4, true), // TexCoords
+//            VertexLayout(2, true) // size
+//    };
+//
+//    std::vector<float> flattenedInstanceData;
+//    for (const auto &instance: instanceDatas) {
+//        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
+//    }
+//
+//    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float), stack);
 
 //    VertexBuffer vboCursorPos;
-//    GLuint vbo_cursorPos;
-//    glGenBuffers(1, &vbo_cursorPos);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
 
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
-//
-//    // Set up the vertex attribute pointer for the instance data
-//    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
-//    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
-//
-//    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
-//    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-//    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
-//
-//    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
-//    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
-//    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
-//
-//
-//
-//    // Unbind the buffer
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // set uColor
+    GLuint vbo_cursorPos;
+    glGenBuffers(1, &vbo_cursorPos);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+
+    // Set up the vertex attribute pointer for the instance data
+    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
+    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
+    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
+    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+
+
+
+    // Unbind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     VertexArray::Unbind();
 
     auto camSize = HighRenderer::getCamera().getSize();
@@ -294,6 +294,7 @@ void LowRenderer::DrawText(Text text) {
 
 
     delete[] indices;
+    glDeleteBuffers(1, &vbo_cursorPos);
 }
 
 void LowRenderer::AddText(const Text &text) {
@@ -333,6 +334,8 @@ void LowRenderer::DrawRectangleBatched() {
             -0.5, -0.5,
             -0.5, 0.5
     };
+
+
     int vertSize = 0;
     int indicesSize = 0;
     unsigned int *indices = nullptr;
@@ -386,18 +389,43 @@ void LowRenderer::DrawRectangleBatched() {
 
     }
 
-    LayoutStack instanceStack = {
-            VertexLayout(2, true),
-            VertexLayout(2, true),
-            VertexLayout(4, true),
-    };
 
-    std::vector<float> flattenedInstanceData;
-    for (const auto &instance: instanceData) {
-        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
-    }
-    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float),
-                          instanceStack);
+    GLuint vbo_cursorPos;
+    glGenBuffers(1, &vbo_cursorPos);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceData.size(), instanceData.data(), GL_STATIC_DRAW);
+
+    // Set up the vertex attribute pointer for the instance data
+    glEnableVertexAttribArray(1); // Assuming location 2 for instance data
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
+    glVertexAttribDivisor(1, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
+    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
+
+    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
+    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+// Delete the buffer object to prevent memory leak
+
+//
+//    LayoutStack instanceStack = {
+//            VertexLayout(2, true),
+//            VertexLayout(2, true),
+//            VertexLayout(4, true),
+//    };
+//
+//    std::vector<float> flattenedInstanceData;
+//    for (const auto &instance: instanceData) {
+//        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
+//    }
+//    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float),
+//                          instanceStack);
 
 
     auto camSize = HighRenderer::getCamera().getSize();
@@ -407,7 +435,7 @@ void LowRenderer::DrawRectangleBatched() {
     glm::vec2 size = {1, 1};
     glm::vec2 position = {-camSize.x + (size.x / 2),
                           camSize.y - (size.y / 2)};
-    
+
     // create model matrix from
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
@@ -442,6 +470,7 @@ void LowRenderer::DrawRectangleBatched() {
     // free memory
     delete[] indices;
 
+    glDeleteBuffers(1, &vbo_cursorPos);
 
     m_rectBatch.clear();
 }
