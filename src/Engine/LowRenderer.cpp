@@ -137,6 +137,7 @@ void LowRenderer::DrawText(Text text) {
             indices,
             objParsed.indices.size() * sizeof(unsigned int));
     vertexArray.AddBuffer(vertices, 16 * sizeof(float), stack);
+    vertexArray.Bind();
 
     //fixme
     auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
