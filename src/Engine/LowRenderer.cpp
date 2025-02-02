@@ -122,10 +122,10 @@ void LowRenderer::DrawText(Text text) {
 
     float vertices[] = {
             // position   texcoord
-            0.5, 0.5, objParsed.texCoords[0].x, objParsed.texCoords[0].y,
-            0.5, -0.5, objParsed.texCoords[1].x, objParsed.texCoords[1].y,
-            -0.5, -0.5, objParsed.texCoords[2].x, objParsed.texCoords[2].y,
-            -0.5, 0.5, objParsed.texCoords[3].x, objParsed.texCoords[3].y
+            0.5, 0.5, 1.0, 0,
+            0.5, -0.5, 1, 1,
+            -0.5, -0.5, 0, 0,
+            -0.5, 0.5, 0, 0
     };
 
     auto *indices = new unsigned int[objParsed.indices.size()];
@@ -294,6 +294,8 @@ void LowRenderer::DrawText(Text text) {
 
 
     delete[] indices;
+    // warning: this should not be the way
+    //  - fixme: this should not be created every time a text is drawn
     glDeleteBuffers(1, &vbo_cursorPos);
 }
 
