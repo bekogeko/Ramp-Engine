@@ -15,8 +15,12 @@
 
 double LowRenderer::currentTime = 0.0f; // Initialization of lastTime
 double LowRenderer::lastTime = 0.0f; // Initialization of lastTime
-std::vector<Rectangle> LowRenderer::m_rectBatch;
-std::vector<Text> LowRenderer::m_textBatch;
+std::map<uint32_t, Rectangle> LowRenderer::m_rectBatch;
+std::map<uint32_t, Text> LowRenderer::m_textBatch;
+std::map<uint32_t, Rectangle> LowRenderer::m_prevRectBatch;
+std::map<uint32_t, Text> LowRenderer::m_prevTextBatch;
+std::map<uint32_t, unsigned int> LowRenderer::m_textVBOs;
+std::map<uint32_t, unsigned int> LowRenderer::m_rectVBOs;
 
 
 float LowRenderer::getDeltaTime() {
@@ -109,7 +113,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 }
 
 
-void LowRenderer::DrawText(Text text) {
+void LowRenderer::DrawText(uint32_t id, Text text) {
 
     // warning maybe focus more on objParsed's lifetime
     auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
@@ -238,6 +242,10 @@ void LowRenderer::DrawText(Text text) {
 
     VertexArray::Unbind();
 
+    // set
+    m_textVBOs[id] = vbo_cursorPos;
+
+
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
@@ -300,8 +308,22 @@ void LowRenderer::DrawText(Text text) {
     glDeleteBuffers(1, &vbo_cursorPos);
 }
 
-void LowRenderer::AddText(const Text &text) {
-    m_textBatch.push_back(text);
+void LowRenderer::AddText(uint32_t id, const Text &text) {
+
+    // if its already in prev batch
+    if (m_prevTextBatch.find(id) != m_prevTextBatch.end()) {
+        m_textBatch[id] = text;
+        return;
+    }
+
+    // check if the text is already in the batch
+    if (m_textBatch.find(id) != m_textBatch.end()) {
+        return;
+    }
+
+    std::cout << "text batch added with id: " << id << std::endl;
+    m_textBatch[id] = text;
+
 }
 
 
@@ -319,8 +341,21 @@ void LowRenderer::updateTime() {
 
 }
 
-void LowRenderer::AddRectangle(const Rectangle &rectangle) {
-    m_rectBatch.push_back(rectangle);
+void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
+
+    // if its already in prev batch
+    if (m_prevRectBatch.find(id) != m_prevRectBatch.end()) {
+        m_rectBatch[id] = rectangle;
+        return;
+    }
+
+    // check if the rectangle is already in the batch
+    if (m_rectBatch.find(id) != m_rectBatch.end()) {
+        return;
+    }
+
+    std::cout << "rectangle batch added with id: " << id << std::endl;
+    m_rectBatch[id] = rectangle;
 }
 
 void LowRenderer::DrawRectangleBatched() {
@@ -365,7 +400,7 @@ void LowRenderer::DrawRectangleBatched() {
     // color    vec4
     std::vector<std::array<float, 8>> instanceData;
 
-    for (auto rectangle: m_rectBatch) {
+    for (auto &[id, rectangle]: m_rectBatch) {
         auto camSize = HighRenderer::getCamera().getSize();
         auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
@@ -473,16 +508,29 @@ void LowRenderer::DrawRectangleBatched() {
     // free memory
     delete[] indices;
 
-    glDeleteBuffers(1, &vbo_cursorPos);
+    // delete the not refreshed batch elements
+    // which means they are not in the current batch
+    // but they are in the previous batch
 
+    for (const auto &[id, rectangle]: m_prevRectBatch) {
+        if (m_rectBatch.find(id) == m_rectBatch.end()) {
+            glDeleteBuffers(1, &m_rectVBOs[id]);
+            m_prevRectBatch.erase(id);
+        }
+    }
+
+
+    // now batch is drawn swap the batch
+    m_prevRectBatch = m_rectBatch;
     m_rectBatch.clear();
 }
 
 void LowRenderer::DrawTextBatched() {
-
-    for (const auto &text: m_textBatch) {
-        DrawText(text);
+    for (const auto &[id, text]: m_textBatch) {
+        DrawText(id, text);
     }
 
+    // now batch is drawn swap the batch
+    m_prevTextBatch = m_textBatch;
     m_textBatch.clear();
 }

@@ -140,10 +140,10 @@ void UILayer::Draw() {
                 rect.color.b = renderCommand->config.rectangleElementConfig->color.b / 255;
                 rect.color.a = renderCommand->config.rectangleElementConfig->color.a / 255;
 
-                LowRenderer::AddRectangle(rect);
+                LowRenderer::AddRectangle(renderCommand->id, rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
-                
+
                 Text text;
                 text.color.r = renderCommand->config.textElementConfig->textColor.r / 255;
                 text.color.g = renderCommand->config.textElementConfig->textColor.g / 255;
@@ -166,7 +166,7 @@ void UILayer::Draw() {
                 text.lineHeight = renderCommand->config.textElementConfig->lineHeight;
                 text.letterSpacing = renderCommand->config.textElementConfig->letterSpacing;
 
-                LowRenderer::AddText(text);
+                LowRenderer::AddText(renderCommand->id, text);
                 break;
         }
 

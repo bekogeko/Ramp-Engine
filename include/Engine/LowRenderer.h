@@ -9,30 +9,42 @@
 #include "Engine/Renderer/Rectangle.h"
 #include "Engine/Renderer/Text.h"
 
+#include <map>
+
 
 class LowRenderer {
 private:
     static double lastTime;
     static double currentTime;
-    static std::vector<Rectangle> m_rectBatch;
-    static std::vector<Text> m_textBatch;
+    static std::map<uint32_t, Rectangle> m_rectBatch;
+    static std::map<uint32_t, Text> m_textBatch;
+
+    // previous frame m_rectBatch
+    static std::map<uint32_t, Rectangle> m_prevRectBatch;
+    static std::map<uint32_t, Text> m_prevTextBatch;
+
+    // cache for text batch vbos
+    static std::map<uint32_t, unsigned int> m_textVBOs;
+    // cache for rect batch vbos
+    static std::map<uint32_t, unsigned int> m_rectVBOs;
+
 public:
     static float getDeltaTime();
 
     static float getFPS();
 
 
-    static void AddRectangle(const Rectangle &rectangle);
+    static void AddRectangle(uint32_t id, const Rectangle &rectangle);
 
     static void DrawRectangle(Rectangle rectangle);
 
     static void DrawRectangleBatched();
 
-    static void AddText(const Text &text);
+    static void AddText(uint32_t id, const Text &text);
 
     static void DrawTextBatched();
 
-    static void DrawText(Text text);
+    static void DrawText(uint32_t id, Text text);
 
     static void swapTime();
 
