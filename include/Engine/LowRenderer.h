@@ -19,14 +19,10 @@ private:
     static std::map<uint32_t, Rectangle> m_rectBatch;
     static std::map<uint32_t, Text> m_textBatch;
 
-    // previous frame m_rectBatch
-    static std::map<uint32_t, Rectangle> m_prevRectBatch;
     static std::map<uint32_t, Text> m_prevTextBatch;
 
     // cache for text batch vbos
     static std::map<uint32_t, unsigned int> m_textVBOs;
-    // cache for rect batch vbos
-    static std::map<uint32_t, unsigned int> m_rectVBOs;
 
 public:
     static float getDeltaTime();

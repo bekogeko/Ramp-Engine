@@ -17,10 +17,8 @@ double LowRenderer::currentTime = 0.0f; // Initialization of lastTime
 double LowRenderer::lastTime = 0.0f; // Initialization of lastTime
 std::map<uint32_t, Rectangle> LowRenderer::m_rectBatch;
 std::map<uint32_t, Text> LowRenderer::m_textBatch;
-std::map<uint32_t, Rectangle> LowRenderer::m_prevRectBatch;
 std::map<uint32_t, Text> LowRenderer::m_prevTextBatch;
 std::map<uint32_t, unsigned int> LowRenderer::m_textVBOs;
-std::map<uint32_t, unsigned int> LowRenderer::m_rectVBOs;
 
 
 float LowRenderer::getDeltaTime() {
@@ -217,10 +215,16 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 //    VertexBuffer vboCursorPos;
 
     GLuint vbo_cursorPos;
-    glGenBuffers(1, &vbo_cursorPos);
+    // if vbo is already created and upload
+    if (m_textVBOs.find(id) == m_textVBOs.end())
+        glGenBuffers(1, &vbo_cursorPos);
+    else
+        vbo_cursorPos = m_textVBOs[id];
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+
+    if (m_textVBOs.find(id) == m_textVBOs.end())
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
 
     // Set up the vertex attribute pointer for the instance data
     glEnableVertexAttribArray(2); // Assuming location 2 for instance data
@@ -305,25 +309,17 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     delete[] indices;
     // warning: this should not be the way
     //  - fixme: this should not be created every time a text is drawn
-    glDeleteBuffers(1, &vbo_cursorPos);
+    //    glDeleteBuffers(1, &vbo_cursorPos);
+
 }
 
 void LowRenderer::AddText(uint32_t id, const Text &text) {
-
-    // if its already in prev batch
-    if (m_prevTextBatch.find(id) != m_prevTextBatch.end()) {
-        m_textBatch[id] = text;
-        return;
-    }
-
-    // check if the text is already in the batch
     if (m_textBatch.find(id) != m_textBatch.end()) {
         return;
     }
 
-    std::cout << "text batch added with id: " << id << std::endl;
+    std::cout << "text added to a batch with id: " << id << std::endl;
     m_textBatch[id] = text;
-
 }
 
 
@@ -342,19 +338,12 @@ void LowRenderer::updateTime() {
 }
 
 void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
-
-    // if its already in prev batch
-    if (m_prevRectBatch.find(id) != m_prevRectBatch.end()) {
-        m_rectBatch[id] = rectangle;
-        return;
-    }
-
     // check if the rectangle is already in the batch
     if (m_rectBatch.find(id) != m_rectBatch.end()) {
         return;
     }
 
-    std::cout << "rectangle batch added with id: " << id << std::endl;
+    std::cout << "rectangle added to a batch with id: " << id << std::endl;
     m_rectBatch[id] = rectangle;
 }
 
@@ -512,22 +501,22 @@ void LowRenderer::DrawRectangleBatched() {
     // which means they are not in the current batch
     // but they are in the previous batch
 
-    for (const auto &[id, rectangle]: m_prevRectBatch) {
-        if (m_rectBatch.find(id) == m_rectBatch.end()) {
-            glDeleteBuffers(1, &m_rectVBOs[id]);
-            m_prevRectBatch.erase(id);
-        }
-    }
-
-
-    // now batch is drawn swap the batch
-    m_prevRectBatch = m_rectBatch;
-    m_rectBatch.clear();
+    glDeleteBuffers(1, &vbo_cursorPos);
 }
 
 void LowRenderer::DrawTextBatched() {
     for (const auto &[id, text]: m_textBatch) {
         DrawText(id, text);
+    }
+
+    // go through prevText batch
+    for (const auto &[prevId, text]: m_prevTextBatch) {
+        // if this prev_id is NOT on the active batch
+        if (m_textBatch.find(prevId) == m_textBatch.end()) {
+            // then delete the vbo'
+            glDeleteBuffers(1, &m_textVBOs[prevId]);
+
+        }
     }
 
     // now batch is drawn swap the batch
