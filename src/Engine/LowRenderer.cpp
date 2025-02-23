@@ -308,21 +308,12 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 }
 
 void LowRenderer::AddText(uint32_t id, const Text &text) {
-
-    // if its already in prev batch
-    if (m_prevTextBatch.find(id) != m_prevTextBatch.end()) {
-        m_textBatch[id] = text;
-        return;
-    }
-
-    // check if the text is already in the batch
     if (m_textBatch.find(id) != m_textBatch.end()) {
         return;
     }
 
     std::cout << "text added to a batch with id: " << id << std::endl;
     m_textBatch[id] = text;
-
 }
 
 
@@ -510,6 +501,16 @@ void LowRenderer::DrawRectangleBatched() {
 void LowRenderer::DrawTextBatched() {
     for (const auto &[id, text]: m_textBatch) {
         DrawText(id, text);
+    }
+
+    // go through prevText batch
+    for (const auto &[prevId, text]: m_prevTextBatch) {
+        // if this prev_id is NOT on the active batch
+        if (m_textBatch.find(prevId) == m_textBatch.end()) {
+            // then delete the vbo'
+            glDeleteBuffers(1, &m_textVBOs[prevId]);
+
+        }
     }
 
     // now batch is drawn swap the batch
