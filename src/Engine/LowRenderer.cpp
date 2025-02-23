@@ -17,10 +17,8 @@ double LowRenderer::currentTime = 0.0f; // Initialization of lastTime
 double LowRenderer::lastTime = 0.0f; // Initialization of lastTime
 std::map<uint32_t, Rectangle> LowRenderer::m_rectBatch;
 std::map<uint32_t, Text> LowRenderer::m_textBatch;
-std::map<uint32_t, Rectangle> LowRenderer::m_prevRectBatch;
 std::map<uint32_t, Text> LowRenderer::m_prevTextBatch;
 std::map<uint32_t, unsigned int> LowRenderer::m_textVBOs;
-std::map<uint32_t, unsigned int> LowRenderer::m_rectVBOs;
 
 
 float LowRenderer::getDeltaTime() {
@@ -343,13 +341,6 @@ void LowRenderer::updateTime() {
 }
 
 void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
-
-    // if its already in prev batch
-    if (m_prevRectBatch.find(id) != m_prevRectBatch.end()) {
-        m_rectBatch[id] = rectangle;
-        return;
-    }
-
     // check if the rectangle is already in the batch
     if (m_rectBatch.find(id) != m_rectBatch.end()) {
         return;
@@ -513,17 +504,7 @@ void LowRenderer::DrawRectangleBatched() {
     // which means they are not in the current batch
     // but they are in the previous batch
 
-    for (const auto &[id, rectangle]: m_prevRectBatch) {
-        if (m_rectBatch.find(id) == m_rectBatch.end()) {
-            glDeleteBuffers(1, &m_rectVBOs[id]);
-            m_prevRectBatch.erase(id);
-        }
-    }
-
-
-    // now batch is drawn swap the batch
-    m_prevRectBatch = m_rectBatch;
-    m_rectBatch.clear();
+    glDeleteBuffers(1, &vbo_cursorPos);
 }
 
 void LowRenderer::DrawTextBatched() {
