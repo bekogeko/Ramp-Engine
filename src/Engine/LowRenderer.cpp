@@ -305,7 +305,8 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     delete[] indices;
     // warning: this should not be the way
     //  - fixme: this should not be created every time a text is drawn
-    glDeleteBuffers(1, &vbo_cursorPos);
+    //    glDeleteBuffers(1, &vbo_cursorPos);
+
 }
 
 void LowRenderer::AddText(uint32_t id, const Text &text) {
@@ -321,7 +322,7 @@ void LowRenderer::AddText(uint32_t id, const Text &text) {
         return;
     }
 
-    std::cout << "text batch added with id: " << id << std::endl;
+    std::cout << "text added to a batch with id: " << id << std::endl;
     m_textBatch[id] = text;
 
 }
@@ -354,7 +355,7 @@ void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
         return;
     }
 
-    std::cout << "rectangle batch added with id: " << id << std::endl;
+    std::cout << "rectangle added to a batch with id: " << id << std::endl;
     m_rectBatch[id] = rectangle;
 }
 
