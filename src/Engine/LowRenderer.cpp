@@ -215,10 +215,16 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 //    VertexBuffer vboCursorPos;
 
     GLuint vbo_cursorPos;
-    glGenBuffers(1, &vbo_cursorPos);
+    // if vbo is already created and upload
+    if (m_textVBOs.find(id) == m_textVBOs.end())
+        glGenBuffers(1, &vbo_cursorPos);
+    else
+        vbo_cursorPos = m_textVBOs[id];
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
+
+    if (m_textVBOs.find(id) == m_textVBOs.end())
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
 
     // Set up the vertex attribute pointer for the instance data
     glEnableVertexAttribArray(2); // Assuming location 2 for instance data
