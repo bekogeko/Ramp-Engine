@@ -26,10 +26,15 @@ void OnUserInterfaceError(Clay_ErrorData e) {
 }
 
 // Example measure text function
-static inline Clay_Dimensions MeasureText(Clay_String *text, Clay_TextElementConfig *config) {
+static Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *userData) {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
-    return {};
+
+    // get only first length characters
+    auto sliced = std::string(text.chars, text.length);
+
+    return {text.length * config->fontSize * 1.0f, config->fontSize * 1.0f};
+
 }
 
 
@@ -39,15 +44,13 @@ UILayer::UILayer(int index) : Layer(index) {
     uint64_t totalMemorySize = Clay_MinMemorySize();
     Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, malloc(totalMemorySize));
 
-    Clay_ErrorHandler errorHandler;
-    errorHandler.userData = index;
-    errorHandler.errorHandlerFunction = OnUserInterfaceError;
 
     Clay_Initialize(arena, (Clay_Dimensions) {static_cast<float>(Window::getWidth()),
-                                              static_cast<float>(Window::getHeight())}, errorHandler);
+                                              static_cast<float>(Window::getHeight())},
+                    {.errorHandlerFunction = OnUserInterfaceError});
 
     // Tell clay how to measure text
-    Clay_SetMeasureTextFunction(MeasureText);
+    Clay_SetMeasureTextFunction(MeasureText, nullptr);
 
     auto mousePos = Input::getMousePosition();
     auto isMouseDown = Input::getMouseButton(0);
@@ -58,57 +61,74 @@ UILayer::UILayer(int index) : Layer(index) {
 
 void UILayer::Draw() {
 
-    std::string val = "hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecimhello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecimhello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecimhello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim";
+    auto val = "hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim";
 //    std::string val = "hello";
 
     Clay_BeginLayout();
 
     // An example of laying out a UI with a fixed width sidebar and flexible width main content
-    CLAY(CLAY_ID("OuterContainer"),
-         CLAY_LAYOUT({
-                             .sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
-                             .padding={16, 16},
-                             .childGap=16,
-                             .childAlignment={
-                                     CLAY_ALIGN_X_LEFT,
-                                     CLAY_ALIGN_Y_TOP
-                             },
-                             .layoutDirection = CLAY_LEFT_TO_RIGHT,
+    CLAY({
+             .id = CLAY_ID("OuterContainer"),
+             .layout = {
+                .sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
+                .padding={16, 16},
+                .childGap=16,
+                .childAlignment={
+                        CLAY_ALIGN_X_LEFT,
+                        CLAY_ALIGN_Y_TOP
+                },
+                .layoutDirection = CLAY_LEFT_TO_RIGHT,
+        }
+             , .backgroundColor = {0, 0, 0, 255}
+         }) {
+        CLAY({
+                 .id = CLAY_ID("ContentBox"),
+                 .layout = {
+                    .sizing={
+                            CLAY_SIZING_FIXED(82), CLAY_SIZING_FIXED(82)
+                    }
+            }
+             }) {
+            CLAY({
+                     .id = CLAY_ID("Content"),
+                     .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}},
+                     .backgroundColor = {0, 255, 0, 255}
+                 }) {
 
-                     }),
-//         CLAY_RECTANGLE({.color={255, 0, 50, 40}})
-         CLAY_RECTANGLE({.color={0, 0, 0, 255}})
-    ) {
+                CLAY({
+                         .id = CLAY_ID("lilCube"),
+                         .layout = {.sizing={CLAY_SIZING_FIXED(32), CLAY_SIZING_FIXED(32)}, .padding={16, 16}},
+                         .backgroundColor = {255, 120, 12, 255}
+                     }) {
+//                    CLAY_TEXT("a",
+//                              CLAY_TEXT_CONFIG({.fontSize = 24, .textColor = {255, 255, 255, 255}}));
 
-
-        CLAY(CLAY_ID("ContentBox"),
-             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(82),
-                                   CLAY_SIZING_FIXED(82)}})) {
-            CLAY(CLAY_ID("Content"),
-                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}},),
-                 CLAY_RECTANGLE({.color={0, 255, 0, 255}})) {
-
-                CLAY(CLAY_ID("lilCube"),
-                     CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(32), CLAY_SIZING_FIXED(32)}, .padding={16, 16}}),
-                     CLAY_RECTANGLE({.color={255, 120, 12, 255}})) {
-                    CLAY_TEXT(CLAY_STRING("a"),
+                    CLAY_TEXT(CLAY_STRING("a bc def"),
                               CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
                                       "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16}));
                 }
             }
         }
-        CLAY(CLAY_ID("ContentBox2"),
-             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(240),
-                                   CLAY_SIZING_FIXED(240)}})) {
-            CLAY(CLAY_ID("Content2"),
-                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}}),
-                 CLAY_RECTANGLE({.color={255, 255, 255, 255}})) {
-                CLAY_TEXT(CLAY_STRING(val.c_str()),
-                          CLAY_TEXT_CONFIG({.textColor={12, 120, 255, 255},
-                                                   .fontId=ResourceManager::GetFontId(
-                                                           "fonts/JetBrainsMono-Regular.ttf", 16),
-                                                   .fontSize = 16}));
+        CLAY({
+                 .id = CLAY_ID("ContentBox2"),
+                 .layout = {.sizing={CLAY_SIZING_FIXED(240), CLAY_SIZING_FIXED(240)}}
+             }) {
 
+            CLAY({
+                     .id = CLAY_ID("Content2"),
+                     .layout = {.sizing={CLAY_SIZING_FIT(), CLAY_SIZING_FIT()}, .padding={16, 16}},
+                     .backgroundColor = {255, 255, 255, 255}
+                 }
+            ) {
+
+
+                CLAY_TEXT(CLAY_STRING("hello world yank gap wallah syl labi sal ami salami decimate"),
+                          CLAY_TEXT_CONFIG({
+                                                   .textColor={12, 120, 255, 255},
+                                                   .fontId=ResourceManager::GetFontId(
+                                                           "fonts/JetBrainsMono-Regular.ttf", 12),
+                                                   .fontSize = 12,
+                                           }));
 
             }
         }
@@ -135,24 +155,27 @@ void UILayer::Draw() {
                 rect.size.y = renderCommand->boundingBox.height;
 
 
-                rect.color.r = renderCommand->config.rectangleElementConfig->color.r / 255;
-                rect.color.g = renderCommand->config.rectangleElementConfig->color.g / 255;
-                rect.color.b = renderCommand->config.rectangleElementConfig->color.b / 255;
-                rect.color.a = renderCommand->config.rectangleElementConfig->color.a / 255;
+                rect.color.r = renderCommand->renderData.rectangle.backgroundColor.r / 255;
+                rect.color.g = renderCommand->renderData.rectangle.backgroundColor.g / 255;
+                rect.color.b = renderCommand->renderData.rectangle.backgroundColor.b / 255;
+                rect.color.a = renderCommand->renderData.rectangle.backgroundColor.a / 255;
 
                 LowRenderer::AddRectangle(renderCommand->id, rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
                 Text text;
-                text.color.r = renderCommand->config.textElementConfig->textColor.r / 255;
-                text.color.g = renderCommand->config.textElementConfig->textColor.g / 255;
-                text.color.b = renderCommand->config.textElementConfig->textColor.b / 255;
-                text.color.a = renderCommand->config.textElementConfig->textColor.a / 255;
+                text.color.r = renderCommand->renderData.text.textColor.r / 255;
+                text.color.g = renderCommand->renderData.text.textColor.g / 255;
+                text.color.b = renderCommand->renderData.text.textColor.b / 255;
+                text.color.a = renderCommand->renderData.text.textColor.a / 255;
 
 //                renderCommand->config.textElementConfig->wrapMode == CLAY_TEXT_WRAP_NONE;
-                text.value = renderCommand->text.chars;
 
+                // Warning hmmm
+                text.value = std::string(renderCommand->renderData.text.stringContents.chars,
+                                         renderCommand->renderData.text.stringContents.length);
+//                renderCommand->renderData.text.stringContents.baseChars
 
                 text.position.x = renderCommand->boundingBox.x;
                 text.position.y = renderCommand->boundingBox.y;
@@ -160,11 +183,11 @@ void UILayer::Draw() {
                 text.size.x = renderCommand->boundingBox.width;
                 text.size.y = renderCommand->boundingBox.height;
 
-                text.fontId = renderCommand->config.textElementConfig->fontId;
+                text.fontId = renderCommand->renderData.text.fontId;
 
-                text.fontSize = renderCommand->config.textElementConfig->fontSize;
-                text.lineHeight = renderCommand->config.textElementConfig->lineHeight;
-                text.letterSpacing = renderCommand->config.textElementConfig->letterSpacing;
+                text.fontSize = renderCommand->renderData.text.fontSize;
+                text.lineHeight = renderCommand->renderData.text.lineHeight;
+                text.letterSpacing = renderCommand->renderData.text.letterSpacing;
 
                 LowRenderer::AddText(renderCommand->id, text);
                 break;
