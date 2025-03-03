@@ -11,15 +11,20 @@ class Texture {
 public:
     explicit Texture(const std::string &path);
 
+    // TODO add multiChannel support
+    explicit Texture(const unsigned char *data, int w, int h, int channelCount = 1);
+
     void Bind(int slot = 0);
+
+    static void Unbind();
 
     [[nodiscard]] int slot() const {
         return m_slot;
     }
 
 private:
-    unsigned int m_textureId;
-    unsigned int m_slot;
+    unsigned int m_textureId = 0;
+    unsigned int m_slot = 0;
 
 };
 

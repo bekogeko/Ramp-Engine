@@ -17,10 +17,11 @@
 #include "Engine/World.h"
 
 static void error_callback(int error, const char *description) {
-    std::cout << "Error: " << description << "\n";
+    std::cerr << "Error: " << description << "\n";
 }
 
 int main() {
+//    system("export MallocStackLogging=1;");
     std::cout << "Starting application...\n";
 
     glfwSetErrorCallback(error_callback);
@@ -52,40 +53,46 @@ int main() {
     std::cout << "ImGui initialized successfully\n";
 #endif
     Physics::Init();
+
     HighRenderer::Init();
+    {
 
 
+        {// register object transfer to high renderer
+            auto playerobj_id = World::RegisterObject("man.obj");
+            auto playerobj = World::getById(playerobj_id);
+            if (auto player = playerobj.lock()) {
+                player->position.x -= 0.5;
+                player->color.r = 1;
 
-    // register object transfer to high renderer
-    auto objId_int = World::RegisterObject("man.obj");
-    auto objId = World::getById(objId_int);
+                player->attachComponent<Player>();
+                player->attachComponent<PhysicsComponent>();
+            }
+        }
+        {
+            auto id = World::RegisterObject("square.obj");
+            auto obj = World::getById(id).lock();
 
-    objId->position.x -= 0.5;
-    objId->color.r = 1;
-
-    objId->attachComponent<Player>();
-    objId->attachComponent<PhysicsComponent>();
-
-    auto id = World::RegisterObject("square.obj");
-    auto obj = World::getById(id);
-
-    obj->attachComponent<PhysicsComponent>();
-
-    // create obj2 with different color and position
-    auto id2 = World::RegisterObject("square.obj");
-    auto obj2 = World::getById(id2);
+            obj->attachComponent<PhysicsComponent>();
+        }
+        // create obj2 with different color and position
+        {
+            auto id2 = World::RegisterObject("square.obj");
+            auto obj2 = World::getById(id2).lock();
 
 
-    obj2->position = {1, 1};
-    obj2->color = {1.0, 0.55, 0.2, 1};
-    obj2->attachComponent<PhysicsComponent>();
-
+            obj2->position = {1, 1};
+            obj2->color = {1.0, 0.55, 0.2, 1};
+            obj2->attachComponent<PhysicsComponent>();
+        }
+    }
 
     // enable alpha blending
     // 0 means opaque
     // 1 means transparent
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_TRUE);
     // disable vSync
     glfwSwapInterval(0);
 
@@ -128,8 +135,12 @@ int main() {
 
     //clean up
     std::cout << "Cleaning up...\n";
+    HighRenderer::Destroy();
+    ResourceManager::Destroy();
+
 
     std::cout << "Application terminated successfully\n";
+//    system("leaks Ray-Game --list");
 
     return 0;
 }

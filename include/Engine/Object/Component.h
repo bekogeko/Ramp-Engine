@@ -6,6 +6,7 @@
 #define RAY_GAME_COMPONENT_H
 
 #include <memory>
+#include <assert.h>
 
 class Object;
 
@@ -15,7 +16,7 @@ class Component {
 protected:
     unsigned int m_ObjectId = 0;
 
-    [[nodiscard]] std::shared_ptr<Object> getObject() const;
+    [[nodiscard]] std::weak_ptr<Object> getObject() const;
 
 private:
     bool isAttached = false;
@@ -29,6 +30,7 @@ public:
     void attach(unsigned int objId) {
         if (isAttached)
             return;
+        assert(objId != 0);
         isAttached = true;
         m_ObjectId = objId;
         onAttached();

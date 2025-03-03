@@ -16,7 +16,7 @@ ShaderSource::ShaderSource(const std::string &path, ShaderSource::Type type) {
     std::string shaderFullPath = std::filesystem::current_path().c_str();
     shaderFullPath += &RESOURCES_PATH[1];
     shaderFullPath += path;
-ßß
+
 #elif PRODUCTION_BUILD == 0
     std::string shaderFullPath = RESOURCES_PATH + path;
 #endif

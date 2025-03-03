@@ -25,43 +25,48 @@ public:
         return false;
     }
 
-    static glm::vec2 getMousePosition() {
-        if (m_window) {
-            double xpos, ypos;
-            glfwGetCursorPos(m_window, &xpos, &ypos);
-            // this will give us the screen coordinates
-            // (0,0) is the top left corner
-            // we need to convert this to world coordinates
-            // we will assume that the screen is 640x480
-            // and the camera is at (0,0) and has a size of 4x3
+    static glm::vec2 getMouseWorldPosition() {
+        if (!m_window)
+            return {0.0f, 0.0f};
+        double xpos, ypos;
+        glfwGetCursorPos(m_window, &xpos, &ypos);
+        // this will give us the screen coordinates
+        // (0,0) is the top left corner
+        // we need to convert this to world coordinates
+        // we will assume that the screen is 640x480
+        // and the camera is at (0,0) and has a size of 4x3
 
-            //TODO
-            // get real width and height through api
-            int width = 640;
-            int height = 480;
+        // get real width and height through api
+        int width = Window::getWidth();
+        int height = Window::getHeight();
 
 //            std::cout << xpos << "," << ypos << std::endl;
 
-            // Convert screen coordinates to normalized device coordinates (NDC)
+        // Convert screen coordinates to normalized device coordinates (NDC)
 
-            float x = (float) (2 * xpos / width) - 1;
-            float y = (float) (-2 * ypos / height) + 1;
+        float x = (float) (2 * xpos / width) - 1;
+        float y = (float) (-2 * ypos / height) + 1;
 
-            x *= 4.0f / 3.0f;
-            y *= 1.0f;
+        x *= HighRenderer::getCamera().getSize().x;
+        y *= HighRenderer::getCamera().getSize().y;
 
-            // Convert NDC to world coordinates (assuming an orthographic projection for simplicity)
-            glm::vec2 worldPos = glm::vec2(x, y);
-            // FIXME: why is this multiplied by 3?
-            // why is this multiplied by 3?
-            worldPos *= 3.0f;
-            worldPos *= HighRenderer::getCamera().zoom;
-            worldPos += HighRenderer::getCamera().position;
+        // Convert NDC to world coordinates (assuming an orthographic projection for simplicity)
+        glm::vec2 worldPos = glm::vec2(x, y);
 
-            return worldPos;
+        worldPos.x += HighRenderer::getCamera().position.x * HighRenderer::getCamera().getSize().x;
 
-        }
-        return {0.0f, 0.0f};
+        worldPos.y += HighRenderer::getCamera().position.y * HighRenderer::getCamera().getSize().y;
+
+        worldPos *= HighRenderer::getCamera().zoom;
+
+        return worldPos;
+    }
+
+    static glm::vec2 getMousePosition() {
+        double xpos, ypos;
+        glfwGetCursorPos(m_window, &xpos, &ypos);
+
+        return {xpos, ypos};
     }
 
     static bool getMouseButton(int button) {

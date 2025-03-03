@@ -13,7 +13,10 @@ class Text {
 public:
     glm::vec4 color;
     std::string value;
-    unsigned int fontSize = 16;
+    unsigned char fontId = 0;
+    unsigned char fontSize = 16;
+    unsigned char lineHeight = 16;
+    unsigned char letterSpacing = 16;
 
     glm::vec2 position;
     glm::vec2 size;

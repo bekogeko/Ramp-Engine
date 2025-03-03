@@ -16,30 +16,31 @@ void World::Update(float deltaTime) {
 
 }
 
+// [deprecated]
+//unsigned int World::RegisterObject(const std::shared_ptr<Object> &object) {
+//    object->registerObject();
+//    m_objects[object->getId()] = object;
+//    std::cout << "Object registered with id: " << object->getId() << std::endl;
+//
+//    return object->getId();
+//}
 
-unsigned int World::RegisterObject(const std::shared_ptr<Object> &object) {
-    object->registerObject();
-    m_objects[object->getId()] = object;
-    std::cout << "Object registered with id: " << object->getId() << std::endl;
 
-    return object->getId();
-}
-
-
-std::shared_ptr<Object> World::getById(unsigned int id) {
+std::weak_ptr<Object> World::getById(unsigned int id) {
     return m_objects[id];
 }
 
-unsigned int
-World::RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
-                      const LayoutStack &stack) {
-    // create
-    std::shared_ptr<Object> newObj = std::make_shared<Object>(vertices, size, indices, indicesSize, stack);
-
-    newObj->registerObject();
-    m_objects[newObj->getId()] = newObj;
-    return newObj->getId();
-}
+// [deprecated]
+//unsigned int
+//World::RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+//                      const LayoutStack &stack) {
+//    // create
+//    std::shared_ptr<Object> newObj = std::make_shared<Object>(vertices, size, indices, indicesSize, stack);
+//
+//    newObj->registerObject();
+//    m_objects[newObj->getId()] = newObj;
+//    return newObj->getId();
+//}
 
 
 unsigned int World::RegisterObject(const std::string &pathName) {
@@ -49,9 +50,10 @@ unsigned int World::RegisterObject(const std::string &pathName) {
     // 3- register object
     // 4- return id
 
-    auto objParsed = ResourceManager::LoadObject(pathName);
+    // warning hmm...
+    auto objParsed = *ResourceManager::LoadObject(pathName).lock();
     LayoutStack stack = {
-            VertexLayout(2)
+            VertexLayout(2, false)
     };
     // 2.1- create object
     auto *verticesArray = new float[objParsed.vertices.size() * 2];
@@ -84,7 +86,20 @@ unsigned int World::RegisterObject(const std::string &pathName) {
     // 3- register object
     newObj->registerObject();
 
+
     m_objects[newObj->getId()] = newObj;
+    delete[] indicesArray;
+    delete[] verticesArray;
 
     return newObj->getId();
+}
+
+World::World(int index) : Layer(index) {
+
+}
+
+void World::Draw() {
+    for (auto [i, object]: m_objects) {
+        object->Draw();
+    }
 }

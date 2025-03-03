@@ -13,15 +13,17 @@
 #include "Engine/Camera.h"
 #include "Engine/ObjectInterface.h"
 #include "box2d/math_functions.h"
+
 #include <string>
 #include <iostream>
+#include <typeindex>
 
 class Object : public ObjectInterface {
 private:
     std::unique_ptr<VertexArray> m_vertexArray;
 
+    std::map<std::type_index, std::shared_ptr<Component> > m_components;
 
-    std::vector<std::unique_ptr<Component>> m_components;
 
     std::vector<glm::vec2> m_vertices;
     std::vector<unsigned int> m_indices;
@@ -75,28 +77,31 @@ public:
 
     // attachComponent
     //  - Each Component type is only attachable once
-    template<class T>
+    template<class T = Component>
     void attachComponent() {
-
         // do a static assertion
         static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
-
-
-        std::unique_ptr<Component> comp = std::make_unique<T>();
+        std::shared_ptr<T> comp = std::make_shared<T>();
         comp->attach(m_Id);
-        m_components.push_back(std::move(comp));
+// warning this might be released accidentally
+        m_components[std::type_index(typeid(*comp))] = comp;
     }
 
     // getComponent
     //  - returns the first and only component of type T
-    template<class T>
-    T *getComponent() {
-        for (auto &comp: m_components) {
-            if (auto *t = dynamic_cast<T *>(comp.get())) {
-                return t;
-            }
+    template<class T = Component>
+    std::shared_ptr<T> getComponent() {
+        // do a static assertion
+        static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component");
+
+        std::type_index index(typeid(T));
+        if (m_components.count(std::type_index(typeid(T))) != 0) {
+            return std::static_pointer_cast<T>(m_components[index]);
+        } else {
+            std::cerr << "Component not found! \n";
+            assert(false);
         }
-        return nullptr;
+
     }
 
 

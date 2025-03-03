@@ -15,24 +15,22 @@
 
 class World : public Layer {
 public:
-    explicit World(int index) : Layer(index) {
-
-    }
+    explicit World(int index);
 
     ~World() {
         m_objects.clear();
     }
 
-    static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
-
-    static unsigned int
-    RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
-                   const LayoutStack &stack);
+//    static unsigned int RegisterObject(const std::shared_ptr<Object> &object);
+//
+//    static unsigned int
+//    RegisterObject(float *vertices, unsigned int size, unsigned int *indices, unsigned int indicesSize,
+//                   const LayoutStack &stack);
 
     static unsigned int RegisterObject(const std::string &pathName);
 
 
-    static std::shared_ptr<Object> getById(unsigned int id);
+    static std::weak_ptr<Object> getById(unsigned int id);
 
     static int GetNextId() {
         static int id = 1;
@@ -41,11 +39,7 @@ public:
 
     void Update(float deltaTime) override;
 
-    void Draw() override {
-        for (auto [i, object]: m_objects) {
-            object->Draw();
-        }
-    }
+    void Draw() override;
 
 
 private:

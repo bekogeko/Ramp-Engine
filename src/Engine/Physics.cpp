@@ -25,6 +25,7 @@ void Physics::Init() {
 
     //TODO: add a ground object to the renderer
 
+    std::cout << "Physics Initialized successfully" << std::endl;
 }
 
 
@@ -43,7 +44,7 @@ void Physics::Update() {
 
     // update obj positions according to the simulation
     for (auto &[id, bodyId]: m_Objects) {
-        auto obj = World::getById(id);
+        auto obj = World::getById(id).lock();
         b2Vec2 position = b2Body_GetPosition(bodyId);
         b2Rot rotation = b2Body_GetRotation(bodyId);
         obj->position.x = position.x;
@@ -66,11 +67,11 @@ void Physics::RemoveObject(unsigned int m_Id) {
 b2BodyId Physics::AddObject(unsigned int m_Id) {
 
     // get Objects Position
-    auto obj = World::getById(m_Id);
-    int vertexCount = obj->getVertexCount();
+    auto obj = World::getById(m_Id).lock();
+    auto vertexCount = obj->getVertexCount();
 
     // Create HULL
-    auto *vertices = new b2Vec2[vertexCount];
+    auto *vertices = new glm::vec2[vertexCount];
     int deleted_vertexes = 0;
     for (int i = 0; i < vertexCount; ++i) {
         auto vert = obj->getVertices()[i];
@@ -83,7 +84,7 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
     }
 
 
-    b2Hull hull = b2ComputeHull(vertices, vertexCount - deleted_vertexes);
+    b2Hull hull = b2ComputeHull(reinterpret_cast<const b2Vec2 *>(vertices), vertexCount - deleted_vertexes);
 
     b2BodyDef bodyDef = b2DefaultBodyDef();
 
@@ -110,6 +111,8 @@ b2BodyId Physics::AddObject(unsigned int m_Id) {
 
     // keep this related with m_Id and groundId;
     m_Objects[m_Id] = bodyId;
+
+    delete[] vertices;
 
     return bodyId;
 }

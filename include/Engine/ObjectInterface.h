@@ -12,12 +12,12 @@
 class ObjectInterface {
 
 protected:
-    std::shared_ptr<ShaderProgram> m_shader;
+    std::weak_ptr<ShaderProgram> m_shader;
     bool m_isInstanced = false;
 
 
 public:
-    [[nodiscard]] std::shared_ptr<ShaderProgram> getShader() const {
+    [[nodiscard]] std::weak_ptr<ShaderProgram> getShader() const {
         return m_shader;
     }
 

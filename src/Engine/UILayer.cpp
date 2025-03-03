@@ -76,28 +76,38 @@ void UILayer::Draw() {
                              .layoutDirection = CLAY_LEFT_TO_RIGHT,
 
                      }),
-         CLAY_RECTANGLE({.color={255, 0, 50, 40}})
-//         CLAY_RECTANGLE({.color={0, 0, 0, 0}})
+//         CLAY_RECTANGLE({.color={255, 0, 50, 40}})
+         CLAY_RECTANGLE({.color={0, 0, 0, 255}})
     ) {
 
 
-        CLAY(CLAY_ID("Sidebar"),
-             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
-                                   CLAY_SIZING_FIXED(80)}})) {
+        CLAY(CLAY_ID("ContentBox"),
+             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(82),
+                                   CLAY_SIZING_FIXED(82)}})) {
             CLAY(CLAY_ID("Content"),
-                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
-                 CLAY_RECTANGLE({.color={25, 255, 5, 40}})) {
+                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}},),
+                 CLAY_RECTANGLE({.color={0, 255, 0, 255}})) {
 
+                CLAY(CLAY_ID("lilCube"),
+                     CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(32), CLAY_SIZING_FIXED(32)}, .padding={16, 16}}),
+                     CLAY_RECTANGLE({.color={255, 120, 12, 255}})) {
+                    CLAY_TEXT(CLAY_STRING("a"),
+                              CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
+                                      "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16}));
+                }
             }
         }
-        CLAY(CLAY_ID("Sidebar2"),
-             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(80),
-                                   CLAY_SIZING_FIXED(80)}})) {
+        CLAY(CLAY_ID("ContentBox2"),
+             CLAY_LAYOUT({.sizing={CLAY_SIZING_FIXED(240),
+                                   CLAY_SIZING_FIXED(240)}})) {
             CLAY(CLAY_ID("Content2"),
-                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}}),
-                 CLAY_RECTANGLE({.color={255, 255, 255, 40}})) {
+                 CLAY_LAYOUT({.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}}),
+                 CLAY_RECTANGLE({.color={255, 255, 255, 255}})) {
                 CLAY_TEXT(CLAY_STRING(val.c_str()),
-                          CLAY_TEXT_CONFIG({.textColor={125, 255, 125, 255}, .fontId=0, .fontSize = 16}));
+                          CLAY_TEXT_CONFIG({.textColor={12, 120, 255, 255},
+                                                   .fontId=ResourceManager::GetFontId(
+                                                           "fonts/JetBrainsMono-Regular.ttf", 16),
+                                                   .fontSize = 16}));
 
 
             }
@@ -106,11 +116,14 @@ void UILayer::Draw() {
     }
 
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
-
+//    static int callTime = 1;
     for (int i = 0; i < renderCommands.length; ++i) {
         Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
 
         switch (renderCommand->commandType) {
+            default:
+                std::cerr << "Unhandled Command " << renderCommand->commandType << "\n";
+                break;
             case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
                 Rectangle rect;
 
@@ -127,7 +140,7 @@ void UILayer::Draw() {
                 rect.color.b = renderCommand->config.rectangleElementConfig->color.b / 255;
                 rect.color.a = renderCommand->config.rectangleElementConfig->color.a / 255;
 
-                LowRenderer::AddRectangle(rect);
+                LowRenderer::AddRectangle(renderCommand->id, rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
@@ -137,7 +150,9 @@ void UILayer::Draw() {
                 text.color.b = renderCommand->config.textElementConfig->textColor.b / 255;
                 text.color.a = renderCommand->config.textElementConfig->textColor.a / 255;
 
+//                renderCommand->config.textElementConfig->wrapMode == CLAY_TEXT_WRAP_NONE;
                 text.value = renderCommand->text.chars;
+
 
                 text.position.x = renderCommand->boundingBox.x;
                 text.position.y = renderCommand->boundingBox.y;
@@ -145,9 +160,13 @@ void UILayer::Draw() {
                 text.size.x = renderCommand->boundingBox.width;
                 text.size.y = renderCommand->boundingBox.height;
 
-                text.fontSize = renderCommand->config.textElementConfig->fontSize;
+                text.fontId = renderCommand->config.textElementConfig->fontId;
 
-                LowRenderer::AddText(text);
+                text.fontSize = renderCommand->config.textElementConfig->fontSize;
+                text.lineHeight = renderCommand->config.textElementConfig->lineHeight;
+                text.letterSpacing = renderCommand->config.textElementConfig->letterSpacing;
+
+                LowRenderer::AddText(renderCommand->id, text);
                 break;
         }
 
