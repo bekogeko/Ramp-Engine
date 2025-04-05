@@ -62,7 +62,6 @@ UILayer::UILayer(int index) : Layer(index) {
 void UILayer::Draw() {
 
     auto val = "hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim";
-//    std::string val = "hello";
 
     Clay_BeginLayout();
 
@@ -71,15 +70,15 @@ void UILayer::Draw() {
              .id = CLAY_ID("OuterContainer"),
              .layout = {
                 .sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
-                .padding={16, 16},
+                .padding={16, 16, 16, 16},
                 .childGap=16,
                 .childAlignment={
                         CLAY_ALIGN_X_LEFT,
                         CLAY_ALIGN_Y_TOP
                 },
-                .layoutDirection = CLAY_LEFT_TO_RIGHT,
-        }
-             , .backgroundColor = {0, 0, 0, 255}
+                .layoutDirection = CLAY_LEFT_TO_RIGHT
+        },
+             .backgroundColor = {0, 0, 0, 255}
          }) {
         CLAY({
                  .id = CLAY_ID("ContentBox"),
@@ -91,17 +90,15 @@ void UILayer::Draw() {
              }) {
             CLAY({
                      .id = CLAY_ID("Content"),
-                     .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16}},
+                     .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16, 16, 16}},
                      .backgroundColor = {0, 255, 0, 255}
-                 }) {
 
+                 }) {
                 CLAY({
                          .id = CLAY_ID("lilCube"),
-                         .layout = {.sizing={CLAY_SIZING_FIXED(32), CLAY_SIZING_FIXED(32)}, .padding={16, 16}},
+                         .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
                          .backgroundColor = {255, 120, 12, 255}
                      }) {
-//                    CLAY_TEXT("a",
-//                              CLAY_TEXT_CONFIG({.fontSize = 24, .textColor = {255, 255, 255, 255}}));
 
                     CLAY_TEXT(CLAY_STRING("a bc def"),
                               CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
@@ -111,23 +108,25 @@ void UILayer::Draw() {
         }
         CLAY({
                  .id = CLAY_ID("ContentBox2"),
-                 .layout = {.sizing={CLAY_SIZING_FIXED(240), CLAY_SIZING_FIXED(240)}}
+                 .layout = {.sizing={CLAY_SIZING_FIXED(240), CLAY_SIZING_GROW()}}
              }) {
-
             CLAY({
                      .id = CLAY_ID("Content2"),
-                     .layout = {.sizing={CLAY_SIZING_FIT(), CLAY_SIZING_FIT()}, .padding={16, 16}},
+                     .layout = {.sizing={CLAY_SIZING_FIT(), CLAY_SIZING_FIT()}, .padding={16, 16, 16, 16}},
                      .backgroundColor = {255, 255, 255, 255}
                  }
             ) {
 
 
-                CLAY_TEXT(CLAY_STRING("hello world yank gap wallah syl labi sal ami salami decimate"),
+//                CLAY_TEXT(CLAY_STRING("hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim"),
+                CLAY_TEXT(CLAY_STRING("hello world yanki gap wallahi billahi essalami salami kardecim"),
                           CLAY_TEXT_CONFIG({
                                                    .textColor={12, 120, 255, 255},
                                                    .fontId=ResourceManager::GetFontId(
                                                            "fonts/JetBrainsMono-Regular.ttf", 12),
                                                    .fontSize = 12,
+
+                                                   .wrapMode=CLAY_TEXT_WRAP_WORDS,
                                            }));
 
             }
@@ -165,16 +164,18 @@ void UILayer::Draw() {
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
                 Text text;
-                text.color.r = renderCommand->renderData.text.textColor.r / 255;
+                text.color.r = (renderCommand->renderData.text.textColor.r) / 255;
                 text.color.g = renderCommand->renderData.text.textColor.g / 255;
                 text.color.b = renderCommand->renderData.text.textColor.b / 255;
                 text.color.a = renderCommand->renderData.text.textColor.a / 255;
 
 //                renderCommand->config.textElementConfig->wrapMode == CLAY_TEXT_WRAP_NONE;
+//                renderCommand->renderData.text.stringContents.baseChars
 
                 // Warning hmmm
                 text.value = std::string(renderCommand->renderData.text.stringContents.chars,
                                          renderCommand->renderData.text.stringContents.length);
+
 //                renderCommand->renderData.text.stringContents.baseChars
 
                 text.position.x = renderCommand->boundingBox.x;
