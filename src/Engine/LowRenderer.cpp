@@ -147,7 +147,8 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 
 
     // warning: Fixme: this should not be the way
-    glm::vec2 initialCursor = {0, 0};
+//    glm::vec2 initialCursor = {int(text.fontSize) / 32, int(text.fontSize) / 32};
+    glm::vec2 initialCursor = {0.0f, .5f};
     //activeCursor
     glm::vec2 cursorPos = initialCursor;
 
@@ -157,21 +158,21 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     std::vector<std::array<float, 8>> instanceDatas;
     int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
-        if (text.value[i] == ' ') {
-            // fixme: questionable api use/abuse?
-            auto glyph = fontTex->getChar(text.value[i]);
-
-            cursorPos.x += (glyph.advance / float(text.fontSize)) + (float(text.letterSpacing) / float(text.fontSize));
-            emptyChars++;
-            continue;
-        }
-        if (text.value[i] == '\n') {
-            emptyChars++;
+//        if (text.value[i] == ' ') {
+//            // fixme: questionable api use/abuse?
 //            auto glyph = fontTex->getChar(text.value[i]);
-            cursorPos.y -= float(text.lineHeight / text.fontSize) + 1.5f; // default is 1.5 em space
-            cursorPos.x = initialCursor.x;
-            continue;
-        }
+//
+//            cursorPos.x += (glyph.advance / float(text.fontSize)) + (float(text.letterSpacing) / float(text.fontSize));
+//            emptyChars++;
+//            continue;
+//        }
+//        if (text.value[i] == '\n') {
+//            emptyChars++;
+////            auto glyph = fontTex->getChar(text.value[i]);
+//            cursorPos.y -= float(text.lineHeight / text.fontSize) + 1.5f; // default is 1.5 em space
+//            cursorPos.x = initialCursor.x;
+//            continue;
+//        }
 
 
 
