@@ -11,7 +11,7 @@ std::map<unsigned int, b2BodyId> Physics::m_Objects;
 
 void Physics::Init() {
     b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = (b2Vec2) {0.0f, -10.0f};
+    worldDef.gravity = (b2Vec2) {0.0f, -9.81f};
     worldId = b2CreateWorld(&worldDef);
 
 
