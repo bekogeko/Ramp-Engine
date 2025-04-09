@@ -114,8 +114,8 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 void LowRenderer::DrawText(uint32_t id, Text text) {
 
     // warning maybe focus more on objParsed's lifetime
-    auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
-    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
+//    auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
+//    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
     LayoutStack stack = {
             VertexLayout(2, false), // Position
@@ -125,20 +125,23 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     float vertices[] = {
             // position   texcoord
             0.5, 0.5, 1.0, 0,
-            0.5, -0.5, 1, 1,
-            -0.5, -0.5, 0, 1,
+            0.5, -0.5, 1.0, 1.0,
+            -0.5, -0.5, 0, 1.0,
             -0.5, 0.5, 0, 0
     };
 
-    auto *indices = new unsigned int[objParsed.indices.size()];
-
-    // move vertices and indices
-    std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+    int vertSize = 16;
+    int indicesSize = 6;
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
 
     VertexArray vertexArray(
             indices,
-            objParsed.indices.size() * sizeof(unsigned int));
-    vertexArray.AddBuffer(vertices, 16 * sizeof(float), stack);
+            indicesSize * sizeof(unsigned int));
+
+    vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
     vertexArray.Bind();
 
     //fixme
@@ -146,8 +149,6 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     assert(fontTex->getHashId() != 0);
 
 
-    // warning: Fixme: this should not be the way
-//    glm::vec2 initialCursor = {int(text.fontSize) / 32, int(text.fontSize) / 32};
     glm::vec2 initialCursor = {0.0f, .5f};
     //activeCursor
     glm::vec2 cursorPos = initialCursor;
@@ -158,32 +159,12 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     std::vector<std::array<float, 8>> instanceDatas;
     int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
-//        if (text.value[i] == ' ') {
-//            // fixme: questionable api use/abuse?
-//            auto glyph = fontTex->getChar(text.value[i]);
-//
-//            cursorPos.x += (glyph.advance / float(text.fontSize)) + (float(text.letterSpacing) / float(text.fontSize));
-//            emptyChars++;
-//            continue;
-//        }
-//        if (text.value[i] == '\n') {
-//            emptyChars++;
-////            auto glyph = fontTex->getChar(text.value[i]);
-//            cursorPos.y -= float(text.lineHeight / text.fontSize) + 1.5f; // default is 1.5 em space
-//            cursorPos.x = initialCursor.x;
-//            continue;
-//        }
-
-
-
-
         // get min_s, min_t, max_s, max_t
         auto glyph = fontTex->getChar(text.value[i]);
         auto texCoords = fontTex->getTextureCoords(text.value[i]);
 
 
         auto temp = cursorPos.y;
-//        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
         cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
         cursorPos.y--;
 
@@ -305,13 +286,6 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
-
-
-    delete[] indices;
-    // warning: this should not be the way
-    //  - fixme: this should not be created every time a text is drawn
-    //    glDeleteBuffers(1, &vbo_cursorPos);
-
 }
 
 void LowRenderer::AddText(uint32_t id, const Text &text) {
