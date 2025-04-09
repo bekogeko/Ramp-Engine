@@ -341,7 +341,17 @@ void LowRenderer::updateTime() {
 void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
     // check if the rectangle is already in the batch
     if (m_rectBatch.find(id) != m_rectBatch.end()) {
-        return;
+        // if it is, then check if the rectangle is the same
+        if (m_rectBatch[id].position == rectangle.position &&
+            m_rectBatch[id].size == rectangle.size &&
+            m_rectBatch[id].color == rectangle.color) {
+            // if it is the same, then do nothing
+            return;
+        } else {
+            // if it is not the same, then update the rectangle
+            m_rectBatch[id] = rectangle;
+            return;
+        }
     }
 
     std::cout << "rectangle added to a batch with id: " << id << std::endl;
@@ -364,19 +374,12 @@ void LowRenderer::DrawRectangleBatched() {
     };
 
 
-    int vertSize = 0;
-    int indicesSize = 0;
-    unsigned int *indices = nullptr;
-    {
-        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
-        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
-        indices = new unsigned int[objParsed.indices.size()];
-
-        // move vertices and indices
-        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
-        vertSize = objParsed.vertices.size();
-        indicesSize = objParsed.indices.size();
-    }
+    int vertSize = 4;
+    int indicesSize = 6;
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
 
     VertexArray vertexArray(
             indices,
@@ -495,8 +498,6 @@ void LowRenderer::DrawRectangleBatched() {
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
-    // free memory
-    delete[] indices;
 
     // delete the not refreshed batch elements
     // which means they are not in the current batch
