@@ -24,7 +24,9 @@ OrthoCamera &HighRenderer::getCamera() {
 }
 
 void HighRenderer::Update(float deltaTime) {
-
+    for (auto &layer: layers) {
+        layer->Update(deltaTime);
+    }
 }
 
 void HighRenderer::Init() {
