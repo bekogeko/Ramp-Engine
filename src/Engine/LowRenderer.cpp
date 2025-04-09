@@ -319,7 +319,7 @@ void LowRenderer::AddText(uint32_t id, const Text &text) {
         return;
     }
 
-    std::cout << "text added to a batch with id: " << id << std::endl;
+    std::cout << "text added to a batch with id: " << id << "(" << text.value << ")" << std::endl;
     m_textBatch[id] = text;
 }
 
@@ -506,21 +506,42 @@ void LowRenderer::DrawRectangleBatched() {
 }
 
 void LowRenderer::DrawTextBatched() {
-    for (const auto &[id, text]: m_textBatch) {
-        DrawText(id, text);
-    }
+
 
     // go through prevText batch
-    for (const auto &[prevId, text]: m_prevTextBatch) {
+    for (const auto &[prevId, prevText]: m_prevTextBatch) {
         // if this prev_id is NOT on the active batch
         if (m_textBatch.find(prevId) == m_textBatch.end()) {
             // then delete the vbo'
             glDeleteBuffers(1, &m_textVBOs[prevId]);
+            // delete from the map
+            // multiple ids can share the same vbo
+            // if one vbo is deleted then all of them should be deleted
+            m_textVBOs.erase(prevId);
+        } else {
+            // if this prev_id is on the active batch
+            // but the new batch contains different text
+            // then delete the vbo
+            if (m_textBatch[prevId].value != prevText.value) {
+                glDeleteBuffers(1, &m_textVBOs[prevId]);
+                // delete from the map
+                // multiple ids can share the same vbo
+                // if one vbo is deleted then all of them should be deleted
+                m_textVBOs.erase(prevId);
+            }
+
 
         }
+    }
+
+
+    for (const auto &[id, text]: m_textBatch) {
+        DrawText(id, text);
     }
 
     // now batch is drawn swap the batch
     m_prevTextBatch = m_textBatch;
     m_textBatch.clear();
+    //
+    std::cout << "Text batch cleared\n";
 }

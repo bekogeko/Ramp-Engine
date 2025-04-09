@@ -52,20 +52,11 @@ UILayer::UILayer(int index) : Layer(index) {
     // Tell clay how to measure text
     Clay_SetMeasureTextFunction(MeasureText, nullptr);
 
-    auto mousePos = Input::getMousePosition();
-    auto isMouseDown = Input::getMouseButton(0);
-
-    // Update internal pointer position for handling mouseover / click / touch events
-    Clay_SetPointerState((Clay_Vector2) {mousePos.x, mousePos.y}, isMouseDown);
 }
 
 void UILayer::Draw() {
-
-    auto val = "hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim";
-
     Clay_BeginLayout();
 
-    // An example of laying out a UI with a fixed width sidebar and flexible width main content
     CLAY({
              .id = CLAY_ID("OuterContainer"),
              .layout = {
@@ -99,10 +90,18 @@ void UILayer::Draw() {
                          .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
                          .backgroundColor = {255, 120, 12, 255}
                      }) {
+                    bool isHovered = Clay_Hovered();
+                    if (isHovered) {
+                        CLAY_TEXT(CLAY_STRING("hello world"),
+                                  CLAY_TEXT_CONFIG({.textColor= {255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
+                                          "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16,}));
+                    } else {
+                        CLAY_TEXT(CLAY_STRING("a bc def"),
+                                  CLAY_TEXT_CONFIG({.textColor= {255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
+                                          "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16,}));
+                    }
 
-                    CLAY_TEXT(CLAY_STRING("a bc def"),
-                              CLAY_TEXT_CONFIG({.textColor={255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
-                                      "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16}));
+
                 }
             }
         }
@@ -135,7 +134,6 @@ void UILayer::Draw() {
     }
 
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
-//    static int callTime = 1;
     for (int i = 0; i < renderCommands.length; ++i) {
         Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
 
@@ -169,14 +167,8 @@ void UILayer::Draw() {
                 text.color.b = renderCommand->renderData.text.textColor.b / 255;
                 text.color.a = renderCommand->renderData.text.textColor.a / 255;
 
-//                renderCommand->config.textElementConfig->wrapMode == CLAY_TEXT_WRAP_NONE;
-//                renderCommand->renderData.text.stringContents.baseChars
-
-                // Warning hmmm
                 text.value = std::string(renderCommand->renderData.text.stringContents.chars,
                                          renderCommand->renderData.text.stringContents.length);
-
-//                renderCommand->renderData.text.stringContents.baseChars
 
                 text.position.x = renderCommand->boundingBox.x;
                 text.position.y = renderCommand->boundingBox.y;
@@ -202,7 +194,11 @@ void UILayer::Draw() {
 
 
 void UILayer::Update(float deltaTime) {
+    auto mousePos = Input::getMousePosition();
+    auto isMouseDown = Input::getMouseButton(0);
 
+    // Update internal pointer position for handling mouseover / click / touch events
+    Clay_SetPointerState((Clay_Vector2) {mousePos.x, mousePos.y}, isMouseDown);
 }
 
 

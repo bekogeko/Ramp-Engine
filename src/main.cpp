@@ -108,6 +108,8 @@ int main() {
         ImGui::NewFrame();
 
         Physics::Update();
+
+        HighRenderer::Update(LowRenderer::getDeltaTime());
         HighRenderer::Draw();
 
 

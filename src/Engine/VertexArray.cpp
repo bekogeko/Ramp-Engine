@@ -76,7 +76,6 @@ void VertexArray::Bind() const {
     // then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(m_VAO);
 
-    printf("Vertex Array Bound %d\n", m_VAO);
     int i = 0;
     for (auto &m_VBO: m_VBOs) {
         m_VBO->Bind();
