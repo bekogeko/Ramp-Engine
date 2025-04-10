@@ -67,9 +67,7 @@ void UILayer::Draw() {
                         CLAY_ALIGN_X_LEFT,
                         CLAY_ALIGN_Y_TOP
                 },
-                .layoutDirection = CLAY_LEFT_TO_RIGHT
-        },
-             .backgroundColor = {0, 0, 0, 255}
+                .layoutDirection = CLAY_LEFT_TO_RIGHT}
          }) {
         CLAY({
                  .id = CLAY_ID("ContentBox"),
