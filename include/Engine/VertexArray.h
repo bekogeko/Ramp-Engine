@@ -85,7 +85,7 @@ public:
 
     // Move Assignment Operator
     VertexArray &operator=(VertexArray &&other) noexcept {
-        printf("Move Assignment VA\n");
+       
         m_size = other.m_size;
         m_VAO = other.m_VAO;
         m_EBO = other.m_EBO;
@@ -96,8 +96,6 @@ public:
 
 
     ~VertexArray() {
-        static int deleteCall = 0;
-        printf("Vertex Array Deleted %d\n", deleteCall++);
         Delete();
     }
 
