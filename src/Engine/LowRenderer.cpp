@@ -446,3 +446,223 @@ void LowRenderer::DrawTextBatched() {
     //
     std::cout << "Text batch cleared\n";
 }
+
+void LowRenderer::DrawTextWorld(Text text) {
+    LayoutStack stack = {
+            VertexLayout(2, false), // Position
+            VertexLayout(2, false), // TexCoords
+    };
+
+    float vertices[] = {
+            // position   texcoord
+            0.5, 0.5, 1.0, 0,
+            0.5, -0.5, 1.0, 1.0,
+            -0.5, -0.5, 0, 1.0,
+            -0.5, 0.5, 0, 0
+    };
+
+    int vertSize = 16;
+    int indicesSize = 6;
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
+
+    VertexArray vertexArray(
+            indices,
+            indicesSize * sizeof(unsigned int));
+
+    vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
+    vertexArray.Bind();
+
+    //fixme
+    auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
+    assert(fontTex->getHashId() != 0);
+
+
+    glm::vec2 initialCursor = {0.0f, .5f};
+    //activeCursor
+    glm::vec2 cursorPos = initialCursor;
+
+    // cursorPos,   vec2
+    // texCoord,    vec4
+    // size,        vec2
+    std::vector<float> instanceDatas;
+//    instanceDatas.reserve(text.value.size() * 8);
+    int emptyChars = 0;
+    for (int i = 0; i < text.value.size(); ++i) {
+        // get min_s, min_t, max_s, max_t
+        auto glyph = fontTex->getChar(text.value[i]);
+        auto texCoords = fontTex->getTextureCoords(text.value[i]);
+
+
+        auto temp = cursorPos.y;
+        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
+        cursorPos.y--;
+
+        instanceDatas.push_back(cursorPos.x);
+        instanceDatas.push_back(cursorPos.y);
+        instanceDatas.push_back(texCoords[0]);
+        instanceDatas.push_back(texCoords[1]);
+        instanceDatas.push_back(texCoords[2]);
+        instanceDatas.push_back(texCoords[3]);
+        instanceDatas.push_back(glyph.size.x / text.fontSize);
+        instanceDatas.push_back(glyph.size.y / text.fontSize);
+
+        cursorPos.x += (glyph.advance / text.fontSize);
+        cursorPos.y = temp;
+    }
+
+    // warning VBO api should be used
+    LayoutStack vboCursorStack = {
+            VertexLayout(2, true), // Position
+            VertexLayout(4, true), // TexCoords
+            VertexLayout(2, true) // size
+    };
+
+
+    vertexArray.AddBuffer(instanceDatas.data(), instanceDatas.size() * sizeof(float), vboCursorStack);
+
+    auto camSize = HighRenderer::getCamera().getSize();
+    auto camPos = HighRenderer::getCamera().position;
+    auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
+
+    auto size = glm::vec2((float(text.fontSize) * 2 * camSize.x) / (screen.x),
+                          (float(text.fontSize) * 2 * camSize.y) / (screen.y));
+
+    // position.x is in world space
+    // position.y is in world space
+    glm::vec2 position = {
+            text.position.x,
+            text.position.y
+    };
+    glm::vec2 scale = {size.x, size.y};
+    float rotation = 0;
+
+
+    // create model matrix from
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    // TODO: scaling factor
+    model = glm::scale(model, glm::vec3(scale, 1.0f));
+
+
+
+    // get camera
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+
+    // get shaders
+    auto shader_ptr = ResourceManager::LoadShader("shaders/textWorld.vert", "shaders/text.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
+
+
+
+        // setup font textureId
+        fontTex->Bind(0);
+        shader->SetUniform1i("textureID", fontTex->slot());
+    }
+
+
+    vertexArray.Bind();
+
+//    std::cout << "Empty Chars :" << emptyChars << std::endl;
+//    std::cout << "Length Chars :" << text.value.length() << std::endl;
+    vertexArray.DrawElementsInstanced(text.value.length() - emptyChars);
+
+    ShaderProgram::Unbind();
+    VertexArray::Unbind();
+
+}
+
+void LowRenderer::DrawRectangleWorld(Rectangle rectangle) {
+
+    LayoutStack stack = {
+            VertexLayout(2, false), // Position
+//            VertexLayout(2, false), // TexCoords
+    };
+
+
+    float vertices[] = {
+            // position
+            0.5, 0.5,
+            0.5, -0.5,
+            -0.5, -0.5,
+            -0.5, 0.5
+    };
+
+    int vertSize = 0;
+    int indicesSize = 0;
+    unsigned int *indices = nullptr;
+    {
+        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
+        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
+
+        indices = new unsigned int[objParsed.indices.size()];
+
+        // move vertices and indices
+        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
+        vertSize = objParsed.vertices.size();
+        indicesSize = objParsed.indices.size();
+    }
+
+    VertexArray vertexArray(indices, indicesSize * sizeof(unsigned int));
+    vertexArray.AddBuffer(vertices, (vertSize * 2) * sizeof(float), stack);
+
+    auto camSize = HighRenderer::getCamera().getSize();
+    auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
+
+
+    // position.x in [-hw,hw]
+    // position.y is [-hh,hh]
+    glm::vec2 size = {rectangle.size.x,
+                      rectangle.size.y};
+    glm::vec2 position = {rectangle.position.x, rectangle.position.y};
+
+    float rotation = 0;
+
+
+    // create model matrix from
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    // TODO: scaling factor
+    model = glm::scale(model, glm::vec3(size, 1.0f));
+
+
+
+    // get camera
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+
+
+    // get shader
+    auto shader_ptr = ResourceManager::LoadShader("shaders/default.vert", "shaders/ui.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
+
+        // set Camera Matrix
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b,
+                             rectangle.color.a);
+    }
+
+    vertexArray.Bind();
+    vertexArray.DrawElements();
+    ShaderProgram::Unbind();
+    VertexArray::Unbind();
+
+    delete[] indices;
+
+}

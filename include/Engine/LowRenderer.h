@@ -34,6 +34,8 @@ public:
 
     static void DrawRectangle(Rectangle rectangle);
 
+    static void DrawRectangleWorld(Rectangle rectangle);
+
     static void DrawRectangleBatched();
 
     static void AddText(uint32_t id, const Text &text);
@@ -41,6 +43,8 @@ public:
     static void DrawTextBatched();
 
     static void DrawText(uint32_t id, Text text);
+
+    static void DrawTextWorld(Text text);
 
     static void swapTime();
 

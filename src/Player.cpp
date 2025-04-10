@@ -39,6 +39,28 @@ void Player::Draw() {
 
     ImGui::End();
 
+
+    // draw rectangle behind it
+    LowRenderer::DrawRectangleWorld({
+                                            .position = {getObject().lock()->position.x + 0.05,
+                                                         getObject().lock()->position.y + 0.8},
+                                            .size = {1.1, 0.5},
+                                            .color = {1, 1, 0.1, 1},
+                                    });
+
+    LowRenderer::DrawTextWorld(
+            {
+
+
+                    .color = {0.5, 0.5, 1, 1},
+                    .value = "Player",
+                    .fontId = ResourceManager::GetFontId("fonts/JetBrainsMono-Regular.ttf", 16),
+                    .position = {getObject().lock()->position.x - 0.4, getObject().lock()->position.y + 0.8},
+                    .size = {0.5f, 0.5f},
+            }
+    );
+
+
 }
 
 void Player::Update(float deltaTime) {
