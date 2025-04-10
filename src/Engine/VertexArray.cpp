@@ -56,9 +56,14 @@ VertexArray::VertexArray(const unsigned int *indices,
 
 void VertexArray::AddBuffer(const float *data, const unsigned int size, const LayoutStack &stack) {
 
+    // calculate how many floats are in the vertex
+    unsigned int floatCount = stack.getDimensionCount();
+    // calculate how many bytes are in the vertex
+    unsigned int vertexSize = floatCount * sizeof(float);
+    // calculate how many vertices are in the buffer
+    unsigned int vertexCount = size / vertexSize;
 
-//    void VertexArray::AddBuffer(const float *data, const unsigned int size, const LayoutStack &stack) {
-    m_VBOs.emplace_back(std::make_unique<VertexBuffer>(data, size, stack));
+    m_VBOs.emplace_back(std::make_unique<VertexBuffer>(data, vertexCount, stack));
     glBindVertexArray(m_VAO);
     m_VBOs.back()->Bind();
 // FIXME maybe better options
