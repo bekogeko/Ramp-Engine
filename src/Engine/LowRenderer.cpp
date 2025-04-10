@@ -112,11 +112,6 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
 void LowRenderer::DrawText(uint32_t id, Text text) {
-
-    // warning maybe focus more on objParsed's lifetime
-//    auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
-//    assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
-
     LayoutStack stack = {
             VertexLayout(2, false), // Position
             VertexLayout(2, false), // TexCoords
@@ -156,7 +151,8 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     // cursorPos,   vec2
     // texCoord,    vec4
     // size,        vec2
-    std::vector<std::array<float, 8>> instanceDatas;
+    std::vector<float> instanceDatas;
+//    instanceDatas.reserve(text.value.size() * 8);
     int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
         // get min_s, min_t, max_s, max_t
@@ -168,12 +164,14 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
         cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
         cursorPos.y--;
 
-
-        instanceDatas.push_back({
-                                        cursorPos.x, cursorPos.y,
-                                        texCoords[0], texCoords[1], texCoords[2], texCoords[3],
-                                        glyph.size.x / text.fontSize, glyph.size.y / text.fontSize
-                                });
+        instanceDatas.push_back(cursorPos.x);
+        instanceDatas.push_back(cursorPos.y);
+        instanceDatas.push_back(texCoords[0]);
+        instanceDatas.push_back(texCoords[1]);
+        instanceDatas.push_back(texCoords[2]);
+        instanceDatas.push_back(texCoords[3]);
+        instanceDatas.push_back(glyph.size.x / text.fontSize);
+        instanceDatas.push_back(glyph.size.y / text.fontSize);
 
         cursorPos.x += (glyph.advance / text.fontSize);
         cursorPos.y = temp;
@@ -187,15 +185,7 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     };
 
 
-    // create data
-    // cursorPos,   vec2
-    // texCoord,    vec4
-    // size,        vec2
-    std::vector<float> flattenedInstanceData;
-    for (const auto &instance: instanceDatas) {
-        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
-    }
-    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float), vboCursorStack);
+    vertexArray.AddBuffer(instanceDatas.data(), instanceDatas.size() * sizeof(float), vboCursorStack);
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
