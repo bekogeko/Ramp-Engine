@@ -80,13 +80,13 @@ void UILayer::Draw() {
             CLAY({
                      .id = CLAY_ID("Content"),
                      .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16, 16, 16}},
-                     .backgroundColor = {0, 255, 0, 255}
+                     .backgroundColor = {110, 85, 38, 255}
 
                  }) {
                 CLAY({
                          .id = CLAY_ID("lilCube"),
                          .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
-                         .backgroundColor = {255, 120, 12, 255}
+                         .backgroundColor = {28, 50, 202, 255}
                      }) {
                     bool isHovered = Clay_Hovered();
                     if (isHovered) {
