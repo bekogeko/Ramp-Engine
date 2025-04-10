@@ -201,5 +201,13 @@ void UILayer::Update(float deltaTime) {
     Clay_SetPointerState((Clay_Vector2) {mousePos.x, mousePos.y}, isMouseDown);
 }
 
+void UILayer::UpdateWindowSize() {
+    Clay_SetLayoutDimensions(
+            (Clay_Dimensions) {static_cast<float>(Window::getWidth()),
+                               static_cast<float>(Window::getHeight())});
+
+
+}
+
 
 

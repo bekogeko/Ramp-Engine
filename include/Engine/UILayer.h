@@ -16,6 +16,8 @@ public:
 
     void Draw() override;
 
+    static void UpdateWindowSize();
+
 };
 
 #endif //RAY_GAME_UILAYER_H
