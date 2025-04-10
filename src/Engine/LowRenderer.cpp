@@ -292,8 +292,6 @@ void LowRenderer::AddText(uint32_t id, const Text &text) {
     if (m_textBatch.find(id) != m_textBatch.end()) {
         return;
     }
-
-    std::cout << "text added to a batch with id: " << id << "(" << text.value << ")" << std::endl;
     m_textBatch[id] = text;
 }
 
