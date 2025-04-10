@@ -301,7 +301,7 @@ void LowRenderer::DrawRectangleBatched() {
     };
 
 
-    int vertSize = 4;
+    int vertSize = 8;
     int indicesSize = 6;
     unsigned int indices[] = {
             0, 1, 2,
@@ -312,13 +312,15 @@ void LowRenderer::DrawRectangleBatched() {
             indices,
             indicesSize * sizeof(unsigned int)
     );
-    vertexArray.AddBuffer(vertices, vertSize * 2 * sizeof(float), stack);
+    vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
     vertexArray.Bind();
 
     // position vec2
     // size     vec2
     // color    vec4
-    std::vector<std::array<float, 8>> instanceData;
+    std::vector<float> instanceData;
+
+    instanceData.reserve(m_rectBatch.size() * 8);
 
     for (auto &[id, rectangle]: m_rectBatch) {
         auto camSize = HighRenderer::getCamera().getSize();
@@ -338,52 +340,23 @@ void LowRenderer::DrawRectangleBatched() {
                 rectangle.color.a,
         };
 
-        instanceData.push_back({
-                                       position.x, position.y,
-                                       size.x, size.y,
-                                       color.r, color.g, color.b, color.a
-                               });
-
-
+        instanceData.push_back(position.x);
+        instanceData.push_back(position.y);
+        instanceData.push_back(size.x);
+        instanceData.push_back(size.y);
+        instanceData.push_back(color.r);
+        instanceData.push_back(color.g);
+        instanceData.push_back(color.b);
+        instanceData.push_back(color.a);
     }
 
-
-    GLuint vbo_cursorPos;
-    glGenBuffers(1, &vbo_cursorPos);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceData.size(), instanceData.data(), GL_STATIC_DRAW);
-
-    // Set up the vertex attribute pointer for the instance data
-    glEnableVertexAttribArray(1); // Assuming location 2 for instance data
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
-    glVertexAttribDivisor(1, 1); // Tell OpenGL this is an attribute per instance
-
-    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
-
-    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-// Delete the buffer object to prevent memory leak
-
-//
-//    LayoutStack instanceStack = {
-//            VertexLayout(2, true),
-//            VertexLayout(2, true),
-//            VertexLayout(4, true),
-//    };
-//
-//    std::vector<float> flattenedInstanceData;
-//    for (const auto &instance: instanceData) {
-//        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
-//    }
-//    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float),
-//                          instanceStack);
+    LayoutStack instanceStack = {
+            VertexLayout(2, true),
+            VertexLayout(2, true),
+            VertexLayout(4, true),
+    };
+    vertexArray.AddBuffer(instanceData.data(), instanceData.size() * sizeof(float),
+                          instanceStack);
 
 
     auto camSize = HighRenderer::getCamera().getSize();
@@ -430,7 +403,7 @@ void LowRenderer::DrawRectangleBatched() {
     // which means they are not in the current batch
     // but they are in the previous batch
 
-    glDeleteBuffers(1, &vbo_cursorPos);
+//    glDeleteBuffers(1, &vbo_cursorPos);
 }
 
 void LowRenderer::DrawTextBatched() {

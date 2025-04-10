@@ -6,6 +6,7 @@
 #include "Engine/Input.h"
 
 #include "glad/glad.h"
+#include "Engine/UILayer.h"
 #include <iostream>
 
 int Window::s_width = 0;
@@ -13,9 +14,9 @@ int Window::s_height = 0;
 
 
 void Window::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    Window::s_width = width;
-    Window::s_height = height;
-    glViewport(0, 0, width, height);
+    Window::s_width = width / 2;
+    Window::s_height = height / 2;
+    UILayer::UpdateWindowSize();
 }
 
 Window::Window(int width, int height, const char *title) {
