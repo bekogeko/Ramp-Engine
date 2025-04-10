@@ -25,8 +25,13 @@ public:
     //  with EBO Constructor
     VertexArray(const unsigned int *indices, unsigned int indicesSize);
 
-    //    VertexArray(const float *vertices, unsigned int size, const unsigned int *indices, unsigned int indicesSize,
-    //                const LayoutStack &stack);
+
+    /// \brief
+    /// Add buffer to the VertexArray
+    /// \param data
+    /// const pointer to float data
+    /// \param size
+    /// size of the data in bytes
     void AddBuffer(const float *data, unsigned int size, const LayoutStack &stack);
 
 //    rule of five

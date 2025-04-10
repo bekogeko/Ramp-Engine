@@ -14,8 +14,7 @@ VertexBuffer::VertexBuffer(const float *data, const unsigned int size, const Lay
     //  -  GL_DRAW_METHOD
 
     glBufferData(GL_ARRAY_BUFFER,
-//                 sizeof(float) * m_stack.getDimensionCount() * size,
-                 size,
+                 sizeof(float) * m_stack.getDimensionCount() * size,
                  data,
                  GL_STATIC_DRAW);
 }
@@ -33,19 +32,19 @@ void VertexBuffer::Delete() {
 }
 
 void VertexBuffer::Enable(int startLocation) {
-    int i = startLocation;
+    int attribIndex = startLocation;
     for (auto &layout: m_stack) {
-        glEnableVertexAttribArray(i);
-        glVertexAttribPointer(i, layout.getDimension(), GL_FLOAT, GL_FALSE,
+        glEnableVertexAttribArray(attribIndex);
+        glVertexAttribPointer(attribIndex, layout.getDimension(), GL_FLOAT, GL_FALSE,
                               m_stack.getDimensionCount() * sizeof(float),
-                              reinterpret_cast<const void *>(m_stack.getOffsetOfIndex(i)));
+                              reinterpret_cast<const void *>(m_stack.getOffsetOfIndex(attribIndex)));
 
         if (layout.IsInstanced())
-            glVertexAttribDivisor(i, 1); // Tell OpenGL this is an attribute per instance.
+            glVertexAttribDivisor(attribIndex, 1); // Tell OpenGL this is an attribute per instance.
         else
-            glVertexAttribDivisor(i, 0); // Tell OpenGL this is an attribute per vertex.
+            glVertexAttribDivisor(attribIndex, 0); // Tell OpenGL this is an attribute per vertex.
 
-        i++;
+        attribIndex++;
     }
 
 }

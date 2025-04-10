@@ -12,7 +12,15 @@
 
 class VertexBuffer {
 public:
-    explicit VertexBuffer(const float *data, unsigned int size, const LayoutStack &stack);
+    /// \brief
+    /// Constructor for VertexBuffer using Layoutstack
+    /// \param data
+    /// const pointer to float data
+    /// \param count
+    /// number of vertices in the VertexBuffer
+    /// \param stack
+    /// layout of each vertex also used for size calculation
+    explicit VertexBuffer(const float *data, unsigned int count, const LayoutStack &stack);
 
     void Bind() const;
 
