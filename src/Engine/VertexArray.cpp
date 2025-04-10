@@ -55,7 +55,7 @@ VertexArray::VertexArray(const unsigned int *indices,
 }
 
 void VertexArray::AddBuffer(const float *data, const unsigned int size, const LayoutStack &stack) {
-
+    static int startLocation = 0;
     // calculate how many floats are in the vertex
     unsigned int floatCount = stack.getDimensionCount();
     // calculate how many bytes are in the vertex

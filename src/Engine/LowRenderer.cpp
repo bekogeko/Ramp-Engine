@@ -180,57 +180,22 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     }
 
     // warning VBO api should be used
-//
-//    LayoutStack vboCursorStack = {
-//            VertexLayout(2, true), // Position
-//            VertexLayout(4, true), // TexCoords
-//            VertexLayout(2, true) // size
-//    };
-//
-//    std::vector<float> flattenedInstanceData;
-//    for (const auto &instance: instanceDatas) {
-//        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
-//    }
-//
-//    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float), stack);
-
-//    VertexBuffer vboCursorPos;
-
-    GLuint vbo_cursorPos;
-    // if vbo is already created and upload
-    if (m_textVBOs.find(id) == m_textVBOs.end())
-        glGenBuffers(1, &vbo_cursorPos);
-    else
-        vbo_cursorPos = m_textVBOs[id];
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_cursorPos);
-
-    if (m_textVBOs.find(id) == m_textVBOs.end())
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8 * instanceDatas.size(), instanceDatas.data(), GL_STATIC_DRAW);
-
-    // Set up the vertex attribute pointer for the instance data
-    glEnableVertexAttribArray(2); // Assuming location 2 for instance data
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) nullptr);
-    glVertexAttribDivisor(2, 1); // Tell OpenGL this is an attribute per instance
-
-    glEnableVertexAttribArray(3); // Assuming location 2 for instance data
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 2));
-    glVertexAttribDivisor(3, 1); // Tell OpenGL this is an attribute per instance
-
-    glEnableVertexAttribArray(4); // Assuming location 2 for instance data
-    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (sizeof(float) * 6));
-    glVertexAttribDivisor(4, 1); // Tell OpenGL this is an attribute per instance
+    LayoutStack vboCursorStack = {
+            VertexLayout(2, true), // Position
+            VertexLayout(4, true), // TexCoords
+            VertexLayout(2, true) // size
+    };
 
 
-
-    // Unbind the buffer
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    VertexArray::Unbind();
-
-    // set
-    m_textVBOs[id] = vbo_cursorPos;
-
+    // create data
+    // cursorPos,   vec2
+    // texCoord,    vec4
+    // size,        vec2
+    std::vector<float> flattenedInstanceData;
+    for (const auto &instance: instanceDatas) {
+        flattenedInstanceData.insert(flattenedInstanceData.end(), instance.begin(), instance.end());
+    }
+    vertexArray.AddBuffer(flattenedInstanceData.data(), flattenedInstanceData.size() * sizeof(float), vboCursorStack);
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
