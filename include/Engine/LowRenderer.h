@@ -18,11 +18,10 @@ private:
     static double currentTime;
     static std::map<uint32_t, Rectangle> m_rectBatch;
     static std::map<uint32_t, Text> m_textBatch;
+    static std::map<uint32_t, Text> m_previousTextBatch;
+    // id to vertexArray
+    static std::map<uint32_t, std::unique_ptr<VertexArray>> m_vertexArrayBatch;
 
-    static std::map<uint32_t, Text> m_prevTextBatch;
-
-    // cache for text batch vbos
-    static std::map<uint32_t, unsigned int> m_textVBOs;
 
 public:
     static float getDeltaTime();

@@ -17,8 +17,8 @@ double LowRenderer::currentTime = 0.0f; // Initialization of lastTime
 double LowRenderer::lastTime = 0.0f; // Initialization of lastTime
 std::map<uint32_t, Rectangle> LowRenderer::m_rectBatch;
 std::map<uint32_t, Text> LowRenderer::m_textBatch;
-std::map<uint32_t, Text> LowRenderer::m_prevTextBatch;
-std::map<uint32_t, unsigned int> LowRenderer::m_textVBOs;
+std::map<uint32_t, Text> LowRenderer::m_previousTextBatch;
+std::map<uint32_t, std::unique_ptr<VertexArray>> LowRenderer::m_vertexArrayBatch;
 
 
 float LowRenderer::getDeltaTime() {
@@ -42,23 +42,16 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
             -0.5, 0.5
     };
 
-    int vertSize = 0;
-    int indicesSize = 0;
-    unsigned int *indices = nullptr;
-    {
-        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
-        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
 
-        indices = new unsigned int[objParsed.indices.size()];
-
-        // move vertices and indices
-        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
-        vertSize = objParsed.vertices.size();
-        indicesSize = objParsed.indices.size();
-    }
+    int vertSize = 8;
+    int indicesSize = 6;
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
 
     VertexArray vertexArray(indices, indicesSize * sizeof(unsigned int));
-    vertexArray.AddBuffer(vertices, (vertSize * 2) * sizeof(float), stack);
+    vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -106,86 +99,94 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     vertexArray.DrawElements();
     ShaderProgram::Unbind();
     VertexArray::Unbind();
-
-    delete[] indices;
 }
 
 
 void LowRenderer::DrawText(uint32_t id, Text text) {
-    LayoutStack stack = {
-            VertexLayout(2, false), // Position
-            VertexLayout(2, false), // TexCoords
-    };
 
-    float vertices[] = {
-            // position   texcoord
-            0.5, 0.5, 1.0, 0,
-            0.5, -0.5, 1.0, 1.0,
-            -0.5, -0.5, 0, 1.0,
-            -0.5, 0.5, 0, 0
-    };
-
-    int vertSize = 16;
-    int indicesSize = 6;
-    unsigned int indices[] = {
-            0, 1, 2,
-            2, 3, 0
-    };
-
-    VertexArray vertexArray(
-            indices,
-            indicesSize * sizeof(unsigned int));
-
-    vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
-    vertexArray.Bind();
 
     //fixme
     auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
     assert(fontTex->getHashId() != 0);
 
 
-    glm::vec2 initialCursor = {0.0f, .5f};
-    //activeCursor
-    glm::vec2 cursorPos = initialCursor;
+    // if there is no vertexArray for this id
+    if (m_vertexArrayBatch.find(id) == m_vertexArrayBatch.end()) {
 
-    // cursorPos,   vec2
-    // texCoord,    vec4
-    // size,        vec2
-    std::vector<float> instanceDatas;
-//    instanceDatas.reserve(text.value.size() * 8);
-    int emptyChars = 0;
-    for (int i = 0; i < text.value.size(); ++i) {
-        // get min_s, min_t, max_s, max_t
-        auto glyph = fontTex->getChar(text.value[i]);
-        auto texCoords = fontTex->getTextureCoords(text.value[i]);
+        LayoutStack stack = {
+                VertexLayout(2, false), // Position
+                VertexLayout(2, false), // TexCoords
+        };
+
+        float vertices[] = {
+                // position   texcoord
+                0.5, 0.5, 1.0, 0,
+                0.5, -0.5, 1.0, 1.0,
+                -0.5, -0.5, 0, 1.0,
+                -0.5, 0.5, 0, 0
+        };
+
+        int vertSize = 16;
+        int indicesSize = 6;
+        unsigned int indices[] = {
+                0, 1, 2,
+                2, 3, 0
+        };
+
+        auto *vertexArray = new VertexArray(
+                indices,
+                indicesSize * sizeof(unsigned int));
+
+        vertexArray->AddBuffer(vertices, vertSize * sizeof(float), stack);
+        vertexArray->Bind();
 
 
-        auto temp = cursorPos.y;
-        cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
-        cursorPos.y--;
+        glm::vec2 initialCursor = {0.0f, .5f};
+        //activeCursor
+        glm::vec2 cursorPos = initialCursor;
 
-        instanceDatas.push_back(cursorPos.x);
-        instanceDatas.push_back(cursorPos.y);
-        instanceDatas.push_back(texCoords[0]);
-        instanceDatas.push_back(texCoords[1]);
-        instanceDatas.push_back(texCoords[2]);
-        instanceDatas.push_back(texCoords[3]);
-        instanceDatas.push_back(glyph.size.x / text.fontSize);
-        instanceDatas.push_back(glyph.size.y / text.fontSize);
+        // cursorPos,   vec2
+        // texCoord,    vec4
+        // size,        vec2
+        std::vector<float> instanceDatas;
+        instanceDatas.reserve(text.value.size() * 8);
 
-        cursorPos.x += (glyph.advance / text.fontSize);
-        cursorPos.y = temp;
+        for (int i = 0; i < text.value.size(); ++i) {
+            // get min_s, min_t, max_s, max_t
+            auto glyph = fontTex->getChar(text.value[i]);
+            auto texCoords = fontTex->getTextureCoords(text.value[i]);
+
+
+            auto temp = cursorPos.y;
+            cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
+            cursorPos.y--;
+
+            instanceDatas.push_back(cursorPos.x);
+            instanceDatas.push_back(cursorPos.y);
+            instanceDatas.push_back(texCoords[0]);
+            instanceDatas.push_back(texCoords[1]);
+            instanceDatas.push_back(texCoords[2]);
+            instanceDatas.push_back(texCoords[3]);
+            instanceDatas.push_back(glyph.size.x / text.fontSize);
+            instanceDatas.push_back(glyph.size.y / text.fontSize);
+
+            cursorPos.x += (glyph.advance / text.fontSize);
+            cursorPos.y = temp;
+        }
+
+        LayoutStack vboCursorStack = {
+                VertexLayout(2, true), // Position
+                VertexLayout(4, true), // TexCoords
+                VertexLayout(2, true) // size
+        };
+
+
+        vertexArray->AddBuffer(instanceDatas.data(), instanceDatas.size() * sizeof(float), vboCursorStack);
+        m_vertexArrayBatch[id] = std::unique_ptr<VertexArray>(vertexArray);
     }
 
-    // warning VBO api should be used
-    LayoutStack vboCursorStack = {
-            VertexLayout(2, true), // Position
-            VertexLayout(4, true), // TexCoords
-            VertexLayout(2, true) // size
-    };
 
-
-    vertexArray.AddBuffer(instanceDatas.data(), instanceDatas.size() * sizeof(float), vboCursorStack);
+    m_vertexArrayBatch[id]->Bind();
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -233,11 +234,11 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     }
 
 
-    vertexArray.Bind();
+    m_vertexArrayBatch[id]->Bind();
 
 //    std::cout << "Empty Chars :" << emptyChars << std::endl;
 //    std::cout << "Length Chars :" << text.value.length() << std::endl;
-    vertexArray.DrawElementsInstanced(text.value.length() - emptyChars);
+    m_vertexArrayBatch[id]->DrawElementsInstanced(text.value.length());
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
@@ -286,7 +287,6 @@ void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
 }
 
 void LowRenderer::DrawRectangleBatched() {
-
     LayoutStack stack = {
             VertexLayout(2, false), // Position
     };
@@ -398,50 +398,32 @@ void LowRenderer::DrawRectangleBatched() {
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
-
-    // delete the not refreshed batch elements
-    // which means they are not in the current batch
-    // but they are in the previous batch
-
-//    glDeleteBuffers(1, &vbo_cursorPos);
 }
 
 void LowRenderer::DrawTextBatched() {
 
-
-    // go through prevText batch
-    for (const auto &[prevId, prevText]: m_prevTextBatch) {
-        // if this prev_id is NOT on the active batch
-        if (m_textBatch.find(prevId) == m_textBatch.end()) {
-            // then delete the vbo'
-            glDeleteBuffers(1, &m_textVBOs[prevId]);
-            // delete from the map
-            // multiple ids can share the same vbo
-            // if one vbo is deleted then all of them should be deleted
-            m_textVBOs.erase(prevId);
+    // go through all the previous text
+    for (const auto &[id, text]: m_previousTextBatch) {
+        // if the text is not in the current batch
+        if (m_textBatch.find(id) == m_textBatch.end()) {
+            // remove the text from the batch
+            m_vertexArrayBatch.erase(id);
         } else {
-            // if this prev_id is on the active batch
-            // but the new batch contains different text
-            // then delete the vbo
-            if (m_textBatch[prevId].value != prevText.value) {
-                glDeleteBuffers(1, &m_textVBOs[prevId]);
-                // delete from the map
-                // multiple ids can share the same vbo
-                // if one vbo is deleted then all of them should be deleted
-                m_textVBOs.erase(prevId);
+            // if the text is in the current batch
+            // check if the text is the same
+            if (m_textBatch[id].value != text.value) {
+                m_vertexArrayBatch.erase(id);
             }
-
-
         }
     }
-
 
     for (const auto &[id, text]: m_textBatch) {
         DrawText(id, text);
     }
 
-    // now batch is drawn swap the batch
-    m_prevTextBatch = m_textBatch;
+    // copy the current text batch to the previous text batch
+    m_previousTextBatch.clear();
+    m_previousTextBatch = m_textBatch;
     m_textBatch.clear();
     //
     std::cout << "Text batch cleared\n";
@@ -489,7 +471,6 @@ void LowRenderer::DrawTextWorld(Text text) {
     // size,        vec2
     std::vector<float> instanceDatas;
 //    instanceDatas.reserve(text.value.size() * 8);
-    int emptyChars = 0;
     for (int i = 0; i < text.value.size(); ++i) {
         // get min_s, min_t, max_s, max_t
         auto glyph = fontTex->getChar(text.value[i]);
@@ -573,10 +554,7 @@ void LowRenderer::DrawTextWorld(Text text) {
 
 
     vertexArray.Bind();
-
-//    std::cout << "Empty Chars :" << emptyChars << std::endl;
-//    std::cout << "Length Chars :" << text.value.length() << std::endl;
-    vertexArray.DrawElementsInstanced(text.value.length() - emptyChars);
+    vertexArray.DrawElementsInstanced(text.value.length());
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
@@ -599,23 +577,15 @@ void LowRenderer::DrawRectangleWorld(Rectangle rectangle) {
             -0.5, 0.5
     };
 
-    int vertSize = 0;
-    int indicesSize = 0;
-    unsigned int *indices = nullptr;
-    {
-        auto objParsed = *ResourceManager::LoadObject("square.obj").lock();
-        assert(objParsed.isTextured && (objParsed.texCoords.size() == objParsed.vertices.size()));
-
-        indices = new unsigned int[objParsed.indices.size()];
-
-        // move vertices and indices
-        std::copy(objParsed.indices.begin(), objParsed.indices.end(), indices);
-        vertSize = objParsed.vertices.size();
-        indicesSize = objParsed.indices.size();
-    }
+    int vertSize = 8;
+    int indicesSize = 6;
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
 
     VertexArray vertexArray(indices, indicesSize * sizeof(unsigned int));
-    vertexArray.AddBuffer(vertices, (vertSize * 2) * sizeof(float), stack);
+    vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
 
     auto camSize = HighRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
@@ -662,7 +632,4 @@ void LowRenderer::DrawRectangleWorld(Rectangle rectangle) {
     vertexArray.DrawElements();
     ShaderProgram::Unbind();
     VertexArray::Unbind();
-
-    delete[] indices;
-
 }
