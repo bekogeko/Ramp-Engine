@@ -158,7 +158,7 @@ void UILayer::Draw() {
                 rect.color.a = renderCommand->renderData.rectangle.backgroundColor.a / 255;
 
                 // FIXME: corner radius is not working for all 4
-                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
+//                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
 
                 LowRenderer::AddRectangle(renderCommand->id, rect);
                 break;
