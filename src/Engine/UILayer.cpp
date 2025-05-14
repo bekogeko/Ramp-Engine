@@ -134,13 +134,15 @@ void UILayer::Draw() {
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
     for (int i = 0; i < renderCommands.length; ++i) {
         Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
+        Rectangle rect;
+        Text text;
 
         switch (renderCommand->commandType) {
             default:
                 std::cerr << "Unhandled Command " << renderCommand->commandType << "\n";
                 break;
             case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
-                Rectangle rect;
+
 
                 rect.position.x = renderCommand->boundingBox.x;
                 rect.position.y = renderCommand->boundingBox.y;
@@ -155,11 +157,13 @@ void UILayer::Draw() {
                 rect.color.b = renderCommand->renderData.rectangle.backgroundColor.b / 255;
                 rect.color.a = renderCommand->renderData.rectangle.backgroundColor.a / 255;
 
+                // FIXME: corner radius is not working for all 4
+                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
+
                 LowRenderer::AddRectangle(renderCommand->id, rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
-                Text text;
                 text.color.r = (renderCommand->renderData.text.textColor.r) / 255;
                 text.color.g = renderCommand->renderData.text.textColor.g / 255;
                 text.color.b = renderCommand->renderData.text.textColor.b / 255;

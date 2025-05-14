@@ -27,6 +27,17 @@ void ShaderProgram::SetUniform2f(const std::string &name, float x, float y) cons
     }
 }
 
+void ShaderProgram::SetUniform1f(const std::string &name, float x) const {
+    int location = glGetUniformLocation(programID, name.c_str());
+    if (location == -1) {
+#ifdef GL_ERROR_SILENT
+        std::cerr << "Warning: uniform '" << name << "' doesn't exist!\n";
+#endif
+    } else {
+        glUniform1f(location, x);
+    }
+}
+
 void ShaderProgram::SetUniformMat4(const std::string &name, const float *matrix) const {
     int location = glGetUniformLocation(programID, name.c_str());
     if (location == -1) {

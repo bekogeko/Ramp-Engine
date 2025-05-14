@@ -84,7 +84,7 @@ public:
         std::shared_ptr<T> comp = std::make_shared<T>();
         comp->attach(m_Id);
 // warning this might be released accidentally
-        m_components[std::type_index(typeid(*comp))] = comp;
+        m_components[std::type_index(typeid(T))] = comp;
     }
 
     // getComponent
