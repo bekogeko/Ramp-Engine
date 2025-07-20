@@ -44,8 +44,8 @@ add_subdirectory(thirdparty/glm)                #math
 add_subdirectory(thirdparty/imgui-docking)      #ui
 #add_subdirectory(thirdparty/gl2d)				#rendering
 add_subdirectory(thirdparty/box2d)              #Physics
-add_subdirectory(thirdparty/clay)              #Physics
-
+add_subdirectory(thirdparty/clay)               #Physics
+add_subdirectory(thirdparty/entt)               #Entity Component System
 
 # MY_SOURCES is defined to be a list of all the source files for my game 
 # DON'T ADD THE SOURCES BY HAND, they are already added with this macro
@@ -111,5 +111,5 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw
-        glad stb_image stb_truetype imgui box2d clay)
+        glad stb_image stb_truetype imgui box2d clay EnTT)
 

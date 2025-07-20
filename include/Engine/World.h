@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <map>
+#include <entt/entt.hpp>
 
 #include "Engine/Object/Object.h"
 #include "Layer.h"
@@ -46,7 +47,7 @@ private:
 
     // array of game objects
     static std::map<unsigned int, std::shared_ptr<Object>> m_objects;
-
+    entt::registry m_registry;
 
 };
 
