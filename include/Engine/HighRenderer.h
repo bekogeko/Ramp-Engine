@@ -8,7 +8,6 @@
 #include <iostream>
 #include <map>
 
-#include "Engine/Object/Object.h"
 #include "OrthoCamera.h"
 #include "Layer.h"
 

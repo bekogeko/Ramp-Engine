@@ -4,7 +4,6 @@
 
 #include "Engine/HighRenderer.h"
 #include "Engine/UILayer.h"
-#include "Engine/World.h"
 #include "Engine/LowRenderer.h"
 #include <sstream>
 
@@ -32,11 +31,10 @@ void HighRenderer::Update(float deltaTime) {
 void HighRenderer::Init() {
     int nextIndex = layers.size() + 1;
 
-    Layer *worldLayer = new World(nextIndex);
-    layers.push_back(std::unique_ptr<Layer>(worldLayer));
+//    Layer *worldLayer = new World(nextIndex);
+//    layers.push_back(std::unique_ptr<Layer>(worldLayer));
+//    nextIndex = layers.size() + 1;
 
-
-    nextIndex = layers.size() + 1;
     Layer *uiLayer = new UILayer(nextIndex);
     layers.push_back(std::unique_ptr<Layer>(uiLayer));
 }

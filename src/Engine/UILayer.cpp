@@ -15,6 +15,8 @@
 #define CLAY_IMPLEMENTATION
 
 #include "clay.h"
+#include "Engine/ResourceManager.h"
+#include "Engine/LowRenderer.h"
 
 const Clay_Color COLOR_ORANGE = (Clay_Color) {225, 138, 50, 255};
 
