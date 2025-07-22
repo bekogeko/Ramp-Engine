@@ -10,9 +10,11 @@
 #include "Engine/Window.h"
 #include "Engine/HighRenderer.h"
 
-
+#include "Engine/Scene.h"
 #include "Engine/LowRenderer.h"
 #include "Engine/ResourceManager.h"
+#include "Engine/Entity.h"
+#include "Engine/Components/MeshComponent.h"
 
 static void error_callback(int error, const char *description) {
     std::cerr << "Error: " << description << "\n";
@@ -53,6 +55,12 @@ int main() {
 //    Physics::Init();
 
     HighRenderer::Init();
+    Scene scene;
+
+    {
+        Entity square = scene.CreateEntity();
+        square.AddComponent<MeshComponent>(MeshComponent::LoadFromFile("square.obj"));
+    }
 
     // enable alpha blending
     // 0 means opaque
@@ -79,6 +87,7 @@ int main() {
         HighRenderer::Update(LowRenderer::getDeltaTime());
         HighRenderer::Draw();
 
+        scene.Draw();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
