@@ -14,6 +14,7 @@ public:
     glm::vec2 size;
 
     glm::vec4 color;
+    float cornerRadius;// 1 value for now not individual setup
 
 };
 

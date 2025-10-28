@@ -38,6 +38,8 @@ public:
 
     static void DrawRectangleBatched();
 
+    static void DrawRoundedRectangle(uint32_t id, Rectangle rectangle);
+
     static void AddText(uint32_t id, const Text &text);
 
     static void DrawTextBatched();

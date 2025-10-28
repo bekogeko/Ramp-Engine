@@ -11,6 +11,9 @@
 #include "Engine/ResourceManager.h"
 #include <GLFW/glfw3.h>
 
+#include "Engine/Renderer/CircleGenerator.h"
+#include "Engine/Renderer/RoundedRectangleGenerator.h"
+
 
 double LowRenderer::currentTime = 0.0f; // Initialization of lastTime
 double LowRenderer::lastTime = 0.0f; // Initialization of lastTime
@@ -271,7 +274,8 @@ void LowRenderer::AddRectangle(uint32_t id, const Rectangle &rectangle) {
         // if it is, then check if the rectangle is the same
         if (m_rectBatch[id].position == rectangle.position &&
             m_rectBatch[id].size == rectangle.size &&
-            m_rectBatch[id].color == rectangle.color) {
+            m_rectBatch[id].color == rectangle.color &&
+            m_rectBatch[id].cornerRadius == rectangle.cornerRadius) {
             // if it is the same, then do nothing
             return;
         } else {
@@ -397,6 +401,86 @@ void LowRenderer::DrawRectangleBatched() {
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
+}
+
+void LowRenderer::DrawRoundedRectangle(uint32_t id, Rectangle rectangle) {
+
+
+
+    // Build rounded-rect boundary in local space [-0.5, 0.5] and render via VertexArray
+    float rx = std::min(0.5f, rectangle.cornerRadius / std::max(1.0f, rectangle.size.x));
+    float ry = std::min(0.5f, rectangle.cornerRadius / std::max(1.0f, rectangle.size.y));
+
+    // Use the rounded-rectangle generator to derive corner centers (in [0,1]) then shift to [-0.5,0.5]
+    uint32_t segmentsPerCorner = 16; // tesselation per corner
+    RoundedRectangleGenerator rr({1.0f, 1.0f}, rectangle.cornerRadius/rectangle.size.x, segmentsPerCorner);
+
+    std::vector<glm::vec2> verts;
+    verts.reserve(segmentsPerCorner * 4);
+    for (uint32_t i = 0; i < segmentsPerCorner; ++i) {
+        glm::vec2 corner = rr.getPoint(i) + glm::vec2(-0.5f, -0.5f);
+        verts.push_back(corner);
+    }
+
+    // Indices for triangle fan
+    std::vector<unsigned int> indices;
+    unsigned int boundaryCount = static_cast<unsigned int>(verts.size()-1);
+    indices.reserve(boundaryCount * 3);
+    indices.push_back(0);
+    for (unsigned int i = 1; i < boundaryCount; ++i) {
+        indices.push_back(i);
+        indices.push_back(i + 1);
+    }
+
+    // Upload to VAO/VBO and draw
+    LayoutStack stack = { VertexLayout(2, false) }; // Position only
+
+    std::vector<float> vertexFloats;
+    vertexFloats.reserve(verts.size() * 2);
+    for (const auto& v : verts) {
+        vertexFloats.push_back(v.x);
+        vertexFloats.push_back(v.y);
+    }
+
+    VertexArray vertexArray(indices.data(), static_cast<unsigned int>(indices.size() * sizeof(unsigned int)));
+    vertexArray.AddBuffer(vertexFloats.data(), static_cast<unsigned int>(vertexFloats.size() * sizeof(float)), stack);
+
+    // Build transform (same scheme as other UI rects)
+    auto camSize = HighRenderer::getCamera().getSize();
+    auto screen  = glm::vec2(Window::getWidth(), Window::getHeight());
+
+    glm::vec2 size = {
+        (rectangle.size.x * 2.0f * camSize.x) / screen.x,
+        (rectangle.size.y * 2.0f * camSize.y) / screen.y
+    };
+
+    glm::vec2 position = {
+        -camSize.x + (size.x * 0.5f) + ((rectangle.position.x * 2.0f * camSize.x) / screen.x),
+         camSize.y - (size.y * 0.5f) - ((rectangle.position.y * 2.0f * camSize.y) / screen.y)
+    };
+
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::scale(model, glm::vec3(size, 1.0f));
+
+    auto viewMat = HighRenderer::getCamera().getViewMatrix();
+    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+
+    auto shader_ptr = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag");
+    {
+        auto shader = shader_ptr.lock();
+        shader->Bind();
+        shader->SetUniformMat4("uProjection", &projMat[0][0]);
+        shader->SetUniformMat4("uView", &viewMat[0][0]);
+        shader->SetUniformMat4("uModel", &model[0][0]);
+        shader->SetUniform4f("uColor", rectangle.color.r, rectangle.color.g, rectangle.color.b, rectangle.color.a);
+    }
+
+    vertexArray.Bind();
+    vertexArray.DrawElements(VertexArray::DrawMode::TRIANGLE_FAN);
+    ShaderProgram::Unbind();
+    VertexArray::Unbind();
+
 }
 
 void LowRenderer::DrawTextBatched() {

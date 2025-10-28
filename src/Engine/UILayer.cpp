@@ -65,32 +65,34 @@ void UILayer::Draw() {
 
     CLAY(CLAY_ID("OuterContainer"), {
          .layout = {
-         .sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
-         .padding = {16, 16, 16, 16},
-         .childGap = 16,
-         .childAlignment = {
-         CLAY_ALIGN_X_LEFT,
-         CLAY_ALIGN_Y_TOP
-         },
-         .layoutDirection = CLAY_LEFT_TO_RIGHT
+             .sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
+             .padding = {16, 16, 16, 16},
+             .childGap = 16,
+             .childAlignment = {
+                 CLAY_ALIGN_X_LEFT,
+                 CLAY_ALIGN_Y_TOP
+             },
+             .layoutDirection = CLAY_LEFT_TO_RIGHT
          }
-         }) {
+    }) {
         CLAY(CLAY_ID("ContentBox"), {
              .layout = {
-             .sizing = {
-             CLAY_SIZING_FIXED(82), CLAY_SIZING_FIXED(82)
+                .sizing = {
+                    CLAY_SIZING_FIXED(160), CLAY_SIZING_FIXED(160)
+                }
              }
-             }
-             }) {
+        }) {
             CLAY(CLAY_ID("Content"), {
                  .layout = {.sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding = {16, 16, 16, 16}},
-                 .backgroundColor = {110, 85, 38, 255}
+                 // .backgroundColor = {110, 85, 38, 255},
+                 .backgroundColor = {110, 85, 38, 255},
+                .cornerRadius = {8,8,8,8 }
 
-                 }) {
+            }) {
                 CLAY(CLAY_ID("lilCube"), {
                      .layout = {.sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
                      .backgroundColor = {28, 50, 202, 255}
-                     }) {
+                }) {
                     bool isHovered = Clay_Hovered();
                     if (isHovered) {
                         CLAY_TEXT(CLAY_STRING("hello world"),
@@ -159,9 +161,14 @@ void UILayer::Draw() {
                 rect.color.a = renderCommand->renderData.rectangle.backgroundColor.a / 255;
 
                 // FIXME: corner radius is not working for all 4
-                //                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
+                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
+                if (rect.cornerRadius > 0) {
+                    LowRenderer::DrawRoundedRectangle(renderCommand->id, rect);
+                }else {
+                    LowRenderer::AddRectangle(renderCommand->id, rect);
+                }
 
-                LowRenderer::AddRectangle(renderCommand->id, rect);
+                // LowRenderer::DrawRoundedRectangle(renderCommand->id, rect);
                 break;
             case CLAY_RENDER_COMMAND_TYPE_TEXT:
 
