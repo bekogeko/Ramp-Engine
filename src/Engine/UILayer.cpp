@@ -16,13 +16,11 @@
 
 #include "clay.h"
 
-const Clay_Color COLOR_ORANGE = (Clay_Color) {225, 138, 50, 255};
+const Clay_Color COLOR_ORANGE = (Clay_Color){225, 138, 50, 255};
 
 void OnUserInterfaceError(Clay_ErrorData e) {
-
     // log error
     std::cerr << "Error: An error message here " << e.errorText.chars << std::endl;
-
 }
 
 // Example measure text function
@@ -34,7 +32,6 @@ static Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig
     auto sliced = std::string(text.chars, text.length);
 
     return {text.length * config->fontSize * 1.0f, config->fontSize * 1.0f};
-
 }
 
 
@@ -45,90 +42,92 @@ UILayer::UILayer(int index) : Layer(index) {
     Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, malloc(totalMemorySize));
 
 
-    Clay_Initialize(arena, (Clay_Dimensions) {static_cast<float>(Window::getWidth()),
-                                              static_cast<float>(Window::getHeight())},
-                    {.errorHandlerFunction = OnUserInterfaceError});
+    Clay_Initialize(arena, (Clay_Dimensions)
+                    {
+                        static_cast<float>(Window::getWidth()),
+                        static_cast<float>(Window::getHeight())
+                    }
+                    ,
+                    {
+                        .
+                        errorHandlerFunction = OnUserInterfaceError
+                    }
+    );
 
     // Tell clay how to measure text
     Clay_SetMeasureTextFunction(MeasureText, nullptr);
-
 }
 
 void UILayer::Draw() {
     Clay_BeginLayout();
 
-    CLAY({
-             .id = CLAY_ID("OuterContainer"),
-             .layout = {
-                .sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
-                .padding={16, 16, 16, 16},
-                .childGap=16,
-                .childAlignment={
-                        CLAY_ALIGN_X_LEFT,
-                        CLAY_ALIGN_Y_TOP
-                },
-                .layoutDirection = CLAY_LEFT_TO_RIGHT}
+    CLAY(CLAY_ID("OuterContainer"), {
+         .layout = {
+         .sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
+         .padding = {16, 16, 16, 16},
+         .childGap = 16,
+         .childAlignment = {
+         CLAY_ALIGN_X_LEFT,
+         CLAY_ALIGN_Y_TOP
+         },
+         .layoutDirection = CLAY_LEFT_TO_RIGHT
+         }
          }) {
-        CLAY({
-                 .id = CLAY_ID("ContentBox"),
-                 .layout = {
-                    .sizing={
-                            CLAY_SIZING_FIXED(82), CLAY_SIZING_FIXED(82)
-                    }
-            }
+        CLAY(CLAY_ID("ContentBox"), {
+             .layout = {
+             .sizing = {
+             CLAY_SIZING_FIXED(82), CLAY_SIZING_FIXED(82)
+             }
+             }
              }) {
-            CLAY({
-                     .id = CLAY_ID("Content"),
-                     .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding={16, 16, 16, 16}},
-                     .backgroundColor = {110, 85, 38, 255}
+            CLAY(CLAY_ID("Content"), {
+                 .layout = {.sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding = {16, 16, 16, 16}},
+                 .backgroundColor = {110, 85, 38, 255}
 
                  }) {
-                CLAY({
-                         .id = CLAY_ID("lilCube"),
-                         .layout = {.sizing={CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
-                         .backgroundColor = {28, 50, 202, 255}
+                CLAY(CLAY_ID("lilCube"), {
+                     .layout = {.sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
+                     .backgroundColor = {28, 50, 202, 255}
                      }) {
                     bool isHovered = Clay_Hovered();
                     if (isHovered) {
                         CLAY_TEXT(CLAY_STRING("hello world"),
-                                  CLAY_TEXT_CONFIG({.textColor= {255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
-                                          "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16,}));
+                                  CLAY_TEXT_CONFIG({
+                                      .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
+                                          "fonts/JetBrainsMono-Regular.ttf", 16),
+                                      .fontSize = 16,
+                                      }));
                     } else {
                         CLAY_TEXT(CLAY_STRING("a bc def"),
-                                  CLAY_TEXT_CONFIG({.textColor= {255, 120, 12, 255}, .fontId=ResourceManager::GetFontId(
-                                          "fonts/JetBrainsMono-Regular.ttf", 16), .fontSize = 16,}));
+                                  CLAY_TEXT_CONFIG({
+                                      .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
+                                          "fonts/JetBrainsMono-Regular.ttf", 16),
+                                      .fontSize = 16,
+                                      }));
                     }
-
-
                 }
             }
         }
-        CLAY({
-                 .id = CLAY_ID("ContentBox2"),
-                 .layout = {.sizing={CLAY_SIZING_FIXED(240), CLAY_SIZING_GROW()}}
+        CLAY(CLAY_ID("ContentBox2"), {
+             .layout = {.sizing = {CLAY_SIZING_FIXED(240), CLAY_SIZING_GROW()}}
              }) {
-            CLAY({
-                     .id = CLAY_ID("Content2"),
-                     .layout = {.sizing={CLAY_SIZING_FIT(), CLAY_SIZING_FIT()}, .padding={16, 16, 16, 16}},
-                     .backgroundColor = {255, 255, 255, 255}
+            CLAY(CLAY_ID("Content2"), {
+                 .layout = {.sizing = {CLAY_SIZING_FIT(), CLAY_SIZING_FIT()}, .padding = {16, 16, 16, 16}},
+                 .backgroundColor = {255, 255, 255, 255}
                  }
             ) {
-
-
-//                CLAY_TEXT(CLAY_STRING("hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim"),
+                //                CLAY_TEXT(CLAY_STRING("hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim"),
                 CLAY_TEXT(CLAY_STRING("hello world yanki gap wallahi billahi essalami salami kardecim"),
                           CLAY_TEXT_CONFIG({
-                                                   .textColor={12, 120, 255, 255},
-                                                   .fontId=ResourceManager::GetFontId(
-                                                           "fonts/JetBrainsMono-Regular.ttf", 12),
-                                                   .fontSize = 12,
+                              .textColor = {12, 120, 255, 255},
+                              .fontId = ResourceManager::GetFontId(
+                                  "fonts/JetBrainsMono-Regular.ttf", 12),
+                              .fontSize = 12,
 
-                                                   .wrapMode=CLAY_TEXT_WRAP_WORDS,
-                                           }));
-
+                              .wrapMode = CLAY_TEXT_WRAP_WORDS,
+                              }));
             }
         }
-
     }
 
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
@@ -158,7 +157,7 @@ void UILayer::Draw() {
                 rect.color.a = renderCommand->renderData.rectangle.backgroundColor.a / 255;
 
                 // FIXME: corner radius is not working for all 4
-//                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
+                //                rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
 
                 LowRenderer::AddRectangle(renderCommand->id, rect);
                 break;
@@ -187,7 +186,6 @@ void UILayer::Draw() {
                 LowRenderer::AddText(renderCommand->id, text);
                 break;
         }
-
     }
 
     LowRenderer::DrawRectangleBatched();
@@ -200,15 +198,23 @@ void UILayer::Update(float deltaTime) {
     auto isMouseDown = Input::getMouseButton(0);
 
     // Update internal pointer position for handling mouseover / click / touch events
-    Clay_SetPointerState((Clay_Vector2) {mousePos.x, mousePos.y}, isMouseDown);
+    Clay_SetPointerState((Clay_Vector2)
+                         {
+                             mousePos.x, mousePos.y
+                         }
+                         ,
+                         isMouseDown
+    );
 }
 
 void UILayer::UpdateWindowSize() {
     Clay_SetLayoutDimensions(
-            (Clay_Dimensions) {static_cast<float>(Window::getWidth()),
-                               static_cast<float>(Window::getHeight())});
-
-
+        (Clay_Dimensions)
+        {
+            static_cast<float>(Window::getWidth()),
+            static_cast<float>(Window::getHeight())
+        }
+    );
 }
 
 
