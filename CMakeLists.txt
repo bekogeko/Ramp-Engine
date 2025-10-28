@@ -34,7 +34,7 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 
-add_subdirectory(thirdparty/glfw-3.3.2)         #window oppener
+add_subdirectory(thirdparty/glfw)         #window oppener
 add_subdirectory(thirdparty/glad)               #opengl loader
 add_subdirectory(thirdparty/stb_image)          #loading immaged
 add_subdirectory(thirdparty/stb_truetype)       #loading ttf files
@@ -44,7 +44,7 @@ add_subdirectory(thirdparty/glm)                #math
 add_subdirectory(thirdparty/imgui-docking)      #ui
 #add_subdirectory(thirdparty/gl2d)				#rendering
 add_subdirectory(thirdparty/box2d)              #Physics
-add_subdirectory(thirdparty/clay)               #Physics
+add_subdirectory(thirdparty/clay)               #2D UI Layouting
 add_subdirectory(thirdparty/entt)               #Entity Component System
 
 # MY_SOURCES is defined to be a list of all the source files for my game 
