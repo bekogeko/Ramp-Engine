@@ -23,6 +23,8 @@ struct MeshComponent {
 
     // creates a MeshComponent with path a util function
     static MeshComponent LoadFromFile(const std::string &filePath);
+    // if this rectange mesh is used often we can batch render it
+    static MeshComponent LoadFromRectangle(float width, float height);
 
     // Optional: Constructor to handle allocator (required by entt)
     template<typename Allocator>

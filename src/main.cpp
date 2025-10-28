@@ -14,7 +14,10 @@
 #include "Engine/LowRenderer.h"
 #include "Engine/ResourceManager.h"
 #include "Engine/Entity.h"
+#include "Engine/Components/BoxCollider2D.h"
 #include "Engine/Components/MeshComponent.h"
+#include "Engine/Components/RigidBody2D.h"
+#include "Engine/Physics/PhysicsSystem.h"
 
 static void error_callback(int error, const char *description) {
     std::cerr << "Error: " << description << "\n";
@@ -56,11 +59,41 @@ int main() {
 
     HighRenderer::Init();
     Scene scene;
+    PhysicsSystem physics(scene.Registry());
 
-    {
+
+    for (int i = 0; i < 7; i++){
         Entity square = scene.CreateEntity();
+        square.GetComponent<Transform>().position.x = 1.1f * i -3.35f;
         square.AddComponent<MeshComponent>(MeshComponent::LoadFromFile("square.obj"));
+        square.AddComponent<RigidBody2D>(RigidBody2D{
+            .body = b2_nullBodyId,
+            .type = b2_dynamicBody,
+            .fixedRotation = false,
+        });
+        square.AddComponent<BoxCollider2D>(BoxCollider2D{
+            .hx = .5f,
+            .hy = .5f,
+            .density = 1.0f,
+            .friction = 0.3f,
+            .restitution = 0.0f,
+            .isSensor = false,
+        });
+
     }
+    // Static ground
+    {
+        Entity ground = scene.CreateEntity();
+        // ground.GetTransform().scale.x = 7.0f;
+        // ground.GetTransform().scale.y = 1.0f;
+        ground.GetTransform().position.y -= 3.0f;
+
+        ground.AddComponent<MeshComponent>(MeshComponent::LoadFromRectangle(7.0f, 1.0f));
+
+        ground.AddComponent<RigidBody2D>(RigidBody2D{.type=b2_staticBody });
+        ground.AddComponent<BoxCollider2D>(BoxCollider2D{ .hx=3.5f, .hy=0.5f, .density=0.0f, .friction=0.8f });
+    }
+
 
     // enable alpha blending
     // 0 means opaque
@@ -83,9 +116,11 @@ int main() {
         ImGui::NewFrame();
 
 //        Physics::Update();
+        physics.Step(LowRenderer::getDeltaTime());
 
         HighRenderer::Update(LowRenderer::getDeltaTime());
         HighRenderer::Draw();
+        ImGui::ShowDemoWindow();
 
         scene.Draw();
 

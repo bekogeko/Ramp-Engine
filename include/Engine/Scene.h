@@ -17,6 +17,9 @@ public:
 
     void Draw();
 
+    entt::registry& Registry() { return m_registry; }
+    const entt::registry& Registry() const { return m_registry; }
+
 private:
     friend class Entity;
 
