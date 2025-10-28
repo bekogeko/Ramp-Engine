@@ -18,18 +18,19 @@ Entity Scene::CreateEntity() {
     entt::entity entity = m_registry.create();
     // add Transform component by default
 
-    m_registry.emplace<Transform>(entity, glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+    m_registry.emplace<Transform>(entity,
+        glm::vec2(0.0f, 0.0f), // pos
+        0.0f, // rotation in rad
+        glm::vec2(1.0f, 1.0f) //scale
+        );
 
     return Entity(entity, this);
 }
 
 void Scene::Draw() {
 
-
-
     // Iterate over all entities and draw them
     auto meshRenderables = m_registry.view<Transform, MeshComponent>();
-
     for (auto entity: meshRenderables) {
         auto [transform, mesh] = meshRenderables.get<Transform, MeshComponent>(entity);
 
@@ -57,7 +58,7 @@ void Scene::Draw() {
 
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(transform.position, 0.0f));
-            model = glm::rotate(model, glm::radians(transform.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::rotate(model, transform.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
             model = glm::scale(model, glm::vec3(transform.scale, 1.0f));
 
             shader->SetUniformMat4("uProjection", &projMat[0][0]);

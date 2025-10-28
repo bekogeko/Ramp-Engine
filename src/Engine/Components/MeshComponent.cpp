@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "Engine/VertexArray.h"
+
 MeshComponent MeshComponent::LoadFromFile(const std::string &filePath) {
 
 #if PRODUCTION_BUILD
@@ -65,6 +67,37 @@ MeshComponent MeshComponent::LoadFromFile(const std::string &filePath) {
         std::cerr << "Mesh file is empty or malformed: " << fullPath << std::endl;
         throw std::runtime_error("Mesh file is empty or malformed");
     }
+
+    return MeshComponent(vertices, indices);
+}
+
+MeshComponent MeshComponent::LoadFromRectangle(float width, float height) {
+
+
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+
+    vertices.push_back(-width / 2);
+    vertices.push_back(-height / 2);
+
+    vertices.push_back(width / 2);
+    vertices.push_back(-height / 2);
+
+    vertices.push_back(width / 2);
+    vertices.push_back(height / 2);
+
+    vertices.push_back(-width / 2);
+    vertices.push_back(height / 2);
+
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
+
+
+    indices.push_back(0);
+    indices.push_back(2);
+    indices.push_back(3);
+
 
     return MeshComponent(vertices, indices);
 }
