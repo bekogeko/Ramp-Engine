@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 project(stb_image)
 
 cmake_policy(SET CMP0115 OLD)
