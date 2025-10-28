@@ -8,6 +8,7 @@
 
 #include "Engine/Renderer/Rectangle.h"
 #include "Engine/Renderer/Text.h"
+#include "VertexArray.h"
 
 #include <map>
 

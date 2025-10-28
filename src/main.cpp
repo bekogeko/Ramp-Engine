@@ -9,12 +9,12 @@
 
 #include "Engine/Window.h"
 #include "Engine/HighRenderer.h"
-#include "Engine/Physics.h"
-#include "Engine/Object/PhysicsComponent.h"
 
-
-#include "Player.h"
-#include "Engine/World.h"
+#include "Engine/Scene.h"
+#include "Engine/LowRenderer.h"
+#include "Engine/ResourceManager.h"
+#include "Engine/Entity.h"
+#include "Engine/Components/MeshComponent.h"
 
 static void error_callback(int error, const char *description) {
     std::cerr << "Error: " << description << "\n";
@@ -52,39 +52,14 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330");
     std::cout << "ImGui initialized successfully\n";
 #endif
-    Physics::Init();
+//    Physics::Init();
 
     HighRenderer::Init();
+    Scene scene;
+
     {
-
-
-        {// register object transfer to high renderer
-            auto playerobj_id = World::RegisterObject("man.obj");
-            auto playerobj = World::getById(playerobj_id);
-            if (auto player = playerobj.lock()) {
-                player->position.x -= 0.5;
-                player->color.r = 1;
-
-                player->attachComponent<Player>();
-                player->attachComponent<PhysicsComponent>();
-            }
-        }
-        {
-            auto id = World::RegisterObject("square.obj");
-            auto obj = World::getById(id).lock();
-
-            obj->attachComponent<PhysicsComponent>();
-        }
-        // create obj2 with different color and position
-        {
-            auto id2 = World::RegisterObject("square.obj");
-            auto obj2 = World::getById(id2).lock();
-
-
-            obj2->position = {1, 1};
-            obj2->color = {1.0, 0.55, 0.2, 1};
-            obj2->attachComponent<PhysicsComponent>();
-        }
+        Entity square = scene.CreateEntity();
+        square.AddComponent<MeshComponent>(MeshComponent::LoadFromFile("square.obj"));
     }
 
     // enable alpha blending
@@ -107,11 +82,12 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        Physics::Update();
+//        Physics::Update();
 
         HighRenderer::Update(LowRenderer::getDeltaTime());
         HighRenderer::Draw();
 
+        scene.Draw();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
