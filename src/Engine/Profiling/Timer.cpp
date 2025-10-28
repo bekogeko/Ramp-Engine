@@ -1,7 +1,7 @@
 //
 // Created by Bekir Gulestan on 10/28/25.
 //
-#include "Engine/Timer.h"
+#include "Engine/Profiling/Timer.h"
 
 #include <iostream>
 #include <ostream>

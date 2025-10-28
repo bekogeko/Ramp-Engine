@@ -7,6 +7,8 @@
 #include "Engine/LowRenderer.h"
 #include <sstream>
 
+#include "Engine/Profiling/Timer.h"
+
 OrthoCamera HighRenderer::m_Camera(4, 3);
 std::vector<std::unique_ptr<Layer>> HighRenderer::layers;
 

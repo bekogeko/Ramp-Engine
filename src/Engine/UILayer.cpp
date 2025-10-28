@@ -17,6 +17,7 @@
 #include "clay.h"
 #include "Engine/ResourceManager.h"
 #include "Engine/LowRenderer.h"
+#include "Engine/Profiling/Timer.h"
 
 const Clay_Color COLOR_ORANGE = (Clay_Color){225, 138, 50, 255};
 
@@ -163,6 +164,8 @@ void UILayer::Draw() {
                 // FIXME: corner radius is not working for all 4
                 rect.cornerRadius = renderCommand->renderData.rectangle.cornerRadius.topLeft;
                 if (rect.cornerRadius > 0) {
+                    Timer t("draw rect rounded");
+
                     LowRenderer::DrawRoundedRectangle(renderCommand->id, rect);
                 }else {
                     LowRenderer::AddRectangle(renderCommand->id, rect);
