@@ -1,3 +1,5 @@
+#modified from GLFWCMakeSetup
+#acknowledgements to meemknight
 #https://github.com/meemknight/GLFWCMakeSetup
 #Version 1.0.0
 
@@ -42,7 +44,6 @@ add_subdirectory(thirdparty/stb_truetype)       #loading ttf files
 #add_subdirectory(thirdparty/raudio)			#audio
 add_subdirectory(thirdparty/glm)                #math
 add_subdirectory(thirdparty/imgui-docking)      #ui
-#add_subdirectory(thirdparty/gl2d)				#rendering
 add_subdirectory(thirdparty/box2d)              #Physics
 add_subdirectory(thirdparty/clay)               #2D UI Layouting
 add_subdirectory(thirdparty/entt)               #Entity Component System
