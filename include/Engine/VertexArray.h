@@ -21,6 +21,10 @@ private:
 public:
     // without EBO Constructor
 //    VertexArray(const float *vertices, unsigned int size, const LayoutStack &stack);
+    enum class DrawMode {
+        TRIANGLES = GL_TRIANGLES,
+        TRIANGLE_FAN = GL_TRIANGLE_FAN,
+    };
 
     //  with EBO Constructor
     VertexArray(const unsigned int *indices, unsigned int indicesSize);
@@ -112,19 +116,20 @@ public:
         glBindVertexArray(0);
     }
 
-    void Draw() const {
+    void Draw(DrawMode mode = DrawMode::TRIANGLES) const {
         unsigned int count = m_size / sizeof(float);
-        glDrawArrays(GL_TRIANGLES, 0, count);
+        glDrawArrays((GLenum)mode, 0, count);
     }
 
-    void DrawElements() const {
+    void DrawElements(DrawMode mode = DrawMode::TRIANGLES) const {
         unsigned int count = m_size / sizeof(unsigned int);
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+        glDrawElements((GLenum)mode, count, GL_UNSIGNED_INT, nullptr);
     }
 
-    void DrawElementsInstanced(unsigned int instanceCount) const {
+
+    void DrawElementsInstanced(unsigned int instanceCount,DrawMode mode = DrawMode::TRIANGLES) const {
         unsigned int count = m_size / sizeof(unsigned int);
-        glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instanceCount);
+        glDrawElementsInstanced((GLenum)mode, count, GL_UNSIGNED_INT, nullptr, instanceCount);
     }
 
 
