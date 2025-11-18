@@ -146,47 +146,73 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
         vertexArray->Bind();
 
 
-        glm::vec2 initialCursor = {0.0f, .5f};
-        //activeCursor
-        glm::vec2 cursorPos = initialCursor;
+        glm::vec2 initialCursor = {0.0f, 0.f};
 
-        // cursorPos,   vec2
-        // texCoord,    vec4
-        // size,        vec2
+        glm::vec2 pen = initialCursor; // baseline position in font units (Y-up for metrics)
+
+        // cursorPos (vec2 center), texCoord (vec4), size (vec2)
         std::vector<float> instanceDatas;
         instanceDatas.reserve(text.value.size() * 8);
 
-        for (int i = 0; i < text.value.size(); ++i) {
-            // get min_s, min_t, max_s, max_t
-            auto glyph = fontTex->getChar(text.value[i]);
-            auto texCoords = fontTex->getTextureCoords(text.value[i]);
+        //text.fontSize = 16
+        // text.letterSpacing = 16
+        // lineHeight =
+        const float invBake = 1.0f / text.fontSize;
+        const float letterSpacingN = text.letterSpacing * invBake;
+        const float lineAdvanceN  = (text.lineHeight > 0 ? text.lineHeight : text.fontSize) * invBake;
+
+        size_t instancesToDraw = 0;
+
+        for (char ch : text.value) {
+            if (ch == '\n') {
+                pen.x = 0.0f;
+                pen.y -= lineAdvanceN; // next line goes down (in UI), keep metrics Y-up; model will map
+                continue;
+            }
+
+            auto glyph = fontTex->getChar(ch);
+            auto uv    = fontTex->getTextureCoords(ch);
 
 
-            auto temp = cursorPos.y;
-            cursorPos.y -= ((glyph.size.y / (2.0f * text.fontSize)) + (glyph.bearing.y / text.fontSize));
-            cursorPos.y--;
 
-            instanceDatas.push_back(cursorPos.x);
-            instanceDatas.push_back(cursorPos.y);
-            instanceDatas.push_back(texCoords[0]);
-            instanceDatas.push_back(texCoords[1]);
-            instanceDatas.push_back(texCoords[2]);
-            instanceDatas.push_back(texCoords[3]);
-            instanceDatas.push_back(glyph.size.x / text.fontSize);
-            instanceDatas.push_back(glyph.size.y / text.fontSize);
+            // Metrics in font units (Y-up)
+            glm::vec2 sizeN    = {glyph.size.x * invBake,    glyph.size.y * invBake};
+            glm::vec2 bearingN = {glyph.bearing.x * invBake, -glyph.bearing.y * invBake};
+            float advanceN     =  glyph.advance * invBake;
 
-            cursorPos.x += (glyph.advance / text.fontSize);
-            cursorPos.y = temp;
+            // Skip non-renderable/zero-sized glyphs (e.g., space). Still advance the pen.
+            if (sizeN.x <= 0.0f || sizeN.y <= 0.0f) {
+                pen.x += advanceN + letterSpacingN;
+                continue;
+            }
+
+            // Center of the quad relative to baseline:
+            float centerX = pen.x + bearingN.x + 0.5f * sizeN.x;
+            float centerY = pen.y + (bearingN.y - 0.5f * sizeN.y);
+
+            // Instance data: center, UVs, size
+            instanceDatas.push_back(centerX);
+            instanceDatas.push_back(centerY);
+            instanceDatas.push_back(uv[0]);
+            instanceDatas.push_back(uv[1]);
+            instanceDatas.push_back(uv[2]);
+            instanceDatas.push_back(uv[3]);
+            instanceDatas.push_back(sizeN.x);
+            instanceDatas.push_back(sizeN.y);
+
+            pen.x += advanceN + letterSpacingN;
+
+
+            ++instancesToDraw;
         }
 
         LayoutStack vboCursorStack = {
-                VertexLayout(2, true), // Position
-                VertexLayout(4, true), // TexCoords
-                VertexLayout(2, true) // size
+                VertexLayout(2, true), // Position (instance center)
+                VertexLayout(4, true), // TexCoords (instance)
+                VertexLayout(2, true)  // Size (instance)
         };
 
-
-        vertexArray->AddBuffer(instanceDatas.data(), instanceDatas.size() * sizeof(float), vboCursorStack);
+        vertexArray->AddBuffer(instanceDatas.data(), static_cast<unsigned int>(instanceDatas.size() * sizeof(float)), vboCursorStack);
         m_vertexArrayBatch[id] = std::unique_ptr<VertexArray>(vertexArray);
     }
 

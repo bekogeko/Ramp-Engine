@@ -39,13 +39,23 @@ public:
     [[nodiscard]] unsigned char getHashId() const {
         return m_hashId;
     }
+    int getFontSize() {
+        return m_fontSize;
+    }
 
+    //get font info
+    [[nodiscard]] const stbtt_fontinfo *getFontInfo() const {
+        return &fontInfo;
+    }
 private:
     std::weak_ptr<Texture> m_ftex;
     unsigned char m_hashId;
 
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
     stbtt_fontinfo fontInfo;
+
+    // font size in pixel
+    int m_fontSize;
 };
 
 

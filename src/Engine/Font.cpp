@@ -13,7 +13,7 @@
 #endif
 
 
-Font::Font(const std::string &pathName, int fontSize, unsigned char hashId) : m_hashId(hashId) {
+Font::Font(const std::string &pathName, int fontSize, unsigned char hashId) : m_hashId(hashId),m_fontSize(fontSize) {
     unsigned char ttf_buffer[1 << 20];
     unsigned char temp_bitmap[512 * 512];
 
@@ -31,7 +31,7 @@ Font::Font(const std::string &pathName, int fontSize, unsigned char hashId) : m_
     stbtt_InitFont(&fontInfo, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0));
 
     // FIXME fontsize was assume to be fontSize*2
-    stbtt_BakeFontBitmap(ttf_buffer, 0, fontSize * 2, temp_bitmap, 512, 512, 32, 96, cdata); // no guarantee this fits!
+    stbtt_BakeFontBitmap(ttf_buffer, 0, (int)fontSize , temp_bitmap, 512, 512, 32, 96, cdata); // no guarantee this fits!
 
 
     // TODO Use Texture class

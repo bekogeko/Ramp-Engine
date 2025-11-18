@@ -30,10 +30,54 @@ static Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
 
-    // get only first length characters
-    auto sliced = std::string(text.chars, text.length);
+    auto font = ResourceManager::LoadFontById(config->fontId).lock();
 
-    return {text.length * config->fontSize * 1.0f, config->fontSize * 1.0f};
+
+    // Measure string size for Font
+    Clay_Dimensions textSize = { 0 };
+
+    float maxTextWidth = 0.0f;
+    float lineTextWidth = 0;
+    int maxLineCharCount = 0;
+    int lineCharCount = 0;
+
+    float textHeight = config->fontSize;
+
+
+    float scaleFactor = config->fontSize/(float)font->getFontSize();
+
+    for (int i = 0; i < text.length; ++i, lineCharCount++)
+    {
+        if (text.chars[i] == '\n') {
+            maxTextWidth = fmax(maxTextWidth, lineTextWidth);
+            maxLineCharCount = CLAY__MAX(maxLineCharCount, lineCharCount);
+            lineTextWidth = 0;
+            lineCharCount = 0;
+            continue;
+        }
+
+
+
+        // const auto& glyph = font->glyphs[glyphIndex];
+        const auto& glyph = font->getChar(text.chars[i]);
+        // const auto& rec = font->getCharRect(text.chars[i]);
+        const float glyphAdvance = (glyph.advance != 0) ? glyph.advance
+                                                         : (glyph.size.x + glyph.bearing.x);
+        lineTextWidth += glyphAdvance;
+
+
+    }
+
+    maxTextWidth = fmax(maxTextWidth, lineTextWidth);
+    maxLineCharCount = CLAY__MAX(maxLineCharCount, lineCharCount);
+
+    textSize.width = maxTextWidth * scaleFactor + (lineCharCount * config->letterSpacing);
+    textSize.height = textHeight;
+
+    return textSize;
+
+
+
 }
 
 
