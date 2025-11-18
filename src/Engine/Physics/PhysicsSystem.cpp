@@ -1,6 +1,5 @@
 #include "Engine/Physics/PhysicsSystem.h"
 
-#include "Engine/HighRenderer.h"
 #include "Engine/Window.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/RigidBody2D.h"

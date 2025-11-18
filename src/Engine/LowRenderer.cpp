@@ -3,8 +3,10 @@
 //
 
 
-#include "Engine/HighRenderer.h"
 #include "Engine/LowRenderer.h"
+
+#include <iostream>
+
 #include "Engine/Window.h"
 
 #include "glad/glad.h"
@@ -21,6 +23,7 @@ std::map<uint32_t, Rectangle> LowRenderer::m_rectBatch;
 std::map<uint32_t, Text> LowRenderer::m_textBatch;
 std::map<uint32_t, Text> LowRenderer::m_previousTextBatch;
 std::map<uint32_t, std::unique_ptr<VertexArray>> LowRenderer::m_vertexArrayBatch;
+OrthoCamera LowRenderer::m_camera(4,3);
 
 
 float LowRenderer::getDeltaTime() {
@@ -55,7 +58,7 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
     VertexArray vertexArray(indices, indicesSize * sizeof(unsigned int));
     vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
 
-    auto camSize = HighRenderer::getCamera().getSize();
+    auto camSize = LowRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
 
@@ -79,8 +82,8 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
     // get camera
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+    auto viewMat = LowRenderer::getCamera().getViewMatrix();
+    auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
 
     // get shader
@@ -190,7 +193,7 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 
     m_vertexArrayBatch[id]->Bind();
 
-    auto camSize = HighRenderer::getCamera().getSize();
+    auto camSize = LowRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
     auto size = glm::vec2((float(text.fontSize) * 2 * camSize.x) / (screen.x),
@@ -214,8 +217,8 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
 
 
     // get camera
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+    auto viewMat = LowRenderer::getCamera().getViewMatrix();
+    auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
     // get shaders
     auto shader_ptr = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
@@ -326,7 +329,7 @@ void LowRenderer::DrawRectangleBatched() {
     instanceData.reserve(m_rectBatch.size() * 8);
 
     for (auto &[id, rectangle]: m_rectBatch) {
-        auto camSize = HighRenderer::getCamera().getSize();
+        auto camSize = LowRenderer::getCamera().getSize();
         auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
         // position.x in [-hw,hw]
@@ -362,7 +365,7 @@ void LowRenderer::DrawRectangleBatched() {
                           instanceStack);
 
 
-    auto camSize = HighRenderer::getCamera().getSize();
+    auto camSize = LowRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
     float rotation = 0;
@@ -380,8 +383,8 @@ void LowRenderer::DrawRectangleBatched() {
 
 
     // get camera
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+    auto viewMat = LowRenderer::getCamera().getViewMatrix();
+    auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
 
     // get shader
@@ -446,7 +449,7 @@ void LowRenderer::DrawRoundedRectangle(uint32_t id, Rectangle rectangle) {
     vertexArray.AddBuffer(vertexFloats.data(), static_cast<unsigned int>(vertexFloats.size() * sizeof(float)), stack);
 
     // Build transform (same scheme as other UI rects)
-    auto camSize = HighRenderer::getCamera().getSize();
+    auto camSize = LowRenderer::getCamera().getSize();
     auto screen  = glm::vec2(Window::getWidth(), Window::getHeight());
 
     glm::vec2 size = {
@@ -463,8 +466,8 @@ void LowRenderer::DrawRoundedRectangle(uint32_t id, Rectangle rectangle) {
     model = glm::translate(model, glm::vec3(position, 0.0f));
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+    auto viewMat = LowRenderer::getCamera().getViewMatrix();
+    auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
     auto shader_ptr = ResourceManager::LoadShader("shaders/ui.vert", "shaders/ui.frag");
     {
@@ -587,8 +590,8 @@ void LowRenderer::DrawTextWorld(Text text) {
 
     vertexArray.AddBuffer(instanceDatas.data(), instanceDatas.size() * sizeof(float), vboCursorStack);
 
-    auto camSize = HighRenderer::getCamera().getSize();
-    auto camPos = HighRenderer::getCamera().position;
+    auto camSize = LowRenderer::getCamera().getSize();
+    auto camPos = LowRenderer::getCamera().position;
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
     auto size = glm::vec2((float(text.fontSize) * 2 * camSize.x) / (screen.x),
@@ -614,8 +617,8 @@ void LowRenderer::DrawTextWorld(Text text) {
 
 
     // get camera
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+    auto viewMat = LowRenderer::getCamera().getViewMatrix();
+    auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
     // get shaders
     auto shader_ptr = ResourceManager::LoadShader("shaders/textWorld.vert", "shaders/text.frag");
@@ -670,7 +673,7 @@ void LowRenderer::DrawRectangleWorld(Rectangle rectangle) {
     VertexArray vertexArray(indices, indicesSize * sizeof(unsigned int));
     vertexArray.AddBuffer(vertices, vertSize * sizeof(float), stack);
 
-    auto camSize = HighRenderer::getCamera().getSize();
+    auto camSize = LowRenderer::getCamera().getSize();
     auto screen = glm::vec2(Window::getWidth(), Window::getHeight());
 
 
@@ -693,8 +696,8 @@ void LowRenderer::DrawRectangleWorld(Rectangle rectangle) {
 
 
     // get camera
-    auto viewMat = HighRenderer::getCamera().getViewMatrix();
-    auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+    auto viewMat = LowRenderer::getCamera().getViewMatrix();
+    auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
 
     // get shader

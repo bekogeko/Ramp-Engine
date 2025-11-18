@@ -10,7 +10,6 @@
 
 
 #include "Engine/LowRenderer.h"
-#include "Engine/HighRenderer.h"
 #include "Engine/ResourceManager.h"
 
 
@@ -53,10 +52,10 @@ void Scene::Draw() {
             auto shader = shader_ptr.lock();
             shader->Bind();
 
-            auto viewMat = HighRenderer::getCamera().getViewMatrix();
-            auto projMat = HighRenderer::getCamera().getProjectionMatrix();
+            auto viewMat = LowRenderer::getCamera().getViewMatrix();
+            auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
-            glm::mat4 model = glm::mat4(1.0f);
+            auto model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(transform.position, 0.0f));
             model = glm::rotate(model, transform.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
             model = glm::scale(model, glm::vec3(transform.scale, 1.0f));

@@ -5,18 +5,17 @@
 #ifndef RAY_GAME_LAYER_H
 #define RAY_GAME_LAYER_H
 
-class Layer {
-private:
-    unsigned int m_Index;
-protected:
-    explicit Layer(int index) {
-        m_Index = index;
-    }
+struct EngineContext {
+    class Window* window;
 
-    [[nodiscard]] unsigned int getLayerIndex() const { return m_Index; }
+};
+
+class Layer {
 
 
 public:
+
+    virtual void OnAttach(EngineContext ctx) {}
     virtual void Update(float deltaTime) = 0;
 
     virtual void Draw() = 0;

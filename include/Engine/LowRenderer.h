@@ -11,6 +11,7 @@
 #include "VertexArray.h"
 
 #include <map>
+#include "OrthoCamera.h"
 
 
 class LowRenderer {
@@ -22,6 +23,8 @@ private:
     static std::map<uint32_t, Text> m_previousTextBatch;
     // id to vertexArray
     static std::map<uint32_t, std::unique_ptr<VertexArray>> m_vertexArrayBatch;
+
+    static OrthoCamera m_camera;
 
 
 public:
@@ -51,6 +54,8 @@ public:
     static void swapTime();
 
     static void updateTime();
+
+    static OrthoCamera &getCamera() { return m_camera; }
 };
 
 

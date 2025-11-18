@@ -10,13 +10,19 @@
 class UILayer : public Layer {
 
 public:
-    explicit UILayer(int index);
+    explicit UILayer();
 
     void Update(float deltaTime) override;
 
     void Draw() override;
 
     static void UpdateWindowSize();
+
+protected:
+
+    // child classes should have BuildUI
+    // child classes should implement BuildUI()
+    virtual void BuildUI() = 0;
 
 };
 

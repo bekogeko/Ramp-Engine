@@ -6,9 +6,10 @@
 #define RAY_GAME_INPUT_H
 
 #include "Window.h"
-#include "HighRenderer.h"
 #include "glm/vec2.hpp"
 #include <iostream>
+
+#include "LowRenderer.h"
 
 
 class Input {
@@ -47,17 +48,17 @@ public:
         float x = (float) (2 * xpos / width) - 1;
         float y = (float) (-2 * ypos / height) + 1;
 
-        x *= HighRenderer::getCamera().getSize().x;
-        y *= HighRenderer::getCamera().getSize().y;
+        x *= LowRenderer::getCamera().getSize().x;
+        y *= LowRenderer::getCamera().getSize().y;
 
         // Convert NDC to world coordinates (assuming an orthographic projection for simplicity)
         glm::vec2 worldPos = glm::vec2(x, y);
 
-        worldPos.x += HighRenderer::getCamera().position.x * HighRenderer::getCamera().getSize().x;
+        worldPos.x += LowRenderer::getCamera().position.x * LowRenderer::getCamera().getSize().x;
 
-        worldPos.y += HighRenderer::getCamera().position.y * HighRenderer::getCamera().getSize().y;
+        worldPos.y += LowRenderer::getCamera().position.y * LowRenderer::getCamera().getSize().y;
 
-        worldPos *= HighRenderer::getCamera().zoom;
+        worldPos *= LowRenderer::getCamera().zoom;
 
         return worldPos;
     }
