@@ -155,7 +155,7 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
         instanceDatas.reserve(text.value.size() * 8);
 
         //text.fontSize = 16
-        // text.letterSpacing = 16
+        // text.letterSpacing = 1
         // lineHeight =
         const float invBake = 1.0f / text.fontSize;
         const float letterSpacingN = text.letterSpacing * invBake;
@@ -187,8 +187,8 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
             }
 
             // Center of the quad relative to baseline:
-            float centerX = pen.x + bearingN.x + 0.5f * sizeN.x;
-            float centerY = pen.y + (bearingN.y - 0.5f * sizeN.y);
+            float centerX = (pen.x + bearingN.x + 0.5f * sizeN.x) - 0.5f;
+            float centerY = pen.y + bearingN.y - 0.5f * sizeN.y;
 
             // Instance data: center, UVs, size
             instanceDatas.push_back(centerX);

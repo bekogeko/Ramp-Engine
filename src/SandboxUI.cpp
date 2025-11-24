@@ -74,8 +74,8 @@ void SandboxUI::BuildUI() {
                           CLAY_TEXT_CONFIG({
                               .textColor = {12, 120, 255, 255},
                               .fontId = ResourceManager::GetFontId(
-                                  "fonts/JetBrainsMono-Regular.ttf", 12),
-                              .fontSize = 12,
+                                  "fonts/DefaultSansRegular.ttf", 16),
+                              .fontSize = 16,
 
                               .wrapMode = CLAY_TEXT_WRAP_WORDS,
                               }));

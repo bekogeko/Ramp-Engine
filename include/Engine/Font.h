@@ -39,7 +39,7 @@ public:
     [[nodiscard]] unsigned char getHashId() const {
         return m_hashId;
     }
-    int getFontSize() {
+    [[nodiscard]] int getFontSize() const {
         return m_fontSize;
     }
 
