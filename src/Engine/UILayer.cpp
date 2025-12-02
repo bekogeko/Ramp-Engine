@@ -29,55 +29,74 @@ void OnUserInterfaceError(Clay_ErrorData e) {
 static Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *userData) {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
-
     auto font = ResourceManager::LoadFontById(config->fontId).lock();
-
+    if (!font) {
+        return Clay_Dimensions{0.0f, 0.0f};
+    }
 
     // Measure string size for Font
-    Clay_Dimensions textSize = { 0 };
+    Clay_Dimensions textSize = {0};
+    float maxLineWidthPx = 0.0f;      // track max width in final pixels to avoid unit mismatches
+    float currentLineAdvance = 0.0f;  // sum of advances in font units
+    int currentLineCharCount = 0;
+    int linesCount = 1; // at least one line exists even if no '\n'
 
-    float maxTextWidth = 0.0f;
-    float lineTextWidth = 0;
-    int maxLineCharCount = 0;
-    int lineCharCount = 0;
+    float bakedSize = static_cast<float>(font->getFontSize());
+    if (bakedSize <= 0.0f) bakedSize = 1.0f;
+    const float scaleFactor = static_cast<float>(config->fontSize) / bakedSize;
 
-    float textHeight = config->fontSize;
+    auto finalizeLine = [&](void) {
+        // Convert accumulated advance to pixels and add letter spacing gaps for this line
+        const int gaps = currentLineCharCount > 1 ? (currentLineCharCount - 1) : 0;
+        const float widthPx = currentLineAdvance * scaleFactor + gaps * static_cast<float>(config->letterSpacing);
+        maxLineWidthPx = std::max(maxLineWidthPx, widthPx);
+        currentLineAdvance = 0.0f;
+        currentLineCharCount = 0;
+    };
 
+    for (size_t i = 0; i < static_cast<size_t>(text.length); ++i) {
+        unsigned char c = static_cast<unsigned char>(text.chars[i]);
 
-    float scaleFactor = config->fontSize/(float)font->getFontSize();
-
-    for (int i = 0; i < text.length; ++i, lineCharCount++)
-    {
-        if (text.chars[i] == '\n') {
-            maxTextWidth = fmax(maxTextWidth, lineTextWidth);
-            maxLineCharCount = CLAY__MAX(maxLineCharCount, lineCharCount);
-            lineTextWidth = 0;
-            lineCharCount = 0;
+        // Handle CRLF and lone CR gracefully
+        if (c == '\r') {
+            continue;
+        }
+        if (c == '\n') {
+            finalizeLine();
+            ++linesCount;
             continue;
         }
 
+        // TODO: If you need UTF-8, decode to code points and use that instead of raw bytes.
+        const auto& glyph = font->getChar(static_cast<char>(c));
 
+        // Prefer glyph.advance; fall back conservatively when unavailable
+        float glyphAdvance = glyph.advance;
+        if (glyphAdvance == 0.0f) {
+            // Fallback heuristic: avoid negative advances; many spaces have zero size and rely on advance
+            glyphAdvance = std::max(glyph.size.x + glyph.bearing.x, 0.0f);
+        }
 
-        // const auto& glyph = font->glyphs[glyphIndex];
-        const auto& glyph = font->getChar(text.chars[i]);
-        // const auto& rec = font->getCharRect(text.chars[i]);
-        const float glyphAdvance = (glyph.advance != 0) ? glyph.advance
-                                                         : (glyph.size.x + glyph.bearing.x);
-        lineTextWidth += glyphAdvance;
+        // Optional: kerning if available
+        // if (currentLineCharCount > 0) {
+        //     glyphAdvance += font->getKerning(prevChar, c);
+        // }
 
-
+        currentLineAdvance += glyphAdvance;
+        ++currentLineCharCount;
+        // Note: we don't add letterSpacing per glyph here; it is handled in finalizeLine() by gaps count.
     }
 
-    maxTextWidth = fmax(maxTextWidth, lineTextWidth);
-    maxLineCharCount = CLAY__MAX(maxLineCharCount, lineCharCount);
+    // Final line
+    finalizeLine();
 
-    textSize.width = maxTextWidth * scaleFactor + (lineCharCount * config->letterSpacing);
-    textSize.height = textHeight;
+    // Height: use explicit lineHeight if provided; otherwise fontSize
+    const float lineAdvancePx = (config->lineHeight > 0) ? static_cast<float>(config->lineHeight)
+                                                         : static_cast<float>(config->fontSize);
 
+    textSize.width  = maxLineWidthPx;
+    textSize.height = linesCount * lineAdvancePx;
     return textSize;
-
-
-
 }
 
 

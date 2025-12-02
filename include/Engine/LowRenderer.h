@@ -26,34 +26,26 @@ private:
 
     static OrthoCamera m_camera;
 
+    static std::map<uint32_t, size_t> m_instanceCountBatch;
 
 public:
     static float getDeltaTime();
-
     static float getFPS();
 
-
     static void AddRectangle(uint32_t id, const Rectangle &rectangle);
-
     static void DrawRectangle(Rectangle rectangle);
-
     static void DrawRectangleWorld(Rectangle rectangle);
-
     static void DrawRectangleBatched();
-
     static void DrawRoundedRectangle(uint32_t id, Rectangle rectangle);
 
     static void AddText(uint32_t id, const Text &text);
-
     static void DrawTextBatched();
-
     static void DrawText(uint32_t id, Text text);
-
     static void DrawTextWorld(Text text);
 
     static void swapTime();
-
     static void updateTime();
+
 
     static OrthoCamera &getCamera() { return m_camera; }
 };

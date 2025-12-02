@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include "Engine/Window.h"
-
 #include "glad/glad.h"
 #include "Engine/ResourceManager.h"
 #include <GLFW/glfw3.h>
@@ -24,7 +23,7 @@ std::map<uint32_t, Text> LowRenderer::m_textBatch;
 std::map<uint32_t, Text> LowRenderer::m_previousTextBatch;
 std::map<uint32_t, std::unique_ptr<VertexArray>> LowRenderer::m_vertexArrayBatch;
 OrthoCamera LowRenderer::m_camera(4,3);
-
+std::map<uint32_t, size_t> LowRenderer::m_instanceCountBatch;
 
 float LowRenderer::getDeltaTime() {
     auto deltaTime = (float) (currentTime - lastTime);
@@ -108,114 +107,99 @@ void LowRenderer::DrawRectangle(Rectangle rectangle) {
 
 
 void LowRenderer::DrawText(uint32_t id, Text text) {
-
+    // Rebuild per frame for correctness during rapid UI changes
+    m_vertexArrayBatch.erase(id);
+    m_instanceCountBatch.erase(id);
 
     //fixme
     auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
     assert(fontTex->getHashId() != 0);
 
+    LayoutStack stack = {
+            VertexLayout(2, false), // Position
+            VertexLayout(2, false), // TexCoords
+    };
 
-    // if there is no vertexArray for this id
-    if (m_vertexArrayBatch.find(id) == m_vertexArrayBatch.end()) {
+    float vertices[] = {
+            // position   texcoord
+            0.5, 0.5, 1.0, 0,
+            0.5, -0.5, 1.0, 1.0,
+            -0.5, -0.5, 0, 1.0,
+            -0.5, 0.5, 0, 0
+    };
 
-        LayoutStack stack = {
-                VertexLayout(2, false), // Position
-                VertexLayout(2, false), // TexCoords
-        };
+    int vertSize = 16;
+    int indicesSize = 6;
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
 
-        float vertices[] = {
-                // position   texcoord
-                0.5, 0.5, 1.0, 0,
-                0.5, -0.5, 1.0, 1.0,
-                -0.5, -0.5, 0, 1.0,
-                -0.5, 0.5, 0, 0
-        };
+    auto *vertexArray = new VertexArray(indices, indicesSize * sizeof(unsigned int));
+    vertexArray->AddBuffer(vertices, vertSize * sizeof(float), stack);
+    vertexArray->Bind();
 
-        int vertSize = 16;
-        int indicesSize = 6;
-        unsigned int indices[] = {
-                0, 1, 2,
-                2, 3, 0
-        };
+    glm::vec2 initialCursor = {0.0f, 0.f};
+    glm::vec2 pen = initialCursor; // baseline position in font units (Y-up for metrics)
 
-        auto *vertexArray = new VertexArray(
-                indices,
-                indicesSize * sizeof(unsigned int));
+    // cursorPos (vec2 center), texCoord (vec4), size (vec2)
+    std::vector<float> instanceDatas;
+    instanceDatas.reserve(text.value.size() * 8);
 
-        vertexArray->AddBuffer(vertices, vertSize * sizeof(float), stack);
-        vertexArray->Bind();
+    const float invBake = 1.0f / text.fontSize;
+    const float letterSpacingN = text.letterSpacing * invBake;
+    const float lineAdvanceN  = (text.lineHeight > 0 ? text.lineHeight : text.fontSize) * invBake;
 
+    size_t instancesToDraw = 0;
 
-        glm::vec2 initialCursor = {0.0f, 0.f};
-
-        glm::vec2 pen = initialCursor; // baseline position in font units (Y-up for metrics)
-
-        // cursorPos (vec2 center), texCoord (vec4), size (vec2)
-        std::vector<float> instanceDatas;
-        instanceDatas.reserve(text.value.size() * 8);
-
-        //text.fontSize = 16
-        // text.letterSpacing = 1
-        // lineHeight =
-        const float invBake = 1.0f / text.fontSize;
-        const float letterSpacingN = text.letterSpacing * invBake;
-        const float lineAdvanceN  = (text.lineHeight > 0 ? text.lineHeight : text.fontSize) * invBake;
-
-        size_t instancesToDraw = 0;
-
-        for (char ch : text.value) {
-            if (ch == '\n') {
-                pen.x = 0.0f;
-                pen.y -= lineAdvanceN; // next line goes down (in UI), keep metrics Y-up; model will map
-                continue;
-            }
-
-            auto glyph = fontTex->getChar(ch);
-            auto uv    = fontTex->getTextureCoords(ch);
-
-
-
-            // Metrics in font units (Y-up)
-            glm::vec2 sizeN    = {glyph.size.x * invBake,    glyph.size.y * invBake};
-            glm::vec2 bearingN = {glyph.bearing.x * invBake, -glyph.bearing.y * invBake};
-            float advanceN     =  glyph.advance * invBake;
-
-            // Skip non-renderable/zero-sized glyphs (e.g., space). Still advance the pen.
-            if (sizeN.x <= 0.0f || sizeN.y <= 0.0f) {
-                pen.x += advanceN + letterSpacingN;
-                continue;
-            }
-
-            // Center of the quad relative to baseline:
-            float centerX = (pen.x + bearingN.x + 0.5f * sizeN.x) - 0.5f;
-            float centerY = pen.y + bearingN.y - 0.5f * sizeN.y;
-
-            // Instance data: center, UVs, size
-            instanceDatas.push_back(centerX);
-            instanceDatas.push_back(centerY);
-            instanceDatas.push_back(uv[0]);
-            instanceDatas.push_back(uv[1]);
-            instanceDatas.push_back(uv[2]);
-            instanceDatas.push_back(uv[3]);
-            instanceDatas.push_back(sizeN.x);
-            instanceDatas.push_back(sizeN.y);
-
-            pen.x += advanceN + letterSpacingN;
-
-
-            ++instancesToDraw;
+    for (char ch : text.value) {
+        if (ch == '\n') {
+            pen.x = 0.0f;
+            pen.y -= lineAdvanceN;
+            continue;
         }
 
-        LayoutStack vboCursorStack = {
-                VertexLayout(2, true), // Position (instance center)
-                VertexLayout(4, true), // TexCoords (instance)
-                VertexLayout(2, true)  // Size (instance)
-        };
+        auto glyph = fontTex->getChar(ch);
+        auto uv    = fontTex->getTextureCoords(ch);
 
-        vertexArray->AddBuffer(instanceDatas.data(), static_cast<unsigned int>(instanceDatas.size() * sizeof(float)), vboCursorStack);
-        m_vertexArrayBatch[id] = std::unique_ptr<VertexArray>(vertexArray);
+        glm::vec2 sizeN    = {glyph.size.x * invBake,    glyph.size.y * invBake};
+        glm::vec2 bearingN = {glyph.bearing.x * invBake, -glyph.bearing.y * invBake};
+        float advanceN     =  glyph.advance * invBake;
+
+        // Skip non-renderable/zero-sized glyphs (e.g., space). Still advance pen.
+        if (sizeN.x <= 0.0f || sizeN.y <= 0.0f) {
+            pen.x += advanceN + letterSpacingN;
+            continue;
+        }
+
+        float centerX = (pen.x + bearingN.x + 0.5f * sizeN.x) - 0.5f;
+        float centerY = pen.y + bearingN.y - 0.5f * sizeN.y;
+
+        instanceDatas.push_back(centerX);
+        instanceDatas.push_back(centerY);
+        instanceDatas.push_back(uv[0]);
+        instanceDatas.push_back(uv[1]);
+        instanceDatas.push_back(uv[2]);
+        instanceDatas.push_back(uv[3]);
+        instanceDatas.push_back(sizeN.x);
+        instanceDatas.push_back(sizeN.y);
+
+        pen.x += advanceN + letterSpacingN;
+        ++instancesToDraw;
     }
 
+    LayoutStack vboCursorStack = {
+            VertexLayout(2, true), // Position (instance center)
+            VertexLayout(4, true), // TexCoords (instance)
+            VertexLayout(2, true)  // Size (instance)
+    };
+
+    vertexArray->AddBuffer(instanceDatas.data(),
+                           static_cast<unsigned int>(instanceDatas.size() * sizeof(float)),
+                           vboCursorStack);
+
+    m_vertexArrayBatch[id] = std::unique_ptr<VertexArray>(vertexArray);
+    m_instanceCountBatch[id] = instancesToDraw;
 
     m_vertexArrayBatch[id]->Bind();
 
@@ -225,51 +209,37 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     auto size = glm::vec2((float(text.fontSize) * 2 * camSize.x) / (screen.x),
                           (float(text.fontSize) * 2 * camSize.y) / (screen.y));
 
-    // position.x in [-hw,hw]
-    // position.y is [-hh,hh]
     glm::vec2 position = {-camSize.x + (size.x / 2.0f) + (text.position.x * 2 * camSize.x) / screen.x,
                           camSize.y - (size.y / 2.0f) - (text.position.y * 2 * camSize.y) / screen.y};
     glm::vec2 scale = {size.x, size.y};
     float rotation = 0;
 
-
-    // create model matrix from
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-    // TODO: scaling factor
     model = glm::scale(model, glm::vec3(scale, 1.0f));
 
-
-
-    // get camera
     auto viewMat = LowRenderer::getCamera().getViewMatrix();
     auto projMat = LowRenderer::getCamera().getProjectionMatrix();
 
-    // get shaders
     auto shader_ptr = ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag");
     {
         auto shader = shader_ptr.lock();
         shader->Bind();
-        // set Camera Matrix
         shader->SetUniformMat4("uProjection", &projMat[0][0]);
         shader->SetUniformMat4("uView", &viewMat[0][0]);
         shader->SetUniformMat4("uModel", &model[0][0]);
         shader->SetUniform4f("uColor", text.color.r, text.color.g, text.color.b, text.color.a);
 
-
-
-        // setup font textureId
         fontTex->Bind(0);
         shader->SetUniform1i("textureID", fontTex->slot());
     }
 
-
     m_vertexArrayBatch[id]->Bind();
 
-//    std::cout << "Empty Chars :" << emptyChars << std::endl;
-//    std::cout << "Length Chars :" << text.value.length() << std::endl;
-    m_vertexArrayBatch[id]->DrawElementsInstanced(text.value.length());
+    // Draw exactly as many instances as we uploaded (renderable glyphs)
+    size_t instanceCount = m_instanceCountBatch[id];
+    m_vertexArrayBatch[id]->DrawElementsInstanced(instanceCount);
 
     ShaderProgram::Unbind();
     VertexArray::Unbind();
@@ -513,32 +483,38 @@ void LowRenderer::DrawRoundedRectangle(uint32_t id, Rectangle rectangle) {
 }
 
 void LowRenderer::DrawTextBatched() {
+    // Ensure proper blending/depth state for UI text
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // go through all the previous text
+    // Remove VAOs for texts that disappeared or changed layout-affecting props
     for (const auto &[id, text]: m_previousTextBatch) {
-        // if the text is not in the current batch
         if (m_textBatch.find(id) == m_textBatch.end()) {
-            // remove the text from the batch
             m_vertexArrayBatch.erase(id);
+            m_instanceCountBatch.erase(id);
         } else {
-            // if the text is in the current batch
-            // check if the text is the same
-            if (m_textBatch[id].value != text.value) {
+            const Text& cur = m_textBatch[id];
+            bool layoutChanged =
+                (cur.value != text.value) ||
+                (cur.fontId != text.fontId) ||
+                (cur.fontSize != text.fontSize) ||
+                (cur.letterSpacing != text.letterSpacing) ||
+                (cur.lineHeight != text.lineHeight);
+            if (layoutChanged) {
                 m_vertexArrayBatch.erase(id);
+                m_instanceCountBatch.erase(id);
             }
         }
     }
 
+    // Rebuild every frame for current texts to avoid stale instance data
     for (const auto &[id, text]: m_textBatch) {
         DrawText(id, text);
     }
 
-    // copy the current text batch to the previous text batch
-    m_previousTextBatch.clear();
     m_previousTextBatch = m_textBatch;
     m_textBatch.clear();
-    //
-    std::cout << "Text batch cleared\n";
 }
 
 void LowRenderer::DrawTextWorld(Text text) {
