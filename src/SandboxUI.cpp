@@ -5,6 +5,7 @@
 #include "SandboxUI.h"
 
 #include "clay.h"
+#include "Engine/Input.h"
 #include "Engine/ResourceManager.h"
 
 SandboxUI::SandboxUI() {
@@ -43,15 +44,27 @@ void SandboxUI::BuildUI() {
                      .backgroundColor = {28, 50, 202, 255}
                 }) {
                     bool isHovered = Clay_Hovered();
-                    if (isHovered) {
-                        CLAY_TEXT(CLAY_STRING("hello world"),
+                    // is hovered and mouse button down
+                    bool isClicked = isHovered && Input::getMouseButton(0);
+
+
+                    if (isClicked) {
+                        CLAY_TEXT(CLAY_STRING("Clicked!"),
+                                  CLAY_TEXT_CONFIG({
+                                      .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
+                                          "fonts/JetBrainsMono-Regular.ttf", 16),
+                                      .fontSize = 16,
+                                      }));
+                    }
+                    else if (isHovered) {
+                        CLAY_TEXT(CLAY_STRING("hello Mouse cursor"),
                                   CLAY_TEXT_CONFIG({
                                       .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
                                           "fonts/JetBrainsMono-Regular.ttf", 16),
                                       .fontSize = 16,
                                       }));
                     } else {
-                        CLAY_TEXT(CLAY_STRING("a bc def"),
+                        CLAY_TEXT(CLAY_STRING("Im away"),
                                   CLAY_TEXT_CONFIG({
                                       .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
                                           "fonts/JetBrainsMono-Regular.ttf", 16),
