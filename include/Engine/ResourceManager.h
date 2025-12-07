@@ -35,7 +35,7 @@ public:
 
     static std::weak_ptr<Font> LoadFontById(unsigned short fontId);
 
-    static unsigned char GetFontId(const std::string &cacheId, int fontSize);
+    static unsigned char GetFontId(const std::string &path, int fontSize);
 
     static void Destroy();
 

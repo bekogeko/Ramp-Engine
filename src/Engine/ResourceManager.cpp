@@ -192,6 +192,7 @@ unsigned char ResourceManager::GetFontId(const std::string &path, int fontSize) 
     if (m_Fonts.find(path + "-" + std::to_string(fontSize)) != m_Fonts.end()) {
         return m_Fonts[path + "-" + std::to_string(fontSize)]->getHashId();
     }
+    std::cout << "Font loaded: " << path << " "<< fontSize<< "px\n";
     unsigned char hashId = hash(path + "-" + std::to_string(fontSize));
     auto font = std::make_shared<Font>(path, fontSize, hashId);
 

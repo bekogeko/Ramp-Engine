@@ -29,6 +29,12 @@ void OnUserInterfaceError(Clay_ErrorData e) {
 static Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *userData) {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
+
+    // load default font with fontsize if font id is 0
+    if (config->fontId == 0) {
+        config->fontId = ResourceManager::GetFontId("fonts/DefaultSansRegular.ttf", config->fontSize);
+    }
+
     auto font = ResourceManager::LoadFontById(config->fontId).lock();
     if (!font) {
         return Clay_Dimensions{0.0f, 0.0f};
@@ -126,6 +132,8 @@ UILayer::UILayer()  {
 void UILayer::Draw() {
     Clay_BeginLayout();
 
+    Clay_SetDebugModeEnabled(true);
+
     // should be implemented by child classes
     BuildUI();
 
@@ -137,11 +145,10 @@ void UILayer::Draw() {
 
         switch (renderCommand->commandType) {
             default:
-                std::cerr << "Unhandled Command " << renderCommand->commandType << "\n";
+                std::cerr << "Unhandled Command Type: CLAY_RENDER_COMMAND_TYPE_" << static_cast<int>(renderCommand->
+                    commandType) << "\n";
                 break;
             case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
-
-
                 rect.position.x = renderCommand->boundingBox.x;
                 rect.position.y = renderCommand->boundingBox.y;
 
@@ -188,6 +195,14 @@ void UILayer::Draw() {
                 text.letterSpacing = renderCommand->renderData.text.letterSpacing;
 
                 LowRenderer::AddText(renderCommand->id, text);
+                break;
+
+            case CLAY_RENDER_COMMAND_TYPE_SCISSOR_START:
+                glad_glEnable(GL_SCISSOR_TEST);
+                glad_glScissor(renderCommand->boundingBox.x, renderCommand->boundingBox.y, renderCommand->boundingBox.width, renderCommand->boundingBox.height);
+                break;
+            case CLAY_RENDER_COMMAND_TYPE_SCISSOR_END:
+                glad_glDisable(GL_SCISSOR_TEST);
                 break;
         }
     }

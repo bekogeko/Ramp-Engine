@@ -111,7 +111,9 @@ void LowRenderer::DrawText(uint32_t id, Text text) {
     m_vertexArrayBatch.erase(id);
     m_instanceCountBatch.erase(id);
 
-    //fixme
+    if (text.fontId == 0) {
+        text.fontId = ResourceManager::GetFontId("fonts/DefaultSansRegular.ttf",15);
+    }
     auto fontTex = ResourceManager::LoadFontById(text.fontId).lock();
     assert(fontTex->getHashId() != 0);
 
