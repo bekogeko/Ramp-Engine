@@ -13,7 +13,7 @@
 #endif
 
 
-Font::Font(const std::string &pathName, int fontSize, unsigned char hashId) : m_hashId(hashId),m_fontSize(fontSize) {
+Font::Font(const std::string &pathName, int fontSize, uint16_t hashId) : m_hashId(hashId),m_fontSize(fontSize) {
     unsigned char ttf_buffer[1 << 20];
     unsigned char temp_bitmap[512 * 512];
 

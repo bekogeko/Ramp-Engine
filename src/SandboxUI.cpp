@@ -3,8 +3,8 @@
 //
 
 #include "SandboxUI.h"
+#include "Engine/UI.h"
 
-#include "clay.h"
 #include "Engine/Input.h"
 #include "Engine/ResourceManager.h"
 
@@ -13,86 +13,90 @@ SandboxUI::SandboxUI() {
 }
 
 void SandboxUI::BuildUI() {
-    CLAY(CLAY_ID("OuterContainer"), {
-         .layout = {
-             .sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
-             .padding = {16, 16, 16, 16},
-             .childGap = 16,
-             .childAlignment = {
-                 CLAY_ALIGN_X_LEFT,
-                 CLAY_ALIGN_Y_TOP
-             },
-             .layoutDirection = CLAY_LEFT_TO_RIGHT
-         }
-    }) {
-        CLAY(CLAY_ID("ContentBox"), {
-             .layout = {
-                .sizing = {
-                    CLAY_SIZING_FIXED(160), CLAY_SIZING_FIXED(160)
-                }
-             }
-        }) {
-            CLAY(CLAY_ID("Content"), {
-                 .layout = {.sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}, .padding = {16, 16, 16, 16}},
-                 // .backgroundColor = {110, 85, 38, 255},
-                 .backgroundColor = {110, 85, 38, 255},
-                .cornerRadius = {8,8,8,8 }
 
-            }) {
-                CLAY(CLAY_ID("lilCube"), {
-                     .layout = {.sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()}},
-                     .backgroundColor = {28, 50, 202, 255}
-                }) {
-                    bool isHovered = Clay_Hovered();
-                    // is hovered and mouse button down
-                    bool isClicked = isHovered && Input::getMouseButton(0);
+    const uint32_t monoFontId = ResourceManager::GetFontId("fonts/JetBrainsMono-Regular.ttf", 16);
+    const uint32_t sansFontId = ResourceManager::GetFontId("fonts/DefaultSansRegular.ttf", 16);
 
+    UI::Box("OuterContainer", {
+        .layout = {
+            .width = Sizing::Grow(),
+            .height = Sizing::Grow(),
+            .padding = Padding::All(16),
+            .childGap = 16,
+            .alignX = AlignX::Left,
+            .alignY = AlignY::Top,
+            .direction = LayoutDirection::LeftToRight
+        }
+    }, [&] {
+        UI::Box("ContentBox", {
+            .layout = {
+                .width = Sizing::Fixed(160),
+                .height = Sizing::Fixed(160)
+            }
+        }, [&] {
+            UI::Box("Content", {
+                .layout = {
+                    .width = Sizing::Grow(),
+                    .height = Sizing::Grow(),
+                    .padding = Padding::All(16)
+                },
+                .backgroundColor = {110, 85, 38, 255},
+                .cornerRadius = CornerRadius::All(8)
+            }, [&] {
+                UI::Box("LilCube", {
+                    .layout = {
+                        .width = Sizing::Grow(),
+                        .height = Sizing::Grow()
+                    },
+                    .backgroundColor = {28, 50, 202, 255}
+                }, [&] {
+                    const bool isHovered = UI::Hovered();
+                    const bool isClicked = isHovered && Input::getMouseButton(0);
 
                     if (isClicked) {
-                        CLAY_TEXT(CLAY_STRING("Clicked!"),
-                                  CLAY_TEXT_CONFIG({
-                                      .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
-                                          "fonts/JetBrainsMono-Regular.ttf", 16),
-                                      .fontSize = 16,
-                                      }));
-                    }
-                    else if (isHovered) {
-                        CLAY_TEXT(CLAY_STRING("hello Mouse cursor"),
-                                  CLAY_TEXT_CONFIG({
-                                      .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
-                                          "fonts/JetBrainsMono-Regular.ttf", 16),
-                                      .fontSize = 16,
-                                      }));
+                        UI::Text("Clicked!", {
+                            .textColor = {255, 120, 12, 255},
+                            .fontId = monoFontId,
+                            .fontSize = 16
+                        });
+                    } else if (isHovered) {
+                        UI::Text("hello Mouse cursor", {
+                            .textColor = {255, 120, 12, 255},
+                            .fontId = monoFontId,
+                            .fontSize = 16
+                        });
                     } else {
-                        CLAY_TEXT(CLAY_STRING("Im away"),
-                                  CLAY_TEXT_CONFIG({
-                                      .textColor = {255, 120, 12, 255}, .fontId = ResourceManager::GetFontId(
-                                          "fonts/JetBrainsMono-Regular.ttf", 16),
-                                      .fontSize = 16,
-                                      }));
+                        UI::Text("Im away", {
+                            .textColor = {255, 120, 12, 255},
+                            .fontId = monoFontId,
+                            .fontSize = 16
+                        });
                     }
-                }
-            }
-        }
-        CLAY(CLAY_ID("ContentBox2"), {
-             .layout = {.sizing = {CLAY_SIZING_FIXED(240), CLAY_SIZING_GROW()}}
-             }) {
-            CLAY(CLAY_ID("Content2"), {
-                 .layout = {.sizing = {CLAY_SIZING_FIT(), CLAY_SIZING_FIT()}, .padding = {16, 16, 16, 16}},
-                 .backgroundColor = {255, 255, 255, 255}
-                 }
-            ) {
-                //                CLAY_TEXT(CLAY_STRING("hello world\nyanki gap\nwallahi billahi\nessalami salami\nkardecim"),
-                CLAY_TEXT(CLAY_STRING("hello world yanki gap wallahi billahi essalami salami kardecim"),
-                          CLAY_TEXT_CONFIG({
-                              .textColor = {12, 120, 255, 255},
-                              .fontId = ResourceManager::GetFontId(
-                                  "fonts/DefaultSansRegular.ttf", 16),
-                              .fontSize = 16,
+                });
+            });
+        });
 
-                              .wrapMode = CLAY_TEXT_WRAP_WORDS,
-                              }));
+        UI::Box("ContentBox2", {
+            .layout = {
+                .width = Sizing::Fixed(240),
+                .height = Sizing::Grow()
             }
-        }
-    }
+        }, [&] {
+            UI::Box("Content2", {
+                .layout = {
+                    .width = Sizing::Fit(),
+                    .height = Sizing::Fit(),
+                    .padding = Padding::All(16)
+                },
+                .backgroundColor = {255, 255, 255, 255}
+            }, [&] {
+                UI::Text("hello world yanki gap wallahi billahi essalami salami kardecim", {
+                    .textColor = {12, 120, 255, 255},
+                    .fontId = sansFontId,
+                    .fontSize = 16,
+                    .wrap = WrapMode::Words
+                });
+            });
+        });
+    });
 }

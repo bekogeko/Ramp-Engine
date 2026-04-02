@@ -13,7 +13,8 @@ std::map<std::string, std::shared_ptr<Texture>> ResourceManager::m_Textures;
 std::map<std::string, std::shared_ptr<ShaderProgram>> ResourceManager::m_Programs;
 std::map<std::string, std::shared_ptr<Font>> ResourceManager::m_Fonts;
 std::hash<std::string> ResourceManager::hash;
-std::map<unsigned short, std::string> ResourceManager::m_FontIdToCacheId;
+std::map<uint16_t, std::string> ResourceManager::m_FontIdToCacheId;
+uint16_t ResourceManager::m_NextFontId = 1;
 
 ParsedObject ResourceManager::ParseObjectFromFile(const std::string &pathName) {
 
@@ -188,31 +189,39 @@ ResourceManager::LoadTextureFromBytes(const std::string &cacheId, const unsigned
 }
 
 
-unsigned char ResourceManager::GetFontId(const std::string &path, int fontSize) {
-    if (m_Fonts.find(path + "-" + std::to_string(fontSize)) != m_Fonts.end()) {
-        return m_Fonts[path + "-" + std::to_string(fontSize)]->getHashId();
+uint16_t ResourceManager::GetFontId(const std::string &path, int fontSize) {
+    const int resolvedFontSize = fontSize > 0 ? fontSize : 16;
+    const std::string cacheId = path + "-" + std::to_string(resolvedFontSize);
+
+    if (m_Fonts.find(cacheId) != m_Fonts.end()) {
+        return m_Fonts[cacheId]->getHashId();
     }
-    std::cout << "Font loaded: " << path << " "<< fontSize<< "px\n";
-    unsigned char hashId = hash(path + "-" + std::to_string(fontSize));
-    auto font = std::make_shared<Font>(path, fontSize, hashId);
+    std::cout << "Font loaded: " << path << " "<< resolvedFontSize<< "px\n";
 
-    m_Fonts[path + "-" + std::to_string(fontSize)] = font;
+    uint16_t fontId = m_NextFontId++;
+    if (fontId == 0) {
+        fontId = m_NextFontId++;
+    }
 
-    m_FontIdToCacheId[hashId] = path + "-" + std::to_string(fontSize);
+    while (m_FontIdToCacheId.find(fontId) != m_FontIdToCacheId.end()) {
+        fontId = m_NextFontId++;
+        if (fontId == 0) {
+            fontId = m_NextFontId++;
+        }
+    }
+
+    auto font = std::make_shared<Font>(path, resolvedFontSize, fontId);
+
+    m_Fonts[cacheId] = font;
+
+    m_FontIdToCacheId[fontId] = cacheId;
 
 
-    return (unsigned char) hashId;
+    return fontId;
 }
 
 std::weak_ptr<Font> ResourceManager::LoadFont(const std::string &path, int fontSize) {
-    if (m_Fonts.find(path + "-" + std::to_string(fontSize)) != m_Fonts.end()) {
-        return m_Fonts[path + "-" + std::to_string(fontSize)];
-    }
-    auto hashId = hash(path + "-" + std::to_string(fontSize));
-    auto font = std::make_shared<Font>(path, fontSize, hashId);
-
-    m_Fonts[path + "-" + std::to_string(fontSize)] = font;
-    return font;
+    return LoadFontById(GetFontId(path, fontSize));
 }
 
 std::weak_ptr<ParsedObject> ResourceManager::LoadObject(const std::string &path) {
@@ -229,7 +238,7 @@ std::weak_ptr<ParsedObject> ResourceManager::LoadObject(const std::string &path)
     return objParsed;
 }
 
-std::weak_ptr<Font> ResourceManager::LoadFontById(unsigned short fontId) {
+std::weak_ptr<Font> ResourceManager::LoadFontById(uint16_t fontId) {
 
     assert(m_FontIdToCacheId.find(fontId) != m_FontIdToCacheId.end());
 
@@ -259,6 +268,8 @@ void ResourceManager::Destroy() {
         fontPtr.reset();
     }
     m_Fonts.clear();
+    m_FontIdToCacheId.clear();
+    m_NextFontId = 1;
 
 
     for (auto &[textId, textPtr]: m_Textures) {

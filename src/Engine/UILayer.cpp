@@ -29,6 +29,9 @@ void OnUserInterfaceError(Clay_ErrorData e) {
 static Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *userData) {
     // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
     // Note: Clay_String->chars is not guaranteed to be null terminated
+    if (config->fontSize == 0) {
+        config->fontSize = 16;
+    }
 
     // load default font with fontsize if font id is 0
     if (config->fontId == 0) {
