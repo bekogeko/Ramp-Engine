@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <map>
+#include <cstdint>
 
 struct ParsedObject {
     std::vector<unsigned int> indices;
@@ -33,9 +34,9 @@ public:
 
     static std::weak_ptr<Font> LoadFont(const std::string &path, int fontSize);
 
-    static std::weak_ptr<Font> LoadFontById(unsigned short fontId);
+    static std::weak_ptr<Font> LoadFontById(uint16_t fontId);
 
-    static unsigned char GetFontId(const std::string &path, int fontSize);
+    static uint16_t GetFontId(const std::string &path, int fontSize);
 
     static void Destroy();
 
@@ -58,10 +59,11 @@ private:
     // map of shaderPrograms and their sources
     static std::map<std::string, std::shared_ptr<Font>> m_Fonts;
 
-    static std::map<unsigned short, std::string> m_FontIdToCacheId;
+    static std::map<uint16_t, std::string> m_FontIdToCacheId;
 
     // fontId gen
     static std::hash<std::string> hash;
+    static uint16_t m_NextFontId;
 };
 
 #endif //RAY_GAME_RESOURCEMANAGER_H
