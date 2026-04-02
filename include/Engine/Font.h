@@ -6,6 +6,7 @@
 #define RAY_GAME_FONT_H
 
 #include <string>
+#include <cstdint>
 #include <glm/glm.hpp>
 #include <stb_truetype/stb_truetype.h>
 
@@ -20,7 +21,7 @@ struct Glyph {
 
 class Font {
 public:
-    Font(const std::string &fontPath, int fontSize, unsigned char hashId);
+    Font(const std::string &fontPath, int fontSize, uint16_t hashId);
 
 
     void Bind(int slot = 0);
@@ -36,7 +37,7 @@ public:
         return m_ftex.lock()->slot();
     }
 
-    [[nodiscard]] unsigned char getHashId() const {
+    [[nodiscard]] uint16_t getHashId() const {
         return m_hashId;
     }
     [[nodiscard]] int getFontSize() const {
@@ -49,7 +50,7 @@ public:
     }
 private:
     std::weak_ptr<Texture> m_ftex;
-    unsigned char m_hashId;
+    uint16_t m_hashId;
 
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
     stbtt_fontinfo fontInfo;
