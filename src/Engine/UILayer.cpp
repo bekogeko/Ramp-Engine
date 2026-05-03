@@ -135,7 +135,7 @@ UILayer::UILayer()  {
 void UILayer::Draw() {
     Clay_BeginLayout();
 
-    Clay_SetDebugModeEnabled(true);
+    // Clay_SetDebugModeEnabled(true);
 
     // should be implemented by child classes
     BuildUI();

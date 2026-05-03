@@ -7,6 +7,7 @@
 
 #include "Layer.h"
 #include "Window.h"
+#include <vector>
 
 namespace Ramp {
     class Application {

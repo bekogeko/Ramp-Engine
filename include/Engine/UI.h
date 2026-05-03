@@ -5,6 +5,7 @@
 #ifndef RAY_GAME_UI_H
 #define RAY_GAME_UI_H
 #include <cstdint>
+#include <limits>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -28,18 +29,22 @@ enum class LayoutDirection : uint8_t { LeftToRight, TopToBottom, RightToLeft, Bo
 
 
 struct Sizing {
-    enum class Type : uint8_t { Grow, Fixed, Fit } type{Type::Grow};
-    float value{0.0f}; // only used for Fixed
+    enum class Type : uint8_t { Fit, Grow, Percent, Fixed } type{Type::Grow};
+    float value{0.0f};
+    float min{0.0f};
+    float max{0.0f};
 
-    static constexpr Sizing Grow() { return {Type::Grow, 0.0f}; }
-    static constexpr Sizing Fit()  { return {Type::Fit, 0.0f}; }
-    static constexpr Sizing Fixed(float v) { return {Type::Fixed, v}; }
+    static constexpr Sizing Fit(float min = 0.0f, float max = 0.0f) { return {Type::Fit, 0.0f, min, max}; }
+    static constexpr Sizing Grow(float min = 0.0f, float max = 0.0f) { return {Type::Grow, 0.0f, min, max}; }
+    static constexpr Sizing Percent(float value) { return {Type::Percent, value, 0.0f, 0.0f}; }
+    static constexpr Sizing Fixed(float value) { return {Type::Fixed, value, value, value}; }
 };
 
 struct Padding {
     float left{0}, top{0}, right{0}, bottom{0};
     static constexpr Padding All(float v) { return {v, v, v, v}; }
-    static constexpr Padding LH(float l, float h) { return {l, h, l, h}; } // helper if needed
+    static constexpr Padding Axis(float horizontal, float vertical) { return {horizontal, vertical, horizontal, vertical}; }
+    static constexpr Padding LH(float l, float h) { return Axis(l, h); }
 };
 
 struct CornerRadius {
@@ -55,14 +60,29 @@ struct Layout {
     AlignX alignX{AlignX::Left};
     AlignY alignY{AlignY::Top};
     LayoutDirection direction{LayoutDirection::LeftToRight};
-    bool clipChildren{false}; // enables scissor if true (for scrollable/clip regions)
+    bool clipChildren{false};
+    bool scrollChildren{false};
+};
+
+struct BorderWidth {
+    float left{0}, top{0}, right{0}, bottom{0}, betweenChildren{0};
+    static constexpr BorderWidth All(float v) { return {v, v, v, v, 0}; }
+};
+
+struct BorderConfig {
+    Color color{255, 255, 255, 255};
+    BorderWidth width{};
 };
 
 struct BoxConfig {
     Layout layout{};
     Color backgroundColor{255,255,255,0}; // transparent by default
     CornerRadius cornerRadius{};          // all zeros = sharp corners
-    bool hoverable{false};                // if true, backend tracks hover state for this box
+    BorderConfig border{};
+    void* imageData{nullptr};
+    void* customData{nullptr};
+    void* userData{nullptr};
+    bool hoverable{false};
 };
 
 struct TextConfig {
@@ -95,19 +115,32 @@ namespace UI {
     }
 
     inline Clay_Padding ToClayPadding(const Padding padding) {
-        auto clampToUint16 = [](const float value) -> uint16_t {
+        auto toUint16 = [](const float value) -> uint16_t {
             if (value <= 0.0f) {
                 return 0;
+            }
+            if (value >= static_cast<float>(std::numeric_limits<uint16_t>::max())) {
+                return std::numeric_limits<uint16_t>::max();
             }
             return static_cast<uint16_t>(value);
         };
 
         return Clay_Padding{
-            clampToUint16(padding.left),
-            clampToUint16(padding.right),
-            clampToUint16(padding.top),
-            clampToUint16(padding.bottom)
+            toUint16(padding.left),
+            toUint16(padding.right),
+            toUint16(padding.top),
+            toUint16(padding.bottom)
         };
+    }
+
+    inline uint16_t ToUint16(const float value) {
+        if (value <= 0.0f) {
+            return 0;
+        }
+        if (value >= static_cast<float>(std::numeric_limits<uint16_t>::max())) {
+            return std::numeric_limits<uint16_t>::max();
+        }
+        return static_cast<uint16_t>(value);
     }
 
     inline Clay_SizingAxis ToClaySizingAxis(const Sizing sizing) {
@@ -116,16 +149,20 @@ namespace UI {
         switch (sizing.type) {
             case Sizing::Type::Fit:
                 axis.type = CLAY__SIZING_TYPE_FIT;
-                axis.size.minMax = Clay_SizingMinMax{0.0f, 0.0f};
+                axis.size.minMax = Clay_SizingMinMax{sizing.min, sizing.max};
                 break;
             case Sizing::Type::Fixed:
                 axis.type = CLAY__SIZING_TYPE_FIXED;
                 axis.size.minMax = Clay_SizingMinMax{sizing.value, sizing.value};
                 break;
+            case Sizing::Type::Percent:
+                axis.type = CLAY__SIZING_TYPE_PERCENT;
+                axis.size.percent = sizing.value;
+                break;
             case Sizing::Type::Grow:
             default:
                 axis.type = CLAY__SIZING_TYPE_GROW;
-                axis.size.minMax = Clay_SizingMinMax{0.0f, 0.0f};
+                axis.size.minMax = Clay_SizingMinMax{sizing.min, sizing.max};
                 break;
         }
 
@@ -196,17 +233,38 @@ namespace UI {
         return config;
     }
 
+    inline Clay_BorderWidth ToClayBorderWidth(const BorderWidth width) {
+        return Clay_BorderWidth{
+            ToUint16(width.left),
+            ToUint16(width.right),
+            ToUint16(width.top),
+            ToUint16(width.bottom),
+            ToUint16(width.betweenChildren)
+        };
+    }
+
+    inline Clay_BorderElementConfig ToClayBorder(const BorderConfig& border) {
+        Clay_BorderElementConfig config{};
+        config.color = ToClayColor(border.color);
+        config.width = ToClayBorderWidth(border.width);
+        return config;
+    }
+
     inline Clay_ElementDeclaration ToClayDeclaration(const BoxConfig& config) {
         Clay_ElementDeclaration declaration{};
         declaration.layout = ToClayLayout(config.layout);
         declaration.backgroundColor = ToClayColor(config.backgroundColor);
         declaration.cornerRadius = ToClayCornerRadius(config.cornerRadius);
+        declaration.border = ToClayBorder(config.border);
+        declaration.image.imageData = config.imageData;
+        declaration.custom.customData = config.customData;
+        declaration.userData = config.userData;
 
-        if (config.layout.clipChildren) {
+        if (config.layout.clipChildren || config.layout.scrollChildren) {
             declaration.clip = Clay_ClipElementConfig{
                 true,
                 true,
-                Clay_Vector2{0.0f, 0.0f}
+                config.layout.scrollChildren ? Clay_GetScrollOffset() : Clay_Vector2{0.0f, 0.0f}
             };
         }
 
@@ -225,12 +283,20 @@ namespace UI {
         return textConfig;
     }
 
-    inline Clay_ElementId ToClayId(const std::string_view id) {
-        return Clay_GetElementId(Clay_String{
+    inline Clay_String ToClayString(const std::string_view value) {
+        return Clay_String{
             false,
-            static_cast<int32_t>(id.size()),
-            id.data()
-        });
+            static_cast<int32_t>(value.size()),
+            value.data()
+        };
+    }
+
+    inline Clay_ElementId ToClayId(const std::string_view id) {
+        return Clay_GetElementId(ToClayString(id));
+    }
+
+    inline Clay_ElementId ToClayId(const std::string_view id, const uint32_t index) {
+        return Clay_GetElementIdWithIndex(ToClayString(id), index);
     }
 
     class Element {
@@ -252,23 +318,52 @@ namespace UI {
     };
 
     template <typename Fn>
-    void Box(std::string_view id, const BoxConfig& config, Fn&& children) {
+    void Box(const std::string_view id, const BoxConfig& config, Fn&& children) {
         Element element(id, config);
         std::forward<Fn>(children)();
     }
 
-    inline void Text(std::string_view value, const TextConfig& config = {}) {
-        Clay_String text{
-            false,
-            static_cast<int32_t>(value.size()),
-            value.data()
-        };
+    template <typename Fn>
+    void Box(const std::string_view id, Fn&& children) {
+        Box(id, BoxConfig{}, std::forward<Fn>(children));
+    }
+
+    inline void Box(const std::string_view id, const BoxConfig& config = {}) {
+        Element element(id, config);
+    }
+
+    inline void Text(const std::string_view value, const TextConfig& config = {}) {
+        Clay_String text = ToClayString(value);
         Clay_TextElementConfig* textConfig = Clay__StoreTextElementConfig(ToClayTextConfig(config));
         Clay__OpenTextElement(text, textConfig);
     }
 
     inline bool Hovered() {
         return Clay_Hovered();
+    }
+
+    inline bool PointerOver(const std::string_view id) {
+        return Clay_PointerOver(ToClayId(id));
+    }
+
+    inline bool PointerOver(const std::string_view id, const uint32_t index) {
+        return Clay_PointerOver(ToClayId(id, index));
+    }
+
+    inline Clay_ElementData ElementData(const std::string_view id) {
+        return Clay_GetElementData(ToClayId(id));
+    }
+
+    inline Clay_ScrollContainerData ScrollContainerData(const std::string_view id) {
+        return Clay_GetScrollContainerData(ToClayId(id));
+    }
+
+    inline Clay_Vector2 ScrollOffset() {
+        return Clay_GetScrollOffset();
+    }
+
+    inline void OnHover(void (*callback)(Clay_ElementId, Clay_PointerData, intptr_t), const intptr_t userData = 0) {
+        Clay_OnHover(callback, userData);
     }
 }
 
